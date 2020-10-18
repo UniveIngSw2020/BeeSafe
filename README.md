@@ -4,3 +4,4 @@ BeeSafe is a P2P Android Application which detects and notifies you abuot crowds
 Buffer Overflow
 # Membri
 Hernest Serani
+Stefano Cappon
