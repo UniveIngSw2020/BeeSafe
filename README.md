@@ -3,6 +3,12 @@ BeeSafe is a P2P Android Application which detects and notifies you about crowds
 # Group Details
     Name: Buffer Overflow
     Membri:
+<<<<<<< Updated upstream
         Hernest Serani  @electronixxx
         Stefano Cappon  @876895
         Enrico Baldasso @Enrico874885
+=======
+        Hernest Serani
+        Stefano Cappon
+        Enrico Baldasso
+>>>>>>> Stashed changes
