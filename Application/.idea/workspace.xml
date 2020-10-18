@@ -32,11 +32,11 @@
   <component name="PropertiesComponent">
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
     <property name="android.sdk.path" value="$USER_HOME$/AppData/Local/Android/Sdk" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/.." />
     <property name="project.structure.last.edited" value="Modules" />
     <property name="project.structure.proportion" value="0.17" />
     <property name="project.structure.side.proportion" value="0.2" />
-    <property name="settings.editor.selected.configurable" value="settings.github" />
+    <property name="settings.editor.selected.configurable" value="project.propVCSSupport.CommitDialog" />
   </component>
   <component name="RunManager">
     <configuration default="true" type="AndroidJUnit" factoryName="Android JUnit">
@@ -112,14 +112,22 @@
     <servers />
   </component>
   <component name="WindowStateProjectService">
-    <state x="286" y="149" key="#PSD" timestamp="1603023980903">
+    <state x="361" y="75" key="#Notifications" timestamp="1603024422104">
       <screen x="0" y="0" width="1536" height="834" />
     </state>
-    <state x="286" y="149" key="#PSD/0.0.1536.834@0.0.1536.834" timestamp="1603023980903" />
-    <state x="277" y="60" key="SettingsEditor" timestamp="1603024002829">
+    <state x="361" y="75" key="#Notifications/0.0.1536.834@0.0.1536.834" timestamp="1603024422104" />
+    <state x="286" y="149" key="#PSD" timestamp="1603024568083">
       <screen x="0" y="0" width="1536" height="834" />
     </state>
-    <state x="277" y="60" key="SettingsEditor/0.0.1536.834@0.0.1536.834" timestamp="1603024002829" />
+    <state x="286" y="149" key="#PSD/0.0.1536.834@0.0.1536.834" timestamp="1603024568083" />
+    <state x="549" y="172" key="FileChooserDialogImpl" timestamp="1603024581562">
+      <screen x="0" y="0" width="1536" height="834" />
+    </state>
+    <state x="549" y="172" key="FileChooserDialogImpl/0.0.1536.834@0.0.1536.834" timestamp="1603024581562" />
+    <state x="277" y="60" key="SettingsEditor" timestamp="1603024463127">
+      <screen x="0" y="0" width="1536" height="834" />
+    </state>
+    <state x="277" y="60" key="SettingsEditor/0.0.1536.834@0.0.1536.834" timestamp="1603024463127" />
     <state x="465" y="242" key="com.intellij.ide.util.TipDialog" timestamp="1603020992530">
       <screen x="0" y="0" width="1536" height="834" />
     </state>
