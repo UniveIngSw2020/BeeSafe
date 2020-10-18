@@ -6,4 +6,3 @@ BeeSafe is a P2P Android Application which detects and notifies you abuot crowds
         Hernest Serani
         Stefano Cappon
         Enrico Baldasso
-        Commit di Enrico
