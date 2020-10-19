@@ -3,6 +3,7 @@ package com.bufferoverflow.beesafe;
 import com.google.android.gms.maps.model.LatLng;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 
 /*
     TODO:
@@ -11,20 +12,25 @@ import java.util.ArrayList;
  */
 
 public class CrowdInstance {
-    private ArrayList<DeviceInstance> nearbyDevices;
+    private HashSet<DeviceInstance> devices;
     private LatLng coordinate;
 
-    public CrowdInstance(ArrayList<DeviceInstance> nearbyDevices) {
-        this.nearbyDevices = nearbyDevices;
+    public CrowdInstance(HashSet<DeviceInstance> nearbyDevices) {
+        this.devices = nearbyDevices;
     }
 
     public CrowdInstance() {
 
     }
 
+    // adds a new Bluetooth device on this location
+    public void addDevice(DeviceInstance device) {
+        devices.add(device);
+    }
+
     // returns the number of devices in a certain location
     public double getDevicesNumber() {
-        return nearbyDevices.size();
+        return devices.size();
     }
 
     // returns the latitude of this geo location
@@ -39,6 +45,6 @@ public class CrowdInstance {
 
     // returns a string representation of a Crowd Point
     public String toString() {
-        return "[Devices:" + nearbyDevices.size() + ", Latitude: " + getLatitude() + ", Longitude: " + getLongitude() + "]";
+        return "[Devices:" + devices.size() + ", Latitude: " + getLatitude() + ", Longitude: " + getLongitude() + "]";
     }
 }
