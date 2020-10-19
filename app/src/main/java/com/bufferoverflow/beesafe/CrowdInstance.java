@@ -18,6 +18,10 @@ public class CrowdInstance {
         this.nearbyDevices = nearbyDevices;
     }
 
+    public CrowdInstance() {
+
+    }
+
     // returns the number of devices in a certain location
     public double getDevicesNumber() {
         return nearbyDevices.size();

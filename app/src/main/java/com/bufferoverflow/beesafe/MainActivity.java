@@ -73,8 +73,19 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private static CrowdInstance tracingAlgorithm () {
-        //scansiona per 10 secondi
-        //mette nell Array di
+        CrowdInstance crowd = new CrowdInstance();
+        //Scan for 10 seconds
+        //Put devices in HashSet
+        //Sleep 15 seconds
+        //Scan for new devices for 10 seconds
+        //Put devices in a new HashSet
+        //Put the common elements of the two hashset on the crowd instance
+
+        //if Person moves from location (New probable crowd instance detected)
+            return crowd;
+        //else
+            //repeat
+
     }
 
 }
