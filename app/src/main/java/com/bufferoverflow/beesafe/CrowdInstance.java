@@ -1,11 +1,18 @@
 package com.bufferoverflow.beesafe;
 
+import com.google.android.gms.maps.model.LatLng;
+
 import java.util.ArrayList;
+
+/*
+    TODO:
+        Approximation of the range of a certain coordinate
+
+ */
 
 public class CrowdInstance {
     private ArrayList<DeviceInstance> nearbyDevices;
-    private double latitude;
-    private double longitude;
+    private LatLng coordinate;
 
     public CrowdInstance(ArrayList<DeviceInstance> nearbyDevices) {
         this.nearbyDevices = nearbyDevices;
@@ -18,16 +25,16 @@ public class CrowdInstance {
 
     // returns the latitude of this geo location
     public double getLatitude() {
-        return latitude;
+        return coordinate.latitude;
     }
 
     // returns the longitude of this geo location
     public double getLongitude() {
-        return longitude;
+        return coordinate.longitude;
     }
 
     // returns a string representation of a Crowd Point
     public String toString() {
-        return "[Devices:" + nearbyDevices.size() + ", Latitude: " + latitude + ", Longitude: " + longitude + "]";
+        return "[Devices:" + nearbyDevices.size() + ", Latitude: " + getLatitude() + ", Longitude: " + getLongitude() + "]";
     }
 }
