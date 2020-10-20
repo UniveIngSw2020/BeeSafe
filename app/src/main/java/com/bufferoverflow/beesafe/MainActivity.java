@@ -2,11 +2,8 @@ package com.bufferoverflow.beesafe;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.content.Intent;
 import android.os.Bundle;
-import android.view.View;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.ListView;
 
 import com.clj.fastble.BleManager;
@@ -72,8 +69,8 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    private static CrowdInstance tracingAlgorithm () {
-        CrowdInstance crowd = new CrowdInstance();
+    private static Place tracingAlgorithm () {
+        Place crowd = new Place();
         //Scan for 10 seconds
         //Put devices in HashSet
         //Sleep 15 seconds
