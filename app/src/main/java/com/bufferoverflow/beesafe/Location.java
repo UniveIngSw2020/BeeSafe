@@ -13,7 +13,7 @@ import ch.hsr.geohash.WGS84Point;
         -Method to update the Location data
         -Complete the class with prevision fields and methods
 
-    This class represents a Location and its data.
+    This class represents a Location present on the database.
     HeatMaps are rendered based on objects of this class.
     The HeatMap color is based on the number of devices which are at these location.
     Objects of this class should be created only from the data on the real-time database. (Exception for favorite location objects)
@@ -29,7 +29,7 @@ import ch.hsr.geohash.WGS84Point;
 
 public class Location {
 
-    private static final int LOCATION_PRECISION = 8; //Precision of GeoHash - Precision 8 => 38.2m x 19.1m
+    private static final int PRECISION = 8; //Precision of GeoHash - Precision 8 => 38.2m x 19.1m
     private static final int BLUETOOTH_DEVICES_TRIGGER = 40; //Precision of GeoHash - Precision 8 => 38.2m x 19.1m
     private GeoHash coordinates; //Coordinates of this location GeoHashed with a certain precision (suggested: 8)
     private int nrDevices; //Number of Bluetooth devices which
@@ -37,7 +37,7 @@ public class Location {
 
     /* Create a Location from coordinates */
     public Location (LatLng coordinates) {
-        this.coordinates = GeoHash.withCharacterPrecision(coordinates.latitude, coordinates.longitude, LOCATION_PRECISION);
+        this.coordinates = GeoHash.withCharacterPrecision(coordinates.latitude, coordinates.longitude, PRECISION);
     }
 
     /* Create a Location from a give GeoHash */
@@ -51,8 +51,12 @@ public class Location {
         return new LatLng(point.getLatitude(), point.getLongitude());
     }
 
-    /* This static method creates a new Crowd on database if it doesn't exist, or updates data of an existing crowd */
-    public void updateCrowd () {
+    public GeoHash getLocationGeoHashed () {
+        return coordinates;
+    }
 
+    /* This static method creates a new Crowd on database if it doesn't exist, or updates data of an existing crowd */
+    public void updateCrowd (int nrDevices) {
+        //current time + this.location + nrDevices
     }
 }
