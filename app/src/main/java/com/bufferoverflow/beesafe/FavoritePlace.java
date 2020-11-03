@@ -1,5 +1,7 @@
 package com.bufferoverflow.beesafe;
 
+import com.google.firebase.database.IgnoreExtraProperties;
+
 import ch.hsr.geohash.GeoHash;
 
 /*
@@ -7,9 +9,10 @@ import ch.hsr.geohash.GeoHash;
 
  */
 
+@IgnoreExtraProperties
 public class FavoritePlace {
 
-    private GeoHash location;
+    private GeoHash  location;
     private Location associatedLocation;
     private boolean receiveNotifications; //If true, user get notified if this favorite place gets crowded
 

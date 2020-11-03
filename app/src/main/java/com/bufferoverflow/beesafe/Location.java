@@ -1,7 +1,13 @@
 package com.bufferoverflow.beesafe;
 
-import com.google.android.gms.maps.model.LatLng;
+import android.annotation.SuppressLint;
 
+import com.google.android.gms.maps.model.LatLng;
+import com.google.firebase.database.Exclude;
+import com.google.firebase.database.IgnoreExtraProperties;
+import com.google.firebase.database.ServerValue;
+
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import ch.hsr.geohash.GeoHash;
@@ -25,38 +31,72 @@ import ch.hsr.geohash.WGS84Point;
                 "lastSeen" : 124532512312
             }
         }
+
+    Area[ Map<String, Location>[] ]
  */
 
 public class Location {
 
+    @SuppressLint("SimpleDateFormat")
+    private static final SimpleDateFormat ISO_8601_FORMAT = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:sss'Z'");
+
     private static final int PRECISION = 8; //Precision of GeoHash - Precision 8 => 38.2m x 19.1m
     private static final int BLUETOOTH_DEVICES_TRIGGER = 40; //Precision of GeoHash - Precision 8 => 38.2m x 19.1m
-    private GeoHash coordinates; //Coordinates of this location GeoHashed with a certain precision (suggested: 8)
-    private int nrDevices; //Number of Bluetooth devices which
-    private Date lastSeen; //Last time on when data is updated
+    private GeoHash coordinatesGeoHashed; //Coordinates of this location GeoHashed with a certain precision (suggested: 8)
 
-    /* Create a Location from coordinates */
+    //Fields present on firebase database
+    private String coordinates; //GeoHash in string format
+    private int nrDevices; //Number of Bluetooth devices on this location
+    private String lastSeen; //Last time on when data is updated
+
+    //Firebase
+    public Location() {}
+
+    /* Create a Location from Coordinates */
     public Location (LatLng coordinates) {
-        this.coordinates = GeoHash.withCharacterPrecision(coordinates.latitude, coordinates.longitude, PRECISION);
+        this.coordinatesGeoHashed = GeoHash.withCharacterPrecision(coordinates.latitude, coordinates.longitude, PRECISION);
+        this.coordinates = coordinatesGeoHashed.toBase32();
+        this.lastSeen = ISO_8601_FORMAT.format(new Date());
+        this.nrDevices = 0;
+        System.out.println(this.coordinates + "    " + nrDevices + "      " + lastSeen);
     }
 
-    /* Create a Location from a give GeoHash */
-    public Location (GeoHash g) {
-        coordinates = g;
+    /* Create a Location from a given GeoHash */
+    public Location (String g) {
+        this.coordinatesGeoHashed = GeoHash.fromGeohashString(g);
+        this.coordinates = coordinatesGeoHashed.toBase32();
+        this.lastSeen = ISO_8601_FORMAT.format(new Date());
     }
 
-    /* Returns the coordinate in LatLng format (the format which accepts Google Maps SDK */
+    /* Returns the coordinate in LatLng format (the format which accepts Google Maps SDK) */
+    @Exclude
     public LatLng getLatLng () {
-        WGS84Point point = coordinates.getOriginatingPoint();
+        WGS84Point point = GeoHash.fromGeohashString(coordinates).getOriginatingPoint();
         return new LatLng(point.getLatitude(), point.getLongitude());
     }
 
+    @Exclude
     public GeoHash getLocationGeoHashed () {
-        return coordinates;
+        return coordinatesGeoHashed;
     }
 
     /* This static method creates a new Crowd on database if it doesn't exist, or updates data of an existing crowd */
     public void updateCrowd (int nrDevices) {
         //current time + this.location + nrDevices
+        String now = ISO_8601_FORMAT.format(new Date());
+    }
+
+    //Firebase
+    @Exclude
+    public String getCoordinates() {
+        return coordinates;
+    }
+    //Firebase
+    public int getNrDevices() {
+        return nrDevices;
+    }
+    //Firebase
+    public String getLastSeen() {
+        return lastSeen;
     }
 }

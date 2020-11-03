@@ -4,13 +4,17 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ListView;
 
 import com.clj.fastble.BleManager;
 import com.clj.fastble.callback.BleScanCallback;
 import com.clj.fastble.data.BleDevice;
 import com.clj.fastble.scan.BleScanRuleConfig;
+import com.google.android.gms.maps.model.LatLng;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -18,9 +22,15 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
+import ch.hsr.geohash.GeoHash;
 
 public class MainActivity extends AppCompatActivity {
+
+    private DatabaseReference mDatabase;
 
     private ListView mLvDevices;
     private ArrayList<String> mDeviceList = new ArrayList<String>();
@@ -30,30 +40,29 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        Button but =  (Button) findViewById(R.id.button);
+        final EditText edit =  (EditText) findViewById(R.id.editTextTextPersonName);
 
-        //Firebase
-        // Write a message to the database
-        FirebaseDatabase database = FirebaseDatabase.getInstance();
-        DatabaseReference myRef = database.getReference("message");
-        myRef.setValue("Hello, World!");
-
-        // Read from the database
-        myRef.addValueEventListener(new ValueEventListener() {
+        but.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                // This method is called once with the initial value and again
-                // whenever data at this location is updated.
-                String value = dataSnapshot.getValue(String.class);
-                Log.d("TAG", "Value is: " + value);
-            }
+            public void onClick(View view) {
 
-            @Override
-            public void onCancelled(DatabaseError error) {
-                // Failed to read value
-                Log.w("TAG", "Failed to read value.", error.toException());
+                User user = new User("nestsssssialb", "test@gmail.com");
+
+                Location l1 = new Location(new LatLng(12.0, 11.0));
+                Location l2 = new Location(new LatLng(26.0, 57.0));
+                Location l3 = new Location(new LatLng(26.0, 56.0));
+
+                Area a1 = new Area(new LatLng(26.0, 55.0));
+                a1.addLocation(l1);
+                a1.addLocation(l2);
+                a1.addLocation(l3);
+
+                mDatabase = FirebaseDatabase.getInstance().getReference();
+                System.out.println(a1.getCoordinates() + " XXXXXXXXXXXXXXXXXXXXXXX");
+                mDatabase.child(a1.getCoordinates()).setValue(a1.getLocations());
             }
         });
-
 
 
         mLvDevices = (ListView) findViewById(R.id.lvDevicesMAIN);

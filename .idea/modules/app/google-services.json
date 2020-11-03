@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "60670474491",
+    "firebase_url": "https://beesafe-bde99.firebaseio.com",
+    "project_id": "beesafe-bde99",
+    "storage_bucket": "beesafe-bde99.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:60670474491:android:4970c8b35e616d9acc585e",
+        "android_client_info": {
+          "package_name": "com.bufferoverflow.beesafe"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "60670474491-efmeqgrq6ft1dltsk0tna7uj4sdh21fm.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.bufferoverflow.beesafe",
+            "certificate_hash": "07fe4e118f72ff3ce785cf0c26ce80a12091b26e"
+          }
+        },
+        {
+          "client_id": "60670474491-bmjs22ou4po34mqmr9tn8ioe7sbivq8e.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCYdzIxI_k7nHKfkwpXMR9HLPV0k0X3K5Q"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "60670474491-bmjs22ou4po34mqmr9tn8ioe7sbivq8e.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -42,7 +42,7 @@ public class Profile {
     public void updateCurrentPosition(Double updatedLatitude, Double updatedLongitude) {
         currentLocation = new LatLng(updatedLatitude, updatedLongitude);
         Area newArea = new Area(currentLocation);
-        if (currentArea == null || newArea.getGeoHash() == currentArea.getGeoHash()) { //User has moved into a new Area OR first time opening the application-> update current Area + Neighbours
+        if (currentArea == null || newArea.getGeoHash() == currentArea.getGeoHash()) { //User has moved into a new Area OR first time opening the application -> update current Area + Neighbours
             currentArea = newArea;
             //update neighbour boxes of this area
             //N, NE, E, SE, S, SW, W, NW
