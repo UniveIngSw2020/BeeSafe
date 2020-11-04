@@ -15,6 +15,7 @@ import com.clj.fastble.callback.BleScanCallback;
 import com.clj.fastble.data.BleDevice;
 import com.clj.fastble.scan.BleScanRuleConfig;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -30,10 +31,12 @@ import ch.hsr.geohash.GeoHash;
 
 public class MainActivity extends AppCompatActivity {
 
-    private DatabaseReference mDatabase;
+    public static DatabaseReference mDatabase;
 
     private ListView mLvDevices;
     private ArrayList<String> mDeviceList = new ArrayList<String>();
+
+    private Map<String, Location> activeLocations; //after scanning, add data to db and this Map will be autoupdated by the event listener
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,6 +46,9 @@ public class MainActivity extends AppCompatActivity {
         Button but =  (Button) findViewById(R.id.button);
         final EditText edit =  (EditText) findViewById(R.id.editTextTextPersonName);
 
+
+        mDatabase = FirebaseDatabase.getInstance().getReference().child("thx5");
+
         but.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -51,18 +57,47 @@ public class MainActivity extends AppCompatActivity {
 
                 Location l1 = new Location(new LatLng(12.0, 11.0));
                 Location l2 = new Location(new LatLng(26.0, 57.0));
-                Location l3 = new Location(new LatLng(26.0, 56.0));
+                Location l3 = new Location(new LatLng(29.0, 56.0));
 
                 Area a1 = new Area(new LatLng(26.0, 55.0));
                 a1.addLocation(l1);
                 a1.addLocation(l2);
                 a1.addLocation(l3);
 
-                mDatabase = FirebaseDatabase.getInstance().getReference();
                 System.out.println(a1.getCoordinates() + " XXXXXXXXXXXXXXXXXXXXXXX");
-                mDatabase.child(a1.getCoordinates()).setValue(a1.getLocations());
+                mDatabase.setValue(a1.getLocations());
             }
         });
+
+        ChildEventListener childEventListener = new ChildEventListener() {
+            @Override
+            public void onChildAdded(DataSnapshot dataSnapshot, String previousChildName) {
+                Log.d("added", "onChildAdded:" + dataSnapshot.getKey()  + " " + dataSnapshot.getValue());
+            }
+
+            @Override
+            public void onChildChanged(DataSnapshot dataSnapshot, String previousChildName) {
+                Log.d("changed", "onChildChanged:" + dataSnapshot.getKey()  + " " + dataSnapshot.getValue());
+            }
+
+            @Override
+            public void onChildRemoved(DataSnapshot dataSnapshot) {
+                Log.d("removed", "onChildRemoved:" + dataSnapshot.getKey()  + " " + dataSnapshot.getValue());
+            }
+
+            @Override
+            public void onChildMoved(DataSnapshot dataSnapshot, String previousChildName) {
+                Log.d("moved", "onChildMoved:" + dataSnapshot.getKey()  + " " + dataSnapshot.getValue());
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                Log.w("TAG", "postComments:onCancelled", databaseError.toException());
+            }
+        };
+        mDatabase.addChildEventListener(childEventListener);
+
+
 
 
         mLvDevices = (ListView) findViewById(R.id.lvDevicesMAIN);

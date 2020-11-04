@@ -1,8 +1,12 @@
 package com.bufferoverflow.beesafe;
 
 import android.annotation.SuppressLint;
+import android.util.Log;
 
 import com.google.android.gms.maps.model.LatLng;
+import com.google.firebase.database.ChildEventListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.Exclude;
 import com.google.firebase.database.IgnoreExtraProperties;
 import com.google.firebase.database.ServerValue;
@@ -99,4 +103,6 @@ public class Location {
     public String getLastSeen() {
         return lastSeen;
     }
+
+
 }
