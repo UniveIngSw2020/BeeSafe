@@ -68,13 +68,11 @@ public class Area {
     }
 
     public void addLocation (Location l) {
-        GeoHash g = l.getLocationGeoHashed();
-        //if(g.toString().equals(coordinates)) { //if Location is in this Area (double checking because this should not occur)
+        if(l.getCoordinates().substring(0,PRECISION).equals(coordinates)) { //if Location is in this Area (double checking because this should always occur)
             locations.put(l.getCoordinates(), l);
-            l.updateCrowd();
-            mDatabase.child(l.getCoordinates()).setValue(l);
-        //}
-
+            DatabaseReference locationReference = mDatabase.child(l.getCoordinates());
+            locationReference.setValue(l);
+        }
     }
 
     @Exclude

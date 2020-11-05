@@ -48,13 +48,24 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
 
-                Location l1 = new Location(new LatLng(12.0, 11.0), 15);
-                Location l2 = new Location(new LatLng(26.0, 57.0),17);
-                Location l3 = new Location(new LatLng(29.0, 56.0), 30);
+                Area a1 = new Area(new LatLng(45.503810,12.260870));
 
-                Area a1 = new Area(new LatLng(35.0, 55.0));
+                Location l1 = new Location(new LatLng(45.503810, 12.260870), 15);
                 a1.addLocation(l1);
+                try {
+                    Thread.currentThread().sleep(2000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                Location l2 = new Location(new LatLng(45.479740, 12.249590),17);
                 a1.addLocation(l2);
+                a1.addLocation(l1);
+                try {
+                    Thread.currentThread().sleep(7000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                Location l3 = new Location(new LatLng(45.497735, 12.2676424), 30);
                 a1.addLocation(l3);
 
                 System.out.println(a1.getCoordinates() + " XXXXXXXXXXXXXXXXXXXXXXX");

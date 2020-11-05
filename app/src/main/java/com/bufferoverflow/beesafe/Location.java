@@ -7,6 +7,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.Exclude;
 import com.google.firebase.database.IgnoreExtraProperties;
 import com.google.firebase.database.ServerValue;
@@ -84,11 +85,11 @@ public class Location {
         return coordinatesGeoHashed;
     }
 
-    /* This static method creates a new Crowd on database if it doesn't exist, or updates data of an existing crowd */
-    public void updateCrowd (int nrDevices) {
-        //current time + this.location + nrDevices
-        String now = ISO_8601_FORMAT.format(new Date());
-    }
+//    /* This static method creates a new Crowd on database if it doesn't exist, or updates data of an existing crowd */
+//    public void updateCrowd (DatabaseReference locationReference) {
+//        //current time + this.location + nrDevices
+//        locationReference.setValue(this);
+//    }
 
     //Firebase
     @Exclude
