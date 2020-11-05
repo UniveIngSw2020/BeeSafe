@@ -1,6 +1,11 @@
 package com.bufferoverflow.beesafe;
 
+import android.util.Log;
+
 import com.google.android.gms.maps.model.LatLng;
+import com.google.firebase.database.ChildEventListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.Exclude;
 import com.google.firebase.database.IgnoreExtraProperties;
 import java.util.HashMap;
@@ -16,6 +21,35 @@ public class Area {
     //Firebase Fields
     private Map<String, Location> locations; //Locations with data available on database
     private String coordinates; //GeoHash in string format 4 precision
+
+    //Listener for locations changing on this area
+    private ChildEventListener areaEventListener = new ChildEventListener() {
+        @Override
+        public void onChildAdded(DataSnapshot dataSnapshot, String previousChildName) {
+            Log.d("added", "onChildAdded:" + dataSnapshot.getKey()  + " " + dataSnapshot.getValue());
+        }
+
+        @Override
+        public void onChildChanged(DataSnapshot dataSnapshot, String previousChildName) {
+            Log.d("changed", "onChildChanged:" + dataSnapshot.getKey()  + " " + dataSnapshot.getValue());
+        }
+
+        @Override
+        public void onChildRemoved(DataSnapshot dataSnapshot) {
+            Log.d("removed", "onChildRemoved:" + dataSnapshot.getKey()  + " " + dataSnapshot.getValue());
+        }
+
+        @Override
+        public void onChildMoved(DataSnapshot dataSnapshot, String previousChildName) {
+            Log.d("moved", "onChildMoved:" + dataSnapshot.getKey()  + " " + dataSnapshot.getValue());
+        }
+
+        @Override
+        public void onCancelled(DatabaseError databaseError) {
+            Log.w("cancelled", "error", databaseError.toException());
+        }
+    };
+
 
     public Area (LatLng location) {
         this.areaGeoHash = GeoHash.withCharacterPrecision(location.latitude, location.longitude, PRECISION);

@@ -25,6 +25,7 @@ public class Profile {
 
     /* Private constructor accessible only from getInstance method */
     private Profile() {
+        mDatabase.addChildEventListener(areaEventListener);
         updateCurrentPosition(69.6969, 69.6969); //Updates current location by generating the GeoHashes of current location box and nearby boxes
     }
 
