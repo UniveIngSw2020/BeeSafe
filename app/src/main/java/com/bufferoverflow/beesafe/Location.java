@@ -56,12 +56,12 @@ public class Location {
     //Firebase
     public Location() {}
 
-    /* Create a Location from Coordinates */
-    public Location (LatLng coordinates) {
+    /* Create a Location from Coordinates after a Scan*/
+    public Location (LatLng coordinates, int nrDevices) {
         this.coordinatesGeoHashed = GeoHash.withCharacterPrecision(coordinates.latitude, coordinates.longitude, PRECISION);
         this.coordinates = coordinatesGeoHashed.toBase32();
         this.lastSeen = ISO_8601_FORMAT.format(new Date());
-        this.nrDevices = 0;
+        this.nrDevices = nrDevices;
         System.out.println(this.coordinates + "    " + nrDevices + "      " + lastSeen);
     }
 

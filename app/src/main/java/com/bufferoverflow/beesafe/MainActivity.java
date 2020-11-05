@@ -31,8 +31,6 @@ import ch.hsr.geohash.GeoHash;
 
 public class MainActivity extends AppCompatActivity {
 
-    public static DatabaseReference mDatabase;
-
     private ListView mLvDevices;
     private ArrayList<String> mDeviceList = new ArrayList<String>();
 
@@ -46,59 +44,22 @@ public class MainActivity extends AppCompatActivity {
         Button but =  (Button) findViewById(R.id.button);
         final EditText edit =  (EditText) findViewById(R.id.editTextTextPersonName);
 
-
-        mDatabase = FirebaseDatabase.getInstance().getReference().child("thx5");
-
         but.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 
-                User user = new User("nestsssssialb", "test@gmail.com");
+                Location l1 = new Location(new LatLng(12.0, 11.0), 15);
+                Location l2 = new Location(new LatLng(26.0, 57.0),17);
+                Location l3 = new Location(new LatLng(29.0, 56.0), 30);
 
-                Location l1 = new Location(new LatLng(12.0, 11.0));
-                Location l2 = new Location(new LatLng(26.0, 57.0));
-                Location l3 = new Location(new LatLng(29.0, 56.0));
-
-                Area a1 = new Area(new LatLng(26.0, 55.0));
+                Area a1 = new Area(new LatLng(35.0, 55.0));
                 a1.addLocation(l1);
                 a1.addLocation(l2);
                 a1.addLocation(l3);
 
                 System.out.println(a1.getCoordinates() + " XXXXXXXXXXXXXXXXXXXXXXX");
-                mDatabase.setValue(a1.getLocations());
             }
         });
-
-        ChildEventListener childEventListener = new ChildEventListener() {
-            @Override
-            public void onChildAdded(DataSnapshot dataSnapshot, String previousChildName) {
-                Log.d("added", "onChildAdded:" + dataSnapshot.getKey()  + " " + dataSnapshot.getValue());
-            }
-
-            @Override
-            public void onChildChanged(DataSnapshot dataSnapshot, String previousChildName) {
-                Log.d("changed", "onChildChanged:" + dataSnapshot.getKey()  + " " + dataSnapshot.getValue());
-            }
-
-            @Override
-            public void onChildRemoved(DataSnapshot dataSnapshot) {
-                Log.d("removed", "onChildRemoved:" + dataSnapshot.getKey()  + " " + dataSnapshot.getValue());
-            }
-
-            @Override
-            public void onChildMoved(DataSnapshot dataSnapshot, String previousChildName) {
-                Log.d("moved", "onChildMoved:" + dataSnapshot.getKey()  + " " + dataSnapshot.getValue());
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-                Log.w("TAG", "postComments:onCancelled", databaseError.toException());
-            }
-        };
-        mDatabase.addChildEventListener(childEventListener);
-
-
-
 
         mLvDevices = (ListView) findViewById(R.id.lvDevicesMAIN);
 

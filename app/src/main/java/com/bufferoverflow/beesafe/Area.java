@@ -6,7 +6,9 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.Exclude;
+import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.IgnoreExtraProperties;
 import java.util.HashMap;
 import java.util.Map;
@@ -17,6 +19,7 @@ public class Area {
 
     private static final int PRECISION = 4; //Precision of GeoHash
     private GeoHash areaGeoHash;
+    public DatabaseReference mDatabase;
 
     //Firebase Fields
     private Map<String, Location> locations; //Locations with data available on database
@@ -50,11 +53,13 @@ public class Area {
         }
     };
 
-
     public Area (LatLng location) {
         this.areaGeoHash = GeoHash.withCharacterPrecision(location.latitude, location.longitude, PRECISION);
         this.coordinates = areaGeoHash.toBase32();
         this.locations = new HashMap<String, Location>(); //String PRECISION 8 -> Location
+
+        mDatabase = FirebaseDatabase.getInstance().getReference().child(getCoordinates()); //Gets a node reference for the current 4Precision GeoHash
+        mDatabase.addChildEventListener(areaEventListener); //Adds the listener
     }
 
     public Area(GeoHash areaGeoHash) {
@@ -64,9 +69,12 @@ public class Area {
 
     public void addLocation (Location l) {
         GeoHash g = l.getLocationGeoHashed();
-        //if(g.toString().equals(coordinates)) { //if Location is in this Area
+        //if(g.toString().equals(coordinates)) { //if Location is in this Area (double checking because this should not occur)
             locations.put(l.getCoordinates(), l);
+            l.updateCrowd();
+            mDatabase.child(l.getCoordinates()).setValue(l);
         //}
+
     }
 
     @Exclude
