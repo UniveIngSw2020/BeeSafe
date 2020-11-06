@@ -2,6 +2,8 @@ package com.bufferoverflow.beesafe;
 
 import android.util.Log;
 
+import androidx.annotation.NonNull;
+
 import com.google.android.gms.maps.model.LatLng;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
@@ -18,7 +20,6 @@ import ch.hsr.geohash.GeoHash;
 public class Area {
 
     public static final int PRECISION = 4; //Precision of GeoHash
-    private GeoHash areaGeoHash;
     public DatabaseReference mDatabase;
 
     //Firebase Fields
@@ -55,7 +56,7 @@ public class Area {
             Log.w("cancelled", "error", databaseError.toException());
         }
     };
-    
+
     public Area(GeoHash areaGeoHash) {
         this.coordinates = areaGeoHash.toBase32();
         this.locations = new HashMap<String, Location>(); //String PRECISION 8 -> Location
@@ -66,7 +67,7 @@ public class Area {
     }
 
     public Area (LatLng location) {
-        new Area(GeoHash.withCharacterPrecision(location.latitude, location.longitude, PRECISION));
+        this(GeoHash.withCharacterPrecision(location.latitude, location.longitude, PRECISION));
     }
 
     /* Uploads location details to the real-time database */
@@ -78,10 +79,9 @@ public class Area {
     }
 
     @Exclude
-    public GeoHash getGeoHash () { return areaGeoHash; }
-
-    public void setGeoHash (GeoHash g) { areaGeoHash = g; }
-
+    public GeoHash getGeoHash () {
+        return GeoHash.fromGeohashString(coordinates);
+    }
 
     //Firebase
     public Area() {}

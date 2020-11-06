@@ -44,53 +44,39 @@ public class MainActivity extends AppCompatActivity {
         Button but =  (Button) findViewById(R.id.button);
         final EditText edit =  (EditText) findViewById(R.id.editTextTextPersonName);
 
-        final Area a1 = new Area(new LatLng(45.503810,12.260870));
+
+        Profile p = Profile.getInstance();
+        p.updateCurrentPosition(45.503810, 12.260870);
+        final Area currentArea = p.getCurrentArea();
+
         but.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 
-                Thread t1 = new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        try {
-                            Thread.currentThread().sleep(10000);
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                        }
-                        System.out.println(a1.getCoordinates() + " XXXXXXXXXXXXXXXXXXXXXXX");
-                        System.out.println(a1.getLocations().size());
-                    }
-                });
+//                Thread t1 = new Thread(new Runnable() {
+//                    @Override
+//                    public void run() {
+//                        try {
+//                            Thread.currentThread().sleep(10000);
+//                        } catch (InterruptedException e) {
+//                            e.printStackTrace();
+//                        }
+//                        System.out.println(a1.getCoordinates() + " XXXXXXXXXXXXXXXXXXXXXXX");
+//                        System.out.println(a1.getLocations().size());
+//                    }
+//                });
 
-                Location l1 = new Location(new LatLng(45.503810, 12.260870), 15);
-                a1.addLocation(l1);
-                try {
-                    Thread.currentThread().sleep(2000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-                Location l2 = new Location(new LatLng(45.479740, 12.249590),17);
-                a1.addLocation(l2);
-                a1.addLocation(l1);
-                try {
-                    Thread.currentThread().sleep(7000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-                Location l3 = new Location(new LatLng(45.497735, 12.2676424), 30);
-                a1.addLocation(l3);
+                currentArea.addLocation(new Location(new LatLng(45.503810, 12.260870), 15));
+                try { Thread.currentThread().sleep(2000); } catch (InterruptedException ignored) { }
+                currentArea.addLocation(new Location(new LatLng(45.479740, 12.249590),17));
+                try { Thread.currentThread().sleep(2000); } catch (InterruptedException ignored) { }
+                currentArea.addLocation(new Location(new LatLng(45.497735, 12.2676424), 30));
 
 
-                t1.start();
+                //t1.start();
 
             }
         });
-
-        Profile p = Profile.getInstance();
-        Area currentArea = p.getCurrentArea();
-
-
-
 
         mLvDevices = (ListView) findViewById(R.id.lvDevicesMAIN);
 
