@@ -19,25 +19,18 @@ import ch.hsr.geohash.GeoHash;
 import ch.hsr.geohash.WGS84Point;
 
 /*
-    TODO:
-        -Connect this class with FireBase DB
-        -Method to update the Location data
-        -Complete the class with prevision fields and methods
-
     This class represents a Location present on the database.
     HeatMaps are rendered based on objects of this class.
     The HeatMap color is based on the number of devices which are at these location.
     Objects of this class should be created only from the data on the real-time database. (Exception for favorite location objects)
     Render Location objects that are inside users location (declared on the Profile class)
     JSON struct:
-        "u20" : { //Precision 3 | 156km x 156km   //to be changed to 4
+        "u209" : { //Precision 4
             "u20dygz2" : { //Precision 8 | 38.2m x 19.1m
-                "nrDevices" : 20.
+                "nrDevices" : 20
                 "lastSeen" : 124532512312
             }
         }
-
-    Area[ Map<String, Location>[] ]
  */
 
 public class Location {

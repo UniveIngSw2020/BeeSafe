@@ -31,18 +31,21 @@ public class Area {
         @Override
         public void onChildAdded(DataSnapshot dataSnapshot, String previousChildName) {
             locations.put(dataSnapshot.getKey(), dataSnapshot.getValue(Location.class));
+            //Add point and render the map (if Location is a crowd)
             Log.d("added", "onChildAdded:" + dataSnapshot.getKey()  + " " + dataSnapshot.getValue());
         }
 
         @Override
         public void onChildChanged(DataSnapshot dataSnapshot, String previousChildName) {
             locations.put(dataSnapshot.getKey(), dataSnapshot.getValue(Location.class));
+            //Add point and render the map (if Location is a crowd)
             Log.d("changed", "onChildChanged:" + dataSnapshot.getKey()  + " " + dataSnapshot.getValue());
         }
 
         @Override
         public void onChildRemoved(DataSnapshot dataSnapshot) {
             locations.remove(dataSnapshot.getKey());
+            //if this Location was a crowd, remove it from the map
             Log.d("removed", "onChildRemoved:" + dataSnapshot.getKey()  + " " + dataSnapshot.getValue());
         }
 
@@ -60,7 +63,6 @@ public class Area {
     public Area(GeoHash areaGeoHash) {
         this.coordinates = areaGeoHash.toBase32();
         this.locations = new HashMap<String, Location>(); //String PRECISION 8 -> Location
-
         mDatabase = FirebaseDatabase.getInstance().getReference().child(getCoordinates()); //Gets a node reference for the current 4Precision GeoHash
         mDatabase.addChildEventListener(areaEventListener); //Adds the listener
 

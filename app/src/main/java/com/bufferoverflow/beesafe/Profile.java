@@ -36,21 +36,24 @@ public class Profile {
         return (instance == null) ? new Profile() : instance;
     }
 
-    /* Updates the location of this user frequently */
+    /* Updates the location of the user with the new Latitude and Longitude coordinates
+    *  If currentArea is null (which means the very first time the user opens the app) or if it exists and the area where the user is at the moment
+    *  is different from the area covered by new coordinates, it changes the user's area and updates all the neighbour areas.
+    */
     public void updateCurrentPosition(Double updatedLatitude, Double updatedLongitude) {
         if (currentArea == null || !GeoHash.geoHashStringWithCharacterPrecision(updatedLatitude, updatedLongitude, Area.PRECISION).equals(currentArea.getCoordinates())) { //User has moved into a new Area OR first time opening the application -> update current Area + Neighbours
             this.currentArea = new Area(new LatLng(updatedLatitude, updatedLongitude));
-            System.out.println("HMMMMMMMM" + currentArea.getGeoHash());
             //update neighbour boxes of this area ----- N, NE, E, SE, S, SW, W, NW
             for(int i=0; i<8;i++) {
                 System.out.println("[" + i + "]" + currentArea.getGeoHash().getAdjacent()[i].toBase32());
                 neighbourArea[i] = new Area(currentArea.getGeoHash().getAdjacent()[i]);
             }
-
         }
     }
 
     public Area getCurrentArea () { return currentArea;  }
+
+
 
     /* Adds a location to favorites */
     public void addFavoriteLocation (Location favorite) {
