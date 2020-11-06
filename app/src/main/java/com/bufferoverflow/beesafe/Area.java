@@ -17,7 +17,7 @@ import ch.hsr.geohash.GeoHash;
 @IgnoreExtraProperties
 public class Area {
 
-    private static final int PRECISION = 4; //Precision of GeoHash
+    public static final int PRECISION = 4; //Precision of GeoHash
     private GeoHash areaGeoHash;
     public DatabaseReference mDatabase;
 
@@ -29,16 +29,19 @@ public class Area {
     private ChildEventListener areaEventListener = new ChildEventListener() {
         @Override
         public void onChildAdded(DataSnapshot dataSnapshot, String previousChildName) {
+            locations.put(dataSnapshot.getKey(), dataSnapshot.getValue(Location.class));
             Log.d("added", "onChildAdded:" + dataSnapshot.getKey()  + " " + dataSnapshot.getValue());
         }
 
         @Override
         public void onChildChanged(DataSnapshot dataSnapshot, String previousChildName) {
+            locations.put(dataSnapshot.getKey(), dataSnapshot.getValue(Location.class));
             Log.d("changed", "onChildChanged:" + dataSnapshot.getKey()  + " " + dataSnapshot.getValue());
         }
 
         @Override
         public void onChildRemoved(DataSnapshot dataSnapshot) {
+            locations.remove(dataSnapshot.getKey());
             Log.d("removed", "onChildRemoved:" + dataSnapshot.getKey()  + " " + dataSnapshot.getValue());
         }
 
@@ -52,37 +55,33 @@ public class Area {
             Log.w("cancelled", "error", databaseError.toException());
         }
     };
-
-    public Area (LatLng location) {
-        this.areaGeoHash = GeoHash.withCharacterPrecision(location.latitude, location.longitude, PRECISION);
+    
+    public Area(GeoHash areaGeoHash) {
         this.coordinates = areaGeoHash.toBase32();
         this.locations = new HashMap<String, Location>(); //String PRECISION 8 -> Location
 
         mDatabase = FirebaseDatabase.getInstance().getReference().child(getCoordinates()); //Gets a node reference for the current 4Precision GeoHash
         mDatabase.addChildEventListener(areaEventListener); //Adds the listener
+
     }
 
-    public Area(GeoHash areaGeoHash) {
-        this.locations = new HashMap<String, Location>();
-        this.areaGeoHash = areaGeoHash;
+    public Area (LatLng location) {
+        new Area(GeoHash.withCharacterPrecision(location.latitude, location.longitude, PRECISION));
     }
 
+    /* Uploads location details to the real-time database */
     public void addLocation (Location l) {
         if(l.getCoordinates().substring(0,PRECISION).equals(coordinates)) { //if Location is in this Area (double checking because this should always occur)
-            locations.put(l.getCoordinates(), l);
             DatabaseReference locationReference = mDatabase.child(l.getCoordinates());
             locationReference.setValue(l);
         }
     }
 
     @Exclude
-    public GeoHash getGeoHash () {
-        return areaGeoHash;
-    }
+    public GeoHash getGeoHash () { return areaGeoHash; }
 
-    public void setGeoHash (GeoHash g) {
-        areaGeoHash = g;
-    }
+    public void setGeoHash (GeoHash g) { areaGeoHash = g; }
+
 
     //Firebase
     public Area() {}

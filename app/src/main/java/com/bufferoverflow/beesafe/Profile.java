@@ -33,27 +33,28 @@ public class Profile {
     public static Profile getInstance() {
         if (instance == null)
             return new Profile();
-        //Here we are sure Profile instance exists, so we just update the location and return the instance
+        //Here we are sure Profile exists, so we just update the location and return the instance
         instance.updateCurrentPosition(69.6969, 69.6969);
         return instance;
     }
 
     /* Updates the location of this user frequently */
     public void updateCurrentPosition(Double updatedLatitude, Double updatedLongitude) {
-        currentLocation = new LatLng(updatedLatitude, updatedLongitude);
-        Area newArea = new Area(currentLocation);
-        if (currentArea == null || newArea.getGeoHash() == currentArea.getGeoHash()) { //User has moved into a new Area OR first time opening the application -> update current Area + Neighbours
-            currentArea = newArea;
-            //update neighbour boxes of this area
-            //N, NE, E, SE, S, SW, W, NW
-            for(int i=0; i<8;i++)
+        if (currentArea == null || !GeoHash.geoHashStringWithCharacterPrecision(updatedLatitude, updatedLongitude, Area.PRECISION).equals(currentArea.getCoordinates())) { //User has moved into a new Area OR first time opening the application -> update current Area + Neighbours
+            currentArea = new Area(new LatLng(updatedLatitude, updatedLongitude));
+            //update neighbour boxes of this area ----- N, NE, E, SE, S, SW, W, NW
+            for(int i=0; i<8;i++) {
+                neighbourArea[i] = new Area(currentArea.getGeoHash().getAdjacent()[i]);
+            }
                 neighbourArea[i].setGeoHash(currentArea.getGeoHash().getAdjacent()[i]);
         }
-  }
+    }
+
+    public Area getCurrentArea () { return currentArea;  }
 
     /* Adds a location to favorites */
-    public void addFavoriteLocation (FavoritePlace favorite) {
-        favoritePlaces.add(favorite);
+    public void addFavoriteLocation (Location favorite) {
+        favoritePlaces.add(new FavoritePlace(favorite));
     }
 
     /* Removes a location from favorites */

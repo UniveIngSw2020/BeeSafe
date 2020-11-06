@@ -44,11 +44,23 @@ public class MainActivity extends AppCompatActivity {
         Button but =  (Button) findViewById(R.id.button);
         final EditText edit =  (EditText) findViewById(R.id.editTextTextPersonName);
 
+        final Area a1 = new Area(new LatLng(45.503810,12.260870));
         but.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 
-                Area a1 = new Area(new LatLng(45.503810,12.260870));
+                Thread t1 = new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            Thread.currentThread().sleep(10000);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                        System.out.println(a1.getCoordinates() + " XXXXXXXXXXXXXXXXXXXXXXX");
+                        System.out.println(a1.getLocations().size());
+                    }
+                });
 
                 Location l1 = new Location(new LatLng(45.503810, 12.260870), 15);
                 a1.addLocation(l1);
@@ -68,9 +80,17 @@ public class MainActivity extends AppCompatActivity {
                 Location l3 = new Location(new LatLng(45.497735, 12.2676424), 30);
                 a1.addLocation(l3);
 
-                System.out.println(a1.getCoordinates() + " XXXXXXXXXXXXXXXXXXXXXXX");
+
+                t1.start();
+
             }
         });
+
+        Profile p = Profile.getInstance();
+        Area currentArea = p.getCurrentArea();
+
+
+
 
         mLvDevices = (ListView) findViewById(R.id.lvDevicesMAIN);
 
