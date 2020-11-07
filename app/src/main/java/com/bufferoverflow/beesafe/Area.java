@@ -65,7 +65,6 @@ public class Area {
         this.locations = new HashMap<String, Location>(); //String PRECISION 8 -> Location
         mDatabase = FirebaseDatabase.getInstance().getReference().child(getCoordinates()); //Gets a node reference for the current 4Precision GeoHash
         mDatabase.addChildEventListener(areaEventListener); //Adds the listener
-
     }
 
     public Area (LatLng location) {

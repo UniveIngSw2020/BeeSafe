@@ -3,6 +3,7 @@ package com.bufferoverflow.beesafe;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -71,11 +72,10 @@ public class MainActivity extends AppCompatActivity {
                 try { Thread.currentThread().sleep(2000); } catch (InterruptedException ignored) { }
                 currentArea.addLocation(new Location(new LatLng(45.497735, 12.2676424), 30));
 
-
-
-
             }
         });
+
+        startActivity(new Intent(MainActivity.this, MapsActivity.class));
 
         mLvDevices = (ListView) findViewById(R.id.lvDevicesMAIN);
 
