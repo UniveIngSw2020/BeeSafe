@@ -1,20 +1,13 @@
 package com.bufferoverflow.beesafe;
 
 import android.annotation.SuppressLint;
-import android.util.Log;
-
 import com.google.android.gms.maps.model.LatLng;
-import com.google.firebase.database.ChildEventListener;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
+import com.google.android.gms.maps.model.TileOverlay;
 import com.google.firebase.database.Exclude;
-import com.google.firebase.database.IgnoreExtraProperties;
-import com.google.firebase.database.ServerValue;
+import com.google.maps.android.heatmaps.HeatmapTileProvider;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
-
 import ch.hsr.geohash.GeoHash;
 import ch.hsr.geohash.WGS84Point;
 
@@ -34,6 +27,11 @@ import ch.hsr.geohash.WGS84Point;
  */
 
 public class Location {
+
+    /* Maps rendering properties and field */
+    public HeatmapTileProvider provider;
+    public TileOverlay overlay;
+
 
     @SuppressLint("SimpleDateFormat")
     private static final SimpleDateFormat ISO_8601_FORMAT = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:sss'Z'");
@@ -56,19 +54,22 @@ public class Location {
         this.coordinates = coordinatesGeoHashed.toBase32();
         this.lastSeen = ISO_8601_FORMAT.format(new Date());
         this.nrDevices = nrDevices;
-        System.out.println(this.coordinates + "    " + nrDevices + "      " + lastSeen);
     }
 
     /* Create a Location from a given GeoHash */
-    public Location (String g) {
+    public Location (String g, int nrDevices) {
         this.coordinatesGeoHashed = GeoHash.fromGeohashString(g);
         this.coordinates = coordinatesGeoHashed.toBase32();
         this.lastSeen = ISO_8601_FORMAT.format(new Date());
+        this.nrDevices = nrDevices;
     }
 
     /* Returns the coordinate in LatLng format (the format which accepts Google Maps SDK) */
     @Exclude
     public LatLng getLatLng () {
+        System.out.println(coordinates);
+        System.out.println(GeoHash.fromGeohashString(coordinates));
+        System.out.println(GeoHash.fromGeohashString(coordinates).getOriginatingPoint());
         WGS84Point point = GeoHash.fromGeohashString(coordinates).getOriginatingPoint();
         return new LatLng(point.getLatitude(), point.getLongitude());
     }

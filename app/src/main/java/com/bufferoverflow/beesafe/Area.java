@@ -30,8 +30,10 @@ public class Area {
     private ChildEventListener areaEventListener = new ChildEventListener() {
         @Override
         public void onChildAdded(DataSnapshot dataSnapshot, String previousChildName) {
-            locations.put(dataSnapshot.getKey(), dataSnapshot.getValue(Location.class));
-            //Add point and render the map (if Location is a crowd)
+            Location location = new Location(dataSnapshot.getKey(), Integer.parseInt(dataSnapshot.child("nrDevices").getValue().toString()));
+            locations.put(dataSnapshot.getKey(), location);
+
+            MapsActivity.addLocationToMap(location); //Add point and render the map (if Location is a crowd)
             Log.d("added", "onChildAdded:" + dataSnapshot.getKey()  + " " + dataSnapshot.getValue());
         }
 
@@ -44,8 +46,8 @@ public class Area {
 
         @Override
         public void onChildRemoved(DataSnapshot dataSnapshot) {
-            locations.remove(dataSnapshot.getKey());
-            //if this Location was a crowd, remove it from the map
+            Location location = locations.remove(dataSnapshot.getKey());
+            MapsActivity.removeLocationFromMap(location); //remove the location from the map
             Log.d("removed", "onChildRemoved:" + dataSnapshot.getKey()  + " " + dataSnapshot.getValue());
         }
 

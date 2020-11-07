@@ -1,4 +1,7 @@
 <resources>
     <string name="app_name">BeeSafe</string>
     <string name="title_activity_maps">Map</string>
+    <string name="permission_required_toast">Permission Required</string>
+    <string name="location_permission_denied">Permission denied</string>
+    <string name="permission_rationale_location">Retionale Location\\</string>Location Permission Required/string>
 </resources>
