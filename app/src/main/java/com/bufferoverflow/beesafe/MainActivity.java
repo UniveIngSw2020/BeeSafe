@@ -2,6 +2,7 @@ package com.bufferoverflow.beesafe;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -24,6 +25,7 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -45,26 +47,23 @@ public class MainActivity extends AppCompatActivity {
         final EditText edit =  (EditText) findViewById(R.id.editTextTextPersonName);
 
 
-        Profile p = Profile.getInstance();
-        p.updateCurrentPosition(45.503810, 12.260870);
-        final Area currentArea = p.getCurrentArea();
+        Profile user = new Profile(this); //This users profile
+        user.updateCurrentPosition(45.503810, 12.260870); //
+        final Area currentArea = user.getCurrentArea();
+
+        //To save favorite locations
+        //user.addFavoriteLocation(new Location(new LatLng(45.503810, 12.260870), 15), this);
+
+        //To get favorite locations
+//        HashSet<FavoritePlace> favs = user.getFavoriteLocation();
+//        System.out.println(favs);
+
+        //p.editor.putString(p.TEST, "XXXXXXXXX");
+        //System.out.println(savedProfile.sharedPreferences.getString(p.TEST, null));
 
         but.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
-//                Thread t1 = new Thread(new Runnable() {
-//                    @Override
-//                    public void run() {
-//                        try {
-//                            Thread.currentThread().sleep(10000);
-//                        } catch (InterruptedException e) {
-//                            e.printStackTrace();
-//                        }
-//                        System.out.println(a1.getCoordinates() + " XXXXXXXXXXXXXXXXXXXXXXX");
-//                        System.out.println(a1.getLocations().size());
-//                    }
-//                });
 
                 currentArea.addLocation(new Location(new LatLng(45.503810, 12.260870), 15));
                 try { Thread.currentThread().sleep(2000); } catch (InterruptedException ignored) { }
@@ -73,7 +72,7 @@ public class MainActivity extends AppCompatActivity {
                 currentArea.addLocation(new Location(new LatLng(45.497735, 12.2676424), 30));
 
 
-                //t1.start();
+
 
             }
         });

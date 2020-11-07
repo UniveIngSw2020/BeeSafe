@@ -1,5 +1,7 @@
 package com.bufferoverflow.beesafe;
 
+import androidx.annotation.NonNull;
+
 import com.google.firebase.database.IgnoreExtraProperties;
 
 import ch.hsr.geohash.GeoHash;
@@ -26,4 +28,9 @@ public class FavoritePlace {
         return this.associatedLocation == null;
     }
 
+    @NonNull
+    @Override
+    public String toString() {
+        return "Saved Location geohashes: " + location.toBase32();
+    }
 }

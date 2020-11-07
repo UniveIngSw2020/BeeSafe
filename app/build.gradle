@@ -32,6 +32,7 @@ dependencies {
     implementation 'com.google.maps.android:android-maps-utils:1.0.2' //HEATMAPS
     implementation 'ch.hsr:geohash:1.4.0' //GEOHASHING
     implementation 'com.google.firebase:firebase-database:19.5.0' //FIREBASE
+    implementation 'com.google.code.gson:gson:2.8.6' //GSON
     implementation 'org.jetbrains:annotations-java5:15.0'
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'androidx.test.ext:junit:1.1.1'
