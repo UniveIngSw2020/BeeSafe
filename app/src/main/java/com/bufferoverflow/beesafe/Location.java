@@ -42,7 +42,7 @@ public class Location {
 
     //Fields present on firebase database
     private String coordinates; //GeoHash in string format
-    private int nrDevices; //Number of Bluetooth devices on this location
+    public int nrDevices; //Number of Bluetooth devices on this location
     private String lastSeen; //Last time on when data is updated
 
     //Firebase

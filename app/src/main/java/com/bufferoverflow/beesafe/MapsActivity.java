@@ -1,26 +1,20 @@
 package com.bufferoverflow.beesafe;
 
-import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.FragmentActivity;
-import android.os.Bundle;
-import android.widget.Toast;
 
+import android.graphics.Color;
+import android.os.Bundle;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.TileOverlay;
 import com.google.android.gms.maps.model.TileOverlayOptions;
+import com.google.maps.android.heatmaps.Gradient;
 import com.google.maps.android.heatmaps.HeatmapTileProvider;
-
-import org.json.JSONException;
-
-import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback{
 
@@ -28,6 +22,20 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private boolean mIsRestore;
     private HeatmapTileProvider mProvider;
     private TileOverlay mOverlay;
+
+    private static Map<String, Location> locations = new HashMap<>();
+
+    private static final int[] HEATMAP_RED_GRADIENT = {
+            Color.rgb(255, 0, 0)
+    };
+    private static final int[] HEATMAP_ORANGE_GRADIENT = {
+            Color.rgb(255, 120, 0),
+    };
+    public static final float[] HEATMAP_START_POINTS_RED = {0.25f };
+    public static final float[] HEATMAP_START_POINTS_ORANGE = { 0.25f };
+
+    public static final Gradient HEATMAP_RED = new Gradient(HEATMAP_RED_GRADIENT, HEATMAP_START_POINTS_RED);
+    public static final Gradient HEATMAP_ORANGE = new Gradient(HEATMAP_ORANGE_GRADIENT, HEATMAP_START_POINTS_ORANGE);
 
 
     @Override
@@ -39,12 +47,45 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
     @Override
-    public void onMapReady(GoogleMap map) {
+    public void onMapReady(final GoogleMap map) {
         if (this.map != null)
             return;
         this.map = map;
-        //((SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map)).getMapAsync(this);
-        //addHeatMap();
+
+        map.setMaxZoomPreference((float) 17.9);
+        map.setOnCameraMoveListener(new GoogleMap.OnCameraMoveListener() {
+            boolean flag = false;
+            @Override
+            public void onCameraMove() {
+                System.out.println("zoom " + map.getCameraPosition().zoom);
+                if (map.getCameraPosition().zoom >= 17.) {
+                    for(Map.Entry<String, Location> entry : locations.entrySet()) {
+                        Location l = entry.getValue();
+                        l.provider.setRadius(52);
+                        l.overlay.clearTileCache();
+                    }
+                    flag = true;
+                }
+                else if (map.getCameraPosition().zoom > 16) {
+                    for(Map.Entry<String, Location> entry : locations.entrySet()) {
+                        Location l = entry.getValue();
+                        l.provider.setRadius(30);
+                        l.overlay.clearTileCache();
+                    }
+                    flag = true;
+                }
+                else {
+                    if(flag) {
+                        for(Map.Entry<String, Location> entry : locations.entrySet()) {
+                            Location l = entry.getValue();
+                            l.provider.setRadius(20);
+                            l.overlay.clearTileCache();
+                        }
+                        flag = false;
+                    }
+                }
+            }
+        });
     }
 
     private void setUpMap() {
@@ -52,40 +93,50 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
 
-    public static void addLocationToMap (Location location) {
+    public static void addLocationToMap (final Location location) {
+        locations.put(location.getCoordinates(), location);
+        Gradient g = (location.nrDevices >20 && location.nrDevices <35) ? HEATMAP_ORANGE : HEATMAP_RED;
+
+        final double lat = location.getLatLng().latitude;
+        final int desiredRadiusInMeters = 35;
+
         ArrayList<LatLng> l = new ArrayList<>();
         l.add(location.getLatLng());
         location.provider = new HeatmapTileProvider.Builder()
                 .data(l)
+                .radius(30)
                 .build();
+        location.provider.setGradient(g);
+        location.provider.setOpacity(0.5);
         location.overlay = map.addTileOverlay(new TileOverlayOptions().tileProvider(location.provider));
+//
+//        map.setOnCameraMoveListener(new GoogleMap.OnCameraMoveListener() {
+//            boolean flag = false;
+//
+//            @Override
+//            public void onCameraMove() {
+//
+//                if (map.getCameraPosition().zoom > 17.) {
+//                    double metersPerPx = 156543.03392 * Math.cos(lat * Math.PI / 180) / Math.pow(2,map.getCameraPosition().zoom);
+//                    int fitRadius = (int) (desiredRadiusInMeters / metersPerPx);
+//                    location.provider.setRadius(fitRadius);
+//                    location.overlay.clearTileCache();
+//                    flag = true;
+//                }
+//                else {
+//                    if(flag) {
+//                        location.provider.setRadius(30);
+//                        location.overlay.clearTileCache();
+//                        flag = false;
+//                    }
+//                }
+//            }
+//        });
     }
 
     public static void removeLocationFromMap (Location location) {
-        location.overlay.setVisible(false);
-    }
-
-
-
-
-
-    private void addHeatMap() {
-        List<LatLng> latLngs = readItems();
-        // Create a heat map tile provider, passing it the latlngs
-        mProvider = new HeatmapTileProvider.Builder()
-                .data(latLngs)
-                .build();
-
-        // Add a tile overlay to the map, using the heat map tile provider.
-        mOverlay = map.addTileOverlay(new TileOverlayOptions().tileProvider(mProvider));
-    }
-
-    private List<LatLng> readItems() {
-        List<LatLng> myCoordinates = new ArrayList<>();
-        myCoordinates.add(new LatLng(45.503810, 12.260870));
-        myCoordinates.add(new LatLng(45.479740, 12.249590));
-        myCoordinates.add(new LatLng(45.497735, 12.2676424));
-        return myCoordinates;
+        location.overlay.remove();
+        location.overlay.clearTileCache();
     }
 
 
