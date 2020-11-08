@@ -48,16 +48,20 @@ public class Area {
 
         @Override
         public void onChildChanged(DataSnapshot dataSnapshot, String previousChildName) {
-            Location location = new Location(dataSnapshot.getKey(), Integer.parseInt(dataSnapshot.child("nrDevices").getValue().toString()));
-            locations.put(dataSnapshot.getKey(), location);
-            //Add point and render the map (if Location is a crowd)
-            MapsActivity.addLocationToMap(location); //Add point and render the map (if Location is a crowd)
+            Location newLocationData = new Location(dataSnapshot.getKey(), Integer.parseInt(dataSnapshot.child("nrDevices").getValue().toString()));
+            Location oldLocationData = locations.get(dataSnapshot.getKey());
+            locations.put(dataSnapshot.getKey(), newLocationData);
+            
+            MapsActivity.removeLocationFromMap(oldLocationData);
+            MapsActivity.addLocationToMap(newLocationData);
+
             Log.d("changed", "onChildChanged:" + dataSnapshot.getKey()  + " " + dataSnapshot.getValue());
         }
 
         @Override
         public void onChildRemoved(DataSnapshot dataSnapshot) {
             Location location = locations.remove(dataSnapshot.getKey());
+
 
             MapsActivity.removeLocationFromMap(location); //remove the location from the map
             Log.d("removed", "onChildRemoved:" + dataSnapshot.getKey()  + " " + dataSnapshot.getValue());

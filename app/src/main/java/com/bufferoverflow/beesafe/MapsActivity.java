@@ -108,8 +108,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
     public static void removeLocationFromMap (Location location) {
+        locations.remove(location.getCoordinates());
         location.overlay.remove();
         location.overlay.clearTileCache();
+    }
+
+    public static void updateLocationOnMap (Location location) {
+        removeLocationFromMap(location);
+        addLocationToMap(location);
     }
 
     public static void refreshMapRendering (Area a) {
