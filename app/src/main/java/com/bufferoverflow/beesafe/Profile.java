@@ -52,8 +52,6 @@ public class Profile {
     public Area getCurrentArea () { return currentArea;  }
 
 
-
-
     //Load Favorite places from local storage
     private HashSet<FavoritePlace> loadFavoritePlaces(Context c) {
         HashSet<FavoritePlace> favPlaces;

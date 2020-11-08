@@ -53,11 +53,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         this.map = map;
 
         map.setMaxZoomPreference((float) 17.9);
+        /* Updating radius on zoom for more accurate heatmap */
         map.setOnCameraMoveListener(new GoogleMap.OnCameraMoveListener() {
             boolean flag = false;
             @Override
             public void onCameraMove() {
-                System.out.println("zoom " + map.getCameraPosition().zoom);
                 if (map.getCameraPosition().zoom >= 17.) {
                     for(Map.Entry<String, Location> entry : locations.entrySet()) {
                         Location l = entry.getValue();
@@ -95,11 +95,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     public static void addLocationToMap (final Location location) {
         locations.put(location.getCoordinates(), location);
-        Gradient g = (location.nrDevices >20 && location.nrDevices <35) ? HEATMAP_ORANGE : HEATMAP_RED;
-
-        final double lat = location.getLatLng().latitude;
-        final int desiredRadiusInMeters = 35;
-
+        Gradient g = (location.nrDevices <20) ? HEATMAP_ORANGE : HEATMAP_RED;
         ArrayList<LatLng> l = new ArrayList<>();
         l.add(location.getLatLng());
         location.provider = new HeatmapTileProvider.Builder()
@@ -107,36 +103,22 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 .radius(30)
                 .build();
         location.provider.setGradient(g);
-        location.provider.setOpacity(0.5);
+        location.provider.setOpacity(0.7);
         location.overlay = map.addTileOverlay(new TileOverlayOptions().tileProvider(location.provider));
-//
-//        map.setOnCameraMoveListener(new GoogleMap.OnCameraMoveListener() {
-//            boolean flag = false;
-//
-//            @Override
-//            public void onCameraMove() {
-//
-//                if (map.getCameraPosition().zoom > 17.) {
-//                    double metersPerPx = 156543.03392 * Math.cos(lat * Math.PI / 180) / Math.pow(2,map.getCameraPosition().zoom);
-//                    int fitRadius = (int) (desiredRadiusInMeters / metersPerPx);
-//                    location.provider.setRadius(fitRadius);
-//                    location.overlay.clearTileCache();
-//                    flag = true;
-//                }
-//                else {
-//                    if(flag) {
-//                        location.provider.setRadius(30);
-//                        location.overlay.clearTileCache();
-//                        flag = false;
-//                    }
-//                }
-//            }
-//        });
     }
 
     public static void removeLocationFromMap (Location location) {
         location.overlay.remove();
         location.overlay.clearTileCache();
+    }
+
+    public static void refreshMapRendering (Area a) {
+        ArrayList<LatLng> l = new ArrayList<>();
+        HashMap<String, Location> locs = new HashMap<String, Location>(a.getLocations());
+        for(Map.Entry<String, Location> entry : locs.entrySet()) {
+            Location l2 = entry.getValue();
+            l.add(l2.getLatLng());
+        }
     }
 
 
