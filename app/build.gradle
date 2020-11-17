@@ -32,11 +32,21 @@ dependencies {
     implementation 'com.google.maps.android:android-maps-utils:2.0.3' //MAPS
     implementation 'com.google.maps.android:android-maps-utils:1.0.2' //HEATMAPS
     implementation 'ch.hsr:geohash:1.4.0' //GEOHASHING
-    implementation 'com.google.firebase:firebase-database:19.5.0' //FIREBASE
-    implementation 'com.google.code.gson:gson:2.8.6' //GSON
-    implementation 'org.jetbrains:annotations-java5:15.0'
+    implementation 'com.google.code.gson:gson:2.8.6'
+    implementation 'androidx.work:work-runtime:2.2.0'//GSON
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'androidx.test.ext:junit:1.1.1'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
+    implementation 'org.jetbrains:annotations-java5:15.0'
+
+    //FIREBASE
+    implementation 'com.google.firebase:firebase-database:19.5.1'
+    implementation 'com.google.firebase:firebase-messaging:21.0.0'
+    implementation 'com.google.firebase:firebase-analytics'
+
+    // Import the BoM for the Firebase platform
+    implementation platform('com.google.firebase:firebase-bom:26.1.0')
+
+
 
 }

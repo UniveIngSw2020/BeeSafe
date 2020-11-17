@@ -15,6 +15,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "60670474491-0g82skipiglt26boqjk98tjo1einike8.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.bufferoverflow.beesafe",
+            "certificate_hash": "a1f0bd3b13700b280ff49e18b93281ae9f890fdb"
+          }
+        },
+        {
           "client_id": "60670474491-efmeqgrq6ft1dltsk0tna7uj4sdh21fm.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
