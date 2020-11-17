@@ -34,6 +34,8 @@ dependencies {
     implementation 'ch.hsr:geohash:1.4.0' //GEOHASHING
     implementation 'com.google.firebase:firebase-database:19.5.0' //FIREBASE
     implementation 'com.google.code.gson:gson:2.8.6' //GSON
+    implementation 'com.google.android.gms:play-services-location:17.1.0' //ACTIVITY RECOGNITION
+    implementation 'com.google.android.gms:play-services-awareness:18.0.1' //ACTIVITY RECOGNITION
     implementation 'org.jetbrains:annotations-java5:15.0'
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'androidx.test.ext:junit:1.1.1'

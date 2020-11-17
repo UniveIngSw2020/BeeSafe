@@ -1,11 +1,9 @@
 package com.bufferoverflow.beesafe;
 
 import androidx.appcompat.app.AppCompatActivity;
-
-import android.content.Context;
+import androidx.core.content.ContextCompat;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -17,27 +15,18 @@ import com.clj.fastble.callback.BleScanCallback;
 import com.clj.fastble.data.BleDevice;
 import com.clj.fastble.scan.BleScanRuleConfig;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.firebase.database.ChildEventListener;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-
-import ch.hsr.geohash.GeoHash;
 
 public class MainActivity extends AppCompatActivity {
 
     private ListView mLvDevices;
     private ArrayList<String> mDeviceList = new ArrayList<String>();
 
-    private Map<String, Location> activeLocations; //after scanning, add data to db and this Map will be autoupdated by the event listener
+
+    private  Intent serviceIntent;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,19 +37,10 @@ public class MainActivity extends AppCompatActivity {
         final EditText edit =  (EditText) findViewById(R.id.editTextTextPersonName);
 
 
-        Profile user = new Profile(this); //This users profile
+        //Profile user = new Profile(this); //This users profile
+        Profile user = Profile.getInstance(this);
         user.updateCurrentPosition(45.503810, 12.260870); //
         final Area currentArea = user.getCurrentArea();
-
-        //To save favorite locations
-        //user.addFavoriteLocation(new Location(new LatLng(45.503810, 12.260870), 15), this);
-
-        //To get favorite locations
-//        HashSet<FavoritePlace> favs = user.getFavoriteLocation();
-//        System.out.println(favs);
-
-        //p.editor.putString(p.TEST, "XXXXXXXXX");
-        //System.out.println(savedProfile.sharedPreferences.getString(p.TEST, null));
 
         but.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -75,7 +55,17 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        startActivity(new Intent(MainActivity.this, MapsActivity.class));
+        startActivity(new Intent(getApplicationContext(), MapsActivity.class));
+
+
+
+
+        serviceIntent = new Intent(getApplicationContext(),BackgroundScanWork.class);
+        ContextCompat.startForegroundService(this,serviceIntent);
+
+
+
+
 
         mLvDevices = (ListView) findViewById(R.id.lvDevicesMAIN);
 

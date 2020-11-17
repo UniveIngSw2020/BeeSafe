@@ -20,19 +20,17 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     private static GoogleMap map;
     private boolean mIsRestore;
-    private HeatmapTileProvider mProvider;
-    private TileOverlay mOverlay;
 
     private static Map<String, Location> locations = new HashMap<>();
 
     private static final int[] HEATMAP_RED_GRADIENT = {
-            Color.rgb(255, 0, 0)
+            Color.rgb(213, 0, 0)
     };
     private static final int[] HEATMAP_ORANGE_GRADIENT = {
-            Color.rgb(255, 120, 0),
+            Color.rgb(255, 109, 0),
     };
-    public static final float[] HEATMAP_START_POINTS_RED = {0.25f };
-    public static final float[] HEATMAP_START_POINTS_ORANGE = { 0.25f };
+    public static final float[] HEATMAP_START_POINTS_RED = {0.5f };
+    public static final float[] HEATMAP_START_POINTS_ORANGE = { 0.5f };
 
     public static final Gradient HEATMAP_RED = new Gradient(HEATMAP_RED_GRADIENT, HEATMAP_START_POINTS_RED);
     public static final Gradient HEATMAP_ORANGE = new Gradient(HEATMAP_ORANGE_GRADIENT, HEATMAP_START_POINTS_ORANGE);
@@ -51,6 +49,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         if (this.map != null)
             return;
         this.map = map;
+
+
 
         map.setMaxZoomPreference((float) 17.9);
         /* Updating radius on zoom for more accurate heatmap */
@@ -92,8 +92,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         ((SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map)).getMapAsync(this);
     }
 
-
-    public static void addLocationToMap (final Location location) {
+    public static void addLocationToMap(Location location) {
         locations.put(location.getCoordinates(), location);
         Gradient g = (location.nrDevices <20) ? HEATMAP_ORANGE : HEATMAP_RED;
         ArrayList<LatLng> l = new ArrayList<>();
@@ -107,25 +106,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         location.overlay = map.addTileOverlay(new TileOverlayOptions().tileProvider(location.provider));
     }
 
-    public static void removeLocationFromMap (Location location) {
+    public static void removeLocationFromMap(Location location) {
         locations.remove(location.getCoordinates());
         location.overlay.remove();
         location.overlay.clearTileCache();
     }
-
-    public static void updateLocationOnMap (Location location) {
-        removeLocationFromMap(location);
-        addLocationToMap(location);
-    }
-
-    public static void refreshMapRendering (Area a) {
-        ArrayList<LatLng> l = new ArrayList<>();
-        HashMap<String, Location> locs = new HashMap<String, Location>(a.getLocations());
-        for(Map.Entry<String, Location> entry : locs.entrySet()) {
-            Location l2 = entry.getValue();
-            l.add(l2.getLatLng());
-        }
-    }
-
 
 }

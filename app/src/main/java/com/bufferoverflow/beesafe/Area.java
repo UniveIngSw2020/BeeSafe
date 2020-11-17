@@ -1,24 +1,16 @@
 package com.bufferoverflow.beesafe;
 
 import android.util.Log;
-
-import androidx.annotation.LayoutRes;
-import androidx.annotation.NonNull;
-
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.TileOverlay;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.Exclude;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.IgnoreExtraProperties;
 import com.google.maps.android.heatmaps.HeatmapTileProvider;
-
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import ch.hsr.geohash.GeoHash;
 
@@ -51,7 +43,7 @@ public class Area {
             Location newLocationData = new Location(dataSnapshot.getKey(), Integer.parseInt(dataSnapshot.child("nrDevices").getValue().toString()));
             Location oldLocationData = locations.get(dataSnapshot.getKey());
             locations.put(dataSnapshot.getKey(), newLocationData);
-            
+
             MapsActivity.removeLocationFromMap(oldLocationData);
             MapsActivity.addLocationToMap(newLocationData);
 

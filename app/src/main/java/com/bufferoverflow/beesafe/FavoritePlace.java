@@ -4,6 +4,8 @@ import androidx.annotation.NonNull;
 
 import com.google.firebase.database.IgnoreExtraProperties;
 
+import java.io.Serializable;
+
 import ch.hsr.geohash.GeoHash;
 
 /*

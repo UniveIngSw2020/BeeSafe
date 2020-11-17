@@ -6,6 +6,7 @@ import com.google.android.gms.maps.model.TileOverlay;
 import com.google.firebase.database.Exclude;
 import com.google.maps.android.heatmaps.HeatmapTileProvider;
 
+import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import ch.hsr.geohash.GeoHash;
@@ -26,7 +27,7 @@ import ch.hsr.geohash.WGS84Point;
         }
  */
 
-public class Location {
+public class Location  {
 
     /* Maps rendering properties and field */
     public HeatmapTileProvider provider;
