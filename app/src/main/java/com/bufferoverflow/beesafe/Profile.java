@@ -6,6 +6,8 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import org.jetbrains.annotations.NotNull;
+
+import java.io.Serializable;
 import java.lang.reflect.Type;
 import java.util.HashSet;
 import ch.hsr.geohash.GeoHash;
@@ -18,20 +20,28 @@ import ch.hsr.geohash.GeoHash;
 public class Profile {
 
     /* For local storage saving */
-    private static final int PRIVATE_MODE = 0;
-    private static final String PREF_NAME = "USER_DATA";
-    private static final String FAV_PLACES = "FAV_PLACES";
+    private  final int PRIVATE_MODE = 0;
+    private final String PREF_NAME = "USER_DATA";
+    private final String FAV_PLACES = "FAV_PLACES";
 
     /* Properties */
     private HashSet<FavoritePlace> favoritePlaces; //Saved locations of the user
     private Area currentArea; //Current area GeoHashed
     private Area[] neighbourArea; //All 8 nearby GeoHash boxes N, NE, E, SE, S, SW, W, NW of precision 4
 
+    private static Profile profile = null;
+
     /* Private constructor accessible only from getInstance method */
-    public Profile(Context c) {
+    private Profile(Context c) {
         currentArea = null;
         neighbourArea = new Area[8];
         favoritePlaces = loadFavoritePlaces(c);
+    }
+
+    public static Profile getInstance(Context c) {
+        if (profile == null)
+            profile = new Profile(c);
+        return profile;
     }
 
     /* Updates the location of the user with the new Latitude and Longitude coordinates
@@ -50,7 +60,6 @@ public class Profile {
     }
 
     public Area getCurrentArea () { return currentArea;  }
-
 
     //Load Favorite places from local storage
     private HashSet<FavoritePlace> loadFavoritePlaces(Context c) {
