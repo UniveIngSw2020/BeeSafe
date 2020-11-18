@@ -9,7 +9,6 @@
          location permissions for the "MyLocation" functionality.
     -->
     <uses-permission android:name="android.permission.INTERNET" />
-
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.BLUETOOTH" />
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
@@ -20,9 +19,7 @@
     <uses-permission android:name="com.google.android.gms.permission.ACTIVITY_RECOGNITION" />
 
 
-    <application>
-    <!--
-    android:name=".App"-->
+    <application android:name=".App"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
@@ -39,8 +36,6 @@
              You can define the keys for the debug and release targets in src/debug/ and src/release/.
         -->
 
-
-
         <!-- Set custom default icon. This is used when no icon is set for incoming notification messages.
          See README(https://goo.gl/l4GJaQ) for more.*/-->
         <service
@@ -49,9 +44,9 @@
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
-
         </service>
-
+        <service
+            android:name=".BackgroundScanWork" />
 
         <meta-data
             android:name="com.google.android.geo.API_KEY"
@@ -62,11 +57,10 @@
 
         <activity
             android:name=".MapsActivity"
-            android:label="@string/title_activity_maps"></activity>
+            android:label="@string/title_activity_maps" />
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
@@ -74,9 +68,5 @@
             android:name=".FindBluetoothActivity"
             android:label="@string/app_name" />
 
-        <!--
-         <service
-             android:name=".BackgroundScanWork" />-->
      </application>
-
  </manifest>
