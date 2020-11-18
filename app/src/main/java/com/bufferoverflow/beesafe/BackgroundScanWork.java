@@ -4,18 +4,7 @@ import android.app.IntentService;
 import android.app.Notification;
 import android.content.Intent;
 import android.util.Log;
-import android.widget.Toast;
-
-import com.google.android.gms.awareness.snapshot.DetectedActivityResponse;
-import com.google.android.gms.location.DetectedActivity;
 import androidx.annotation.Nullable;
-
-import com.clj.fastble.BleManager;
-import com.google.android.gms.location.ActivityRecognitionResult;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.awareness.Awareness;
-
-import java.util.ArrayList;
 
 
 public class BackgroundScanWork extends IntentService {
@@ -59,7 +48,7 @@ public class BackgroundScanWork extends IntentService {
     }
 
     private Notification getNotification(){
-        return App.getMyAppsNotificationManager().getNotification(MainActivity.class,
+        return App.getMyAppsNotificationManager().getNotification(MapsActivity.class,
                 "BackgroundService running",
                 1,
                 false,

@@ -68,9 +68,6 @@ public class Location  {
     /* Returns the coordinate in LatLng format (the format which accepts Google Maps SDK) */
     @Exclude
     public LatLng getLatLng () {
-        System.out.println(coordinates);
-        System.out.println(GeoHash.fromGeohashString(coordinates));
-        System.out.println(GeoHash.fromGeohashString(coordinates).getOriginatingPoint());
         WGS84Point point = GeoHash.fromGeohashString(coordinates).getOriginatingPoint();
         return new LatLng(point.getLatitude(), point.getLongitude());
     }
@@ -79,12 +76,6 @@ public class Location  {
     public GeoHash getLocationGeoHashed () {
         return coordinatesGeoHashed;
     }
-
-//    /* This static method creates a new Crowd on database if it doesn't exist, or updates data of an existing crowd */
-//    public void updateCrowd (DatabaseReference locationReference) {
-//        //current time + this.location + nrDevices
-//        locationReference.setValue(this);
-//    }
 
     //Firebase
     @Exclude

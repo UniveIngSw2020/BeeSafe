@@ -1,14 +1,15 @@
 package com.bufferoverflow.beesafe;
 
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentActivity;
 
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.TileOverlay;
 import com.google.android.gms.maps.model.TileOverlayOptions;
 import com.google.maps.android.heatmaps.Gradient;
 import com.google.maps.android.heatmaps.HeatmapTileProvider;
@@ -20,6 +21,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     private static GoogleMap map;
     private boolean mIsRestore;
+    private Intent serviceIntent;
 
     private static Map<String, Location> locations = new HashMap<>();
 
@@ -42,6 +44,21 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mIsRestore = savedInstanceState != null;
         setContentView(R.layout.map);
         setUpMap();
+
+        Profile user = Profile.getInstance(this);
+        user.updateCurrentPosition(45.503810, 12.260870); //
+        final Area currentArea = user.getCurrentArea();
+
+        /* To upload some samples
+            currentArea.addLocation(new Location(new LatLng(45.503810, 12.260870), 15));
+            try { Thread.currentThread().sleep(2000); } catch (InterruptedException ignored) { }
+            currentArea.addLocation(new Location(new LatLng(45.479740, 12.249590),17));
+            try { Thread.currentThread().sleep(2000); } catch (InterruptedException ignored) { }
+            currentArea.addLocation(new Location(new LatLng(45.497735, 12.2676424), 30));
+        */
+
+        serviceIntent = new Intent(getApplicationContext(),BackgroundScanWork.class);
+        ContextCompat.startForegroundService(this,serviceIntent);
     }
 
     @Override
@@ -49,8 +66,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         if (this.map != null)
             return;
         this.map = map;
-
-
 
         map.setMaxZoomPreference((float) 17.9);
         /* Updating radius on zoom for more accurate heatmap */
@@ -92,6 +107,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         ((SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map)).getMapAsync(this);
     }
 
+    //HeatMap
     public static void addLocationToMap(Location location) {
         locations.put(location.getCoordinates(), location);
         Gradient g = (location.nrDevices <20) ? HEATMAP_ORANGE : HEATMAP_RED;
@@ -110,6 +126,15 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         locations.remove(location.getCoordinates());
         location.overlay.remove();
         location.overlay.clearTileCache();
+    }
+
+    //Pinpoint for saved place
+    public static void addFavoritePlaceToMap(FavoritePlace fav) {
+
+    }
+
+    public static void removeFavoritePlaceFromMap(FavoritePlace fav) {
+
     }
 
 }

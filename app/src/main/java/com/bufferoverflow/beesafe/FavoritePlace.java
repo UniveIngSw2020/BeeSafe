@@ -1,38 +1,33 @@
 package com.bufferoverflow.beesafe;
 
-import androidx.annotation.NonNull;
-
-import com.google.firebase.database.IgnoreExtraProperties;
-
-import java.io.Serializable;
-
+import com.google.android.gms.maps.model.LatLng;
 import ch.hsr.geohash.GeoHash;
+import ch.hsr.geohash.WGS84Point;
 
 /*
-    This class represents a local saved locations on user's device and has nothing to do with the database
-
+    This class represents a users saved location.
  */
 
-@IgnoreExtraProperties
 public class FavoritePlace {
 
-    private GeoHash  location;
-    private Location associatedLocation;
+    private String placeName;
+    private GeoHash  geohash;
     private boolean receiveNotifications; //If true, user get notified if this favorite place gets crowded
 
-    public FavoritePlace (Location location) {
-        this.location = location.getLocationGeoHashed();
-        this.associatedLocation = null;
+    public FavoritePlace (String geohash, String placeName) {
+        this.geohash = GeoHash.fromGeohashString(geohash);
+        this.placeName = placeName;
         this.receiveNotifications = true;
     }
 
-    public boolean existsData () {
-        return this.associatedLocation == null;
+    public LatLng getLatLng() {
+        WGS84Point point = geohash.getOriginatingPoint();
+        return new LatLng(point.getLatitude(), point.getLongitude());
     }
 
-    @NonNull
-    @Override
-    public String toString() {
-        return "Saved Location geohashes: " + location.toBase32();
+    public String getPlaceName () {
+        return placeName;
     }
+
+
 }
