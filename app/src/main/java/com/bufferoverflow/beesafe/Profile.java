@@ -2,46 +2,60 @@ package com.bufferoverflow.beesafe;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.util.Log;
+
+import androidx.annotation.NonNull;
+
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.installations.FirebaseInstallations;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.Serializable;
 import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.HashSet;
 import ch.hsr.geohash.GeoHash;
 
 /*
-    This class represents the user which is using the app. It should produce the same instance every time.
-    User has some local saved locations.
+    This class represents the user which is using the app. It should produce the same instance every time. (Singleton Pattern)
 */
 
 public class Profile {
 
-    /* For local storage saving */
-    private  final int PRIVATE_MODE = 0;
-    private final String PREF_NAME = "USER_DATA";
-    private final String FAV_PLACES = "FAV_PLACES";
-
     /* Properties */
-    private HashSet<FavoritePlace> favoritePlaces; //Saved locations of the user
+    private ArrayList<FavoritePlace> favoritePlaces; //Saved locations of the user
     private Area currentArea; //Current area GeoHashed
     private Area[] neighbourArea; //All 8 nearby GeoHash boxes N, NE, E, SE, S, SW, W, NW of precision 4
 
     private static Profile profile = null;
+    private String UID = null;
+
 
     /* Private constructor accessible only from getInstance method */
-    private Profile(Context c) {
+    private Profile() {
         currentArea = null;
         neighbourArea = new Area[8];
-        favoritePlaces = loadFavoritePlaces(c);
+        Task<String> userID = FirebaseInstallations.getInstance().getId();
+        userID.addOnCompleteListener( //Generating an unique id of this app installation
+                new OnCompleteListener<String>() {
+                    @Override
+                    public void onComplete(@NonNull Task<String> task) {
+                        UID = task.getResult();
+                    }
+                }
+        );
     }
 
-    public static Profile getInstance(Context c) {
+    public static Profile getInstance() {
         if (profile == null)
-            profile = new Profile(c);
+            profile = new Profile();
         return profile;
+
     }
 
     /* Updates the location of the user with the new Latitude and Longitude coordinates
@@ -61,42 +75,20 @@ public class Profile {
 
     public Area getCurrentArea () { return currentArea;  }
 
-    //Load Favorite places from local storage
-    private HashSet<FavoritePlace> loadFavoritePlaces(Context c) {
-        HashSet<FavoritePlace> favPlaces;
-        SharedPreferences sharedPreferences = c.getSharedPreferences(PREF_NAME, PRIVATE_MODE);
-        Gson favPlacesGSON = new Gson();
-        String json = sharedPreferences.getString(FAV_PLACES, null);
-        Type type = new TypeToken<HashSet<FavoritePlace>>() {}.getType();
-        favPlaces = favPlacesGSON.fromJson(json, type);
-        return (favPlaces == null) ? new HashSet<FavoritePlace>() : favPlaces;
-    }
-
-    //Save Favorite places to local storage
-    private void saveFavoritePlaces(Context c) {
-        SharedPreferences sharedPreferences = c.getSharedPreferences(PREF_NAME, PRIVATE_MODE);
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-        Gson favPlacesGSON = new Gson();
-        String favPlaces = favPlacesGSON.toJson(favoritePlaces);
-        editor.putString(FAV_PLACES, favPlaces);
-        editor.apply();
-    }
-
     /* Adds a location to favorites */
-    public void addFavoriteLocation (Location favorite, Context c) {
-        favoritePlaces.add(new FavoritePlace(favorite));
-        saveFavoritePlaces(c);
+    public void addFavoriteLocation (FavoritePlace fav) { //TODO
+        //add fav to db
+
     }
 
     /* Removes a location from favorites */
-    public void removeFavoriteLocation (FavoritePlace favorite, Context c) {
-        favoritePlaces.remove(favorite);
-        saveFavoritePlaces(c);
+    public void removeFavoriteLocation (FavoritePlace fav) { //TODO
+        //remove fav from db
     }
 
-    /* Get favorite locations of user */
-    @NotNull
-    public HashSet<FavoritePlace> getFavoriteLocation () {
-        return favoritePlaces;
-    }
+//    /* Get favorite locations of user */
+//    @NotNull
+//    public HashSet<FavoritePlace> getFavoriteLocation () {
+//        return favoritePlaces;
+//    }
 }

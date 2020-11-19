@@ -1,16 +1,26 @@
 package com.bufferoverflow.beesafe;
 
+import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentActivity;
 
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.provider.Settings;
+import android.util.Log;
+
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.TileOverlayOptions;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.iid.FirebaseInstanceId;
+import com.google.firebase.installations.FirebaseInstallations;
 import com.google.maps.android.heatmaps.Gradient;
 import com.google.maps.android.heatmaps.HeatmapTileProvider;
 import java.util.ArrayList;
@@ -22,6 +32,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private static GoogleMap map;
     private boolean mIsRestore;
     private Intent serviceIntent;
+    private FirebaseAuth mAuth;
 
     private static Map<String, Location> locations = new HashMap<>();
 
@@ -39,13 +50,21 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
 
     @Override
+    protected void onStart() {
+        super.onStart();
+
+
+    }
+
+    @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mIsRestore = savedInstanceState != null;
+
         setContentView(R.layout.map);
         setUpMap();
 
-        Profile user = Profile.getInstance(this);
+        Profile user = Profile.getInstance();
         user.updateCurrentPosition(45.503810, 12.260870); //
         final Area currentArea = user.getCurrentArea();
 
@@ -128,12 +147,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         location.overlay.clearTileCache();
     }
 
-    //Pinpoint for saved place
-    public static void addFavoritePlaceToMap(FavoritePlace fav) {
-
-    }
-
-    public static void removeFavoritePlaceFromMap(FavoritePlace fav) {
+    //Render Pinpoints representing saved place
+    public static void renderFavoritePlaces() {
+        Profile p = Profile.getInstance();
 
     }
 

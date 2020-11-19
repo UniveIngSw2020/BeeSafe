@@ -53,8 +53,6 @@ public class Area {
         @Override
         public void onChildRemoved(DataSnapshot dataSnapshot) {
             Location location = locations.remove(dataSnapshot.getKey());
-
-
             MapsActivity.removeLocationFromMap(location); //remove the location from the map
             Log.d("removed", "onChildRemoved:" + dataSnapshot.getKey()  + " " + dataSnapshot.getValue());
         }

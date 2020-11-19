@@ -168,10 +168,10 @@ public class Scan {
         return scanDevices.size();
     }
 
-    public void uploadResult(int nrDevices) {
-        Location l = new Location(new LatLng(45.503810, 12.260870), getDevicesNumber());
-        Profile.getInstance(context).getCurrentArea().addLocation(l);
-    }
+//    public void uploadResult(int nrDevices) {
+//        Location l = new Location(new LatLng(45.503810, 12.260870), getDevicesNumber());
+//        Profile.getInstance(context).getCurrentArea().addLocation(l);
+//    }
 
     // tries to minimize errors by blacklisting devices that are not phones
     public void filterManufacturer () {
