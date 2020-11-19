@@ -1,24 +1,35 @@
 package com.bufferoverflow.beesafe;
 
+import androidx.appcompat.app.AppCompatDelegate;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentActivity;
 
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
+
+import com.bufferoverflow.beesafe.BackgroundService.BackgroundScanWork;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.TileOverlayOptions;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.maps.android.heatmaps.Gradient;
 import com.google.maps.android.heatmaps.HeatmapTileProvider;
+import com.yarolegovich.lovelydialog.LovelyCustomDialog;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-public class MapsActivity extends FragmentActivity implements OnMapReadyCallback{
+public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
+
+    private MaterialAlertDialogBuilder materialAlertDialogBuilder;
 
     private static GoogleMap map;
     private boolean mIsRestore;
@@ -55,7 +66,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         setContentView(R.layout.map);
         setUpMap();
 
-        Profile user = Profile.getInstance(this);
+        User user = User.getInstance(this);
         user.updateCurrentPosition(45.503810, 12.260870); //
         final Area currentArea = user.getCurrentArea();
 
@@ -67,7 +78,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             currentArea.addLocation(new Location(new LatLng(45.497735, 12.2676424), 30));
         */
 
-        serviceIntent = new Intent(getApplicationContext(),BackgroundScanWork.class);
+        serviceIntent = new Intent(getApplicationContext(), BackgroundScanWork.class);
         ContextCompat.startForegroundService(this,serviceIntent);
     }
 
@@ -111,6 +122,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 }
             }
         });
+
+
+        dialog();
+
     }
 
     private void setUpMap() {
@@ -138,10 +153,21 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         location.overlay.clearTileCache();
     }
 
-//    //Render Pinpoints representing saved place
-//    public static void renderFavoritePlaces() {
-//        Profile p = Profile.getInstance();
-//
-//    }
+
+    private void dialog() {
+        new LovelyCustomDialog(this)
+                .setView(R.layout.add_favorite)
+                .setTopColorRes(R.color.colorPrimary)
+                .setIcon(R.drawable.favorite_icon)
+                .configureView(rootView -> {
+                    Button b = rootView.findViewById(R.id.btnLogin);
+                    b.setOnClickListener(view -> {
+                        EditText editText = rootView.findViewById(R.id.etEmail);
+                        String temp = editText.getText().toString();
+                        System.out.println("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXx" +  temp);
+                    });
+                })
+                .show();
+    }
 
 }

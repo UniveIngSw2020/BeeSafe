@@ -1,4 +1,4 @@
-package com.bufferoverflow.beesafe;
+package com.bufferoverflow.beesafe.BackgroundService;
 
 import android.app.Notification;
 import android.app.NotificationChannel;
@@ -11,6 +11,8 @@ import android.os.Build;
 
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
+
+import com.bufferoverflow.beesafe.R;
 
 public class AppPersistentNotificationManager {
 

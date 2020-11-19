@@ -1,10 +1,13 @@
-package com.bufferoverflow.beesafe;
+package com.bufferoverflow.beesafe.BackgroundService;
 
 import android.app.IntentService;
 import android.app.Notification;
 import android.content.Intent;
 import android.util.Log;
 import androidx.annotation.Nullable;
+
+import com.bufferoverflow.beesafe.MapsActivity;
+import com.bufferoverflow.beesafe.Scan;
 
 
 public class BackgroundScanWork extends IntentService {

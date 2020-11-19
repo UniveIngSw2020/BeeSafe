@@ -4,4 +4,12 @@
     <string name="permission_required_toast">Permission Required</string>
     <string name="location_permission_denied">Permission denied</string>
     <string name="permission_rationale_location">Retionale Location\\</string>Location Permission Required/string>
+
+    <!-- Add Favorite Dialog -->
+    <!-- ***************Start************* -->
+    <string name="custom_name">Location:</string>
+    <string name="custom_email">your email:</string>
+    <string name="custom_feedback">your message:</string>
+    <string name="dont_ask_again">0</string>
+    <!-- ***************FINISH************* -->
 </resources>

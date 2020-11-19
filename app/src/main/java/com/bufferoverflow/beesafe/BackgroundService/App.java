@@ -1,6 +1,8 @@
-package com.bufferoverflow.beesafe;
+package com.bufferoverflow.beesafe.BackgroundService;
 
 import android.app.Application;
+
+import com.bufferoverflow.beesafe.BackgroundService.AppPersistentNotificationManager;
 
 public class App extends Application {
 

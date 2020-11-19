@@ -14,7 +14,7 @@ import ch.hsr.geohash.GeoHash;
     This class represents the user which is using the app. It should produce the same instance every time. (Singleton Pattern)
 */
 
-public class Profile {
+public class User {
 
     /* For local storage saving */
     private final int PRIVATE_MODE = 0;
@@ -26,20 +26,20 @@ public class Profile {
     private Area[] neighbourArea; //All 8 nearby GeoHash boxes N, NE, E, SE, S, SW, W, NW of precision 4
 
     /* Singleton Design Pattern */
-    private static Profile profile = null;
+    private static User user = null;
 
     /* Private constructor accessible only from getInstance method */
-    private Profile(Context c) {
+    private User(Context c) {
         loadFavoritePlaces(c);
         currentArea = null;
         neighbourArea = new Area[8];
     }
 
     /* Singleton Design Pattern */
-    public static Profile getInstance(Context c) {
-        if (profile == null)
-            profile = new Profile(c);
-        return profile;
+    public static User getInstance(Context c) {
+        if (user == null)
+            user = new User(c);
+        return user;
     }
 
     /* Updates the location of the user with the new Latitude and Longitude coordinates
