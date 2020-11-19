@@ -2,23 +2,12 @@ package com.bufferoverflow.beesafe;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.util.Log;
-
-import androidx.annotation.NonNull;
-
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.installations.FirebaseInstallations;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import org.jetbrains.annotations.NotNull;
-
-import java.io.Serializable;
 import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.HashMap;
+import java.util.Map;
 import ch.hsr.geohash.GeoHash;
 
 /*
@@ -27,35 +16,30 @@ import ch.hsr.geohash.GeoHash;
 
 public class Profile {
 
+    /* For local storage saving */
+    private final int PRIVATE_MODE = 0;
+    private final String PREF_NAME = "USER_DATA";
+
     /* Properties */
-    private ArrayList<FavoritePlace> favoritePlaces; //Saved locations of the user
+    private HashMap<String, FavoritePlace> favoritePlaces; //Saved locations of the user
     private Area currentArea; //Current area GeoHashed
     private Area[] neighbourArea; //All 8 nearby GeoHash boxes N, NE, E, SE, S, SW, W, NW of precision 4
 
+    /* Singleton Design Pattern */
     private static Profile profile = null;
-    private String UID = null;
-
 
     /* Private constructor accessible only from getInstance method */
-    private Profile() {
+    private Profile(Context c) {
+        loadFavoritePlaces(c);
         currentArea = null;
         neighbourArea = new Area[8];
-        Task<String> userID = FirebaseInstallations.getInstance().getId();
-        userID.addOnCompleteListener( //Generating an unique id of this app installation
-                new OnCompleteListener<String>() {
-                    @Override
-                    public void onComplete(@NonNull Task<String> task) {
-                        UID = task.getResult();
-                    }
-                }
-        );
     }
 
-    public static Profile getInstance() {
+    /* Singleton Design Pattern */
+    public static Profile getInstance(Context c) {
         if (profile == null)
-            profile = new Profile();
+            profile = new Profile(c);
         return profile;
-
     }
 
     /* Updates the location of the user with the new Latitude and Longitude coordinates
@@ -75,20 +59,51 @@ public class Profile {
 
     public Area getCurrentArea () { return currentArea;  }
 
-    /* Adds a location to favorites */
-    public void addFavoriteLocation (FavoritePlace fav) { //TODO
-        //add fav to db
-
+    /*  Save a favorite place to local storage.
+     *  Should be called only within this class after saving a new favorite place.
+     *  Should be called every time a new place is added.
+     *  TODO : Render the favorite place on map before calling this method.
+     */
+    private void addFavoritePlace(FavoritePlace fav, Context c) {
+        favoritePlaces.put(fav.getGeoHash(), fav); //Adding to the field
+        SharedPreferences sharedPreferences = c.getSharedPreferences(PREF_NAME, PRIVATE_MODE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        Gson favPlacesGSON = new Gson();
+        String favorite = favPlacesGSON.toJson(fav);
+        editor.putString(fav.getGeoHash(), favorite); //Saving locally | key:geohash -> value:FavoritePlace
+        editor.apply();
     }
 
-    /* Removes a location from favorites */
-    public void removeFavoriteLocation (FavoritePlace fav) { //TODO
-        //remove fav from db
+    /* Removes a location from favorites (RAM + Local Storage)
+     * TODO : Remove the favorite place from the map before calling this map.
+     */
+    public void removeFavoritePlace (FavoritePlace fav, Context c) {
+        if (favoritePlaces.containsKey(fav.getGeoHash())) {
+            favoritePlaces.remove(fav.getGeoHash()); //Remove from field
+            SharedPreferences preferences = c.getSharedPreferences(PREF_NAME, PRIVATE_MODE);
+            preferences.edit().remove(fav.getGeoHash()).apply(); //Removing from local storage
+        }
     }
 
-//    /* Get favorite locations of user */
-//    @NotNull
-//    public HashSet<FavoritePlace> getFavoriteLocation () {
-//        return favoritePlaces;
-//    }
+    /*  Load favorite locations from local storage
+     *  Should be called when opening the map to get the favorite places from local storage
+     *  TODO : If this method is called from the map activity, render the map after calling this method.
+     */
+    public void loadFavoritePlaces (Context c) {
+        SharedPreferences sharedPreferences = c.getSharedPreferences(PREF_NAME, PRIVATE_MODE);
+        favoritePlaces = new HashMap<>(); //reset field
+        Map<String,?> keys = sharedPreferences.getAll();
+        for(Map.Entry<String,?> entry : keys.entrySet()){ //for every locally saved FavoritePlace
+            Gson favPlacesGSON = new Gson(); //We create a new Gson object
+            String json = entry.getValue().toString(); //Getting the key(GeoHash)
+            Type type = new TypeToken<FavoritePlace>() {}.getType();
+            FavoritePlace favorite = favPlacesGSON.fromJson(json, type);
+            favoritePlaces.put(entry.getKey(), favorite); //Adding FavoriteLocation to field
+        }
+    }
+
+    /* Get favorite locations of the user */
+    public HashMap<String, FavoritePlace> getFavoriteLocation () {
+        return favoritePlaces != null ? favoritePlaces : new HashMap<String, FavoritePlace>();
+    }
 }

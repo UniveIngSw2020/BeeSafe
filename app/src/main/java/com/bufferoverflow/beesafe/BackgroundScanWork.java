@@ -20,6 +20,15 @@ public class BackgroundScanWork extends IntentService {
     @Override
     protected void onHandleIntent(@Nullable Intent intent) {
         startForeground(1, getNotification());
+
+        //Profile.getInstance().activateFavoritePlaceListeners(); //Activate the listeners for saved locations (To get notifications)
+
+//        Profile.getInstance().saveFavoritePlace(new FavoritePlace("xxxx", "Bar"), this);
+//        Profile.getInstance().saveFavoritePlace(new FavoritePlace("yyyy", "VVV"), this);
+//        Profile.getInstance().saveFavoritePlace(new FavoritePlace("zzzz", "XXX"), this);
+
+        //Profile.getInstance().loadFavoritePlaces(this);
+
         tracingServiceLoop();
     }
 
