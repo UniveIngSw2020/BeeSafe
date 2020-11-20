@@ -31,7 +31,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="left"
         android:layout_marginTop="5dp"
-        android:text="@string/name_bar_casa"
+        android:text="@string/namePlace"
         android:textColor="@color/place_autocomplete_prediction_primary_text_highlight"
         android:textSize="18sp"
         android:textStyle="bold" />
@@ -54,6 +54,17 @@
         android:layout_gravity="left"
         android:layout_marginTop="5dp"
         android:text="@string/approximation"
+        android:textColor="@color/place_autocomplete_prediction_primary_text_highlight"
+        android:textSize="18sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/lastUpdateText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="left"
+        android:layout_marginTop="5dp"
+        android:text="@string/last_update"
         android:textColor="@color/place_autocomplete_prediction_primary_text_highlight"
         android:textSize="18sp"
         android:textStyle="bold" />

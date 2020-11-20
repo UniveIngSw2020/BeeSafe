@@ -72,6 +72,9 @@ public class User {
         String favorite = favPlacesGSON.toJson(fav);
         editor.putString(fav.getGeoHash(), favorite); //Saving locally | key:geohash -> value:FavoritePlace
         editor.apply();
+        for (FavoritePlace l : favoritePlaces.values()) {
+            System.out.println(l.getPlaceName() + " | " + l.getGeoHash());
+        }
     }
 
     /* Removes a location from favorites (RAM + Local Storage)

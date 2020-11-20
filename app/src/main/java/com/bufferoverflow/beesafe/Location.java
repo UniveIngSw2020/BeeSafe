@@ -6,7 +6,6 @@ import com.google.android.gms.maps.model.TileOverlay;
 import com.google.firebase.database.Exclude;
 import com.google.maps.android.heatmaps.HeatmapTileProvider;
 
-import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import ch.hsr.geohash.GeoHash;
@@ -53,7 +52,7 @@ public class Location  {
     public Location (LatLng coordinates, int nrDevices) {
         this.coordinatesGeoHashed = GeoHash.withCharacterPrecision(coordinates.latitude, coordinates.longitude, PRECISION);
         this.coordinates = coordinatesGeoHashed.toBase32();
-        this.lastSeen = ISO_8601_FORMAT.format(new Date());
+        this.lastSeen = FavoritePlace.dateToString(FavoritePlace.currentTime());
         this.nrDevices = nrDevices;
     }
 
@@ -77,6 +76,7 @@ public class Location  {
         return coordinatesGeoHashed;
     }
 
+
     //Firebase
     @Exclude
     public String getCoordinates() {
@@ -87,7 +87,7 @@ public class Location  {
         return nrDevices;
     }
     //Firebase
-    public String getLastSeen() {
+    public String getTime() {
         return lastSeen;
     }
 

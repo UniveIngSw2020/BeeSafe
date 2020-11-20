@@ -1,9 +1,11 @@
 package com.bufferoverflow.beesafe;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentActivity;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.graphics.Color;
 import android.location.Address;
@@ -15,6 +17,7 @@ import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import com.bufferoverflow.beesafe.AuxTools.AuxDateTime;
 import com.bufferoverflow.beesafe.BackgroundService.BackgroundScanWork;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -25,14 +28,29 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.TileOverlayOptions;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+import com.google.gson.internal.bind.util.ISO8601Utils;
 import com.google.maps.android.heatmaps.Gradient;
 import com.google.maps.android.heatmaps.HeatmapTileProvider;
 import com.yarolegovich.lovelydialog.LovelyCustomDialog;
 
+import java.text.ParseException;
+import java.text.ParsePosition;
+import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+import java.util.concurrent.CountDownLatch;
 
 import ch.hsr.geohash.GeoHash;
 
@@ -191,12 +209,16 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
 
     private void addFavorite(LatLng coordinates) {
+        String geoHash = GeoHash.geoHashStringWithCharacterPrecision(coordinates.latitude, coordinates.longitude, Location.PRECISION); //geoHash of Location (8 Precision)
+        String areaGeoHash = GeoHash.geoHashStringWithCharacterPrecision(coordinates.latitude, coordinates.longitude, Area.PRECISION); //geoHash of Area (4 Precision)
+
+        System.out.println("XXXXXXXXXXXXXXXXXXXX:" + geoHash + "|" + areaGeoHash);
         System.out.println("ADDDDDDDDDDDDDDDDDD" + coordinates);
         Geocoder geocoder = new Geocoder(this);
         List<Address> matches = new ArrayList<>();
         try { matches = geocoder.getFromLocation(coordinates.latitude, coordinates.longitude, 1); } catch (Exception ignored){};
         String streetName = (matches.isEmpty() ? "" : matches.get(0).getAddressLine(0));
-        String geoHash = GeoHash.geoHashStringWithCharacterPrecision(coordinates.latitude, coordinates.longitude, Location.PRECISION);
+        //String geoHash = GeoHash.geoHashStringWithCharacterPrecision(coordinates.latitude, coordinates.longitude, Location.PRECISION);
 
         new LovelyCustomDialog(this)
                 .setView(R.layout.add_favorite)
@@ -217,29 +239,45 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 .show();
     }
 
+    @SuppressLint("SetTextI18n")
     private void viewFavorite(LatLng coordinates) {
-        System.out.println("VIEWWWWWWWWWWWWWWWWWW" + coordinates);
-        String geoHash = GeoHash.geoHashStringWithCharacterPrecision(coordinates.latitude, coordinates.longitude, Location.PRECISION);
+        String geoHash = GeoHash.geoHashStringWithCharacterPrecision(coordinates.latitude, coordinates.longitude, Location.PRECISION); //geoHash of Location (8 Precision)
+        String areaGeoHash = GeoHash.geoHashStringWithCharacterPrecision(coordinates.latitude, coordinates.longitude, Area.PRECISION); //geoHash of Area (4 Precision)
+        FavoritePlace fav = User.getInstance(this).getFavoriteLocation(geoHash);
+        String namePlace = fav.getPlaceName();
+
+        //Get pretty printed street name using Google Maps API
         Geocoder geocoder = new Geocoder(this);
         List<Address> matches = new ArrayList<>();
         try { matches = geocoder.getFromLocation(coordinates.latitude, coordinates.longitude, 1); } catch (Exception ignored){};
         String streetName = (matches.isEmpty() ? "" : matches.get(0).getAddressLine(0));
-        FavoritePlace fav = User.getInstance(this).getFavoriteLocation(geoHash);
-        String name = fav.getPlaceName();
-        Boolean crowded = false; //TODO : Check if place is crowded based on data present on database
-        Integer approximation = 25; //TODO : Get nr of devices from database
 
         new LovelyCustomDialog(this)
                 .setView(R.layout.view_favorite)
                 .setTopColorRes(R.color.colorPrimary)
                 .setIcon(R.drawable.favorite_icon)
                 .configureView(rootView -> {
-                    //Update textboxes
-                    ((TextView)rootView.findViewById(R.id.streetNameText)).setText(streetName); //Street Name
-                    ((TextView)rootView.findViewById(R.id.customNameText)).setText(name); //Name of this favorite location
-                    ((TextView)rootView.findViewById(R.id.crowdedText)).setText(R.string.crowded + (crowded == true ? R.string.yes : R.string.no)); //Crowded //TODO Add no_data check
-                    ((TextView)rootView.findViewById(R.id.approximationText)).setText(R.string.approximation + approximation + R.string.persons); //Approximation
+                    DatabaseReference rootRef = FirebaseDatabase.getInstance().getReference().child(areaGeoHash).child(geoHash);
+                    rootRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(@NonNull DataSnapshot snapshot) {
+                            String approximation;
+                            int crowdType = fav.crowdType(snapshot);
+                            String crowd = getString(R.string.crowded) + getString(crowdType);
+                            if (crowdType == R.string.no_data)
+                                approximation = getString(R.string.approximation) + getString(R.string.no_data);
+                            else
+                                approximation = getString(R.string.approximation) + fav.getNrDevices(snapshot) + getString(R.string.persons);
+                            ((TextView) rootView.findViewById(R.id.crowdedText)).setText(crowd); //update crowded text
+                            ((TextView) rootView.findViewById(R.id.lastUpdateText)).setText(getString(R.string.last_update) + AuxDateTime.getLastSeen(snapshot) + getString(R.string.minutes_ago)); //update last seen in minutes
+                            ((TextView)  rootView.findViewById(R.id.approximationText)).setText(approximation); //update approximation
+                        }
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError error) { }
+                    });
 
+                    ((TextView)rootView.findViewById(R.id.streetNameText)).setText(streetName); //Street Name
+                    ((TextView)rootView.findViewById(R.id.customNameText)).setText(getString(R.string.namePlace) + namePlace); //Name of this favorite location
                     Button btnSave = rootView.findViewById(R.id.btnRemove);
                     btnSave.setOnClickListener(view -> { //Removing
                         User.getInstance(this).removeFavoritePlace(geoHash, this);

@@ -13,6 +13,8 @@ import com.google.android.gms.location.ActivityRecognitionResult;
 import com.google.android.gms.location.DetectedActivity;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.database.DataSnapshot;
+
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -20,6 +22,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+
+enum Crowded {
+    NO_DATA,
+    SAFE,
+    LOW,
+    HIGH
+}
 
 public class Scan {
 
@@ -191,4 +200,8 @@ public class Scan {
                 scanDevices.remove(b.getKey());
         }
     }
+
+
+
+
 }
