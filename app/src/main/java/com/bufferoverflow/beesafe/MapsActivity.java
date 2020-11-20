@@ -20,6 +20,8 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.TileOverlayOptions;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.firebase.auth.FirebaseAuth;
@@ -132,10 +134,23 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             }
         });
 
+        /* On long click on a position on the map, the popup gets displayed */
         map.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
             @Override
             public void onMapLongClick(LatLng latLng) {
                 addFavorite(latLng);
+                Marker m = map.addMarker(new MarkerOptions()
+                        .position(latLng)
+                        .title("Albania"));
+            }
+        });
+
+        /* On marker click listener to view a favorite place */
+        map.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+            @Override
+            public boolean onMarkerClick(Marker marker) {
+                viewFavorite(marker.getPosition());
+                return false;
             }
         });
 
@@ -176,15 +191,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
 
     private void addFavorite(LatLng coordinates) {
+        System.out.println("ADDDDDDDDDDDDDDDDDD" + coordinates);
         Geocoder geocoder = new Geocoder(this);
         List<Address> matches = new ArrayList<>();
-        try {
-            matches = geocoder.getFromLocation(coordinates.latitude, coordinates.longitude, 1);
-        } catch (Exception ignored){};
-
+        try { matches = geocoder.getFromLocation(coordinates.latitude, coordinates.longitude, 1); } catch (Exception ignored){};
         String streetName = (matches.isEmpty() ? "" : matches.get(0).getAddressLine(0));
-
-        //String streetName = matches.get(0); //TODO : Use Maps API to get a pretty print name (in format Street, City, Country) of these coordinates
         String geoHash = GeoHash.geoHashStringWithCharacterPrecision(coordinates.latitude, coordinates.longitude, Location.PRECISION);
 
         new LovelyCustomDialog(this)
@@ -207,8 +218,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
     private void viewFavorite(LatLng coordinates) {
+        System.out.println("VIEWWWWWWWWWWWWWWWWWW" + coordinates);
         String geoHash = GeoHash.geoHashStringWithCharacterPrecision(coordinates.latitude, coordinates.longitude, Location.PRECISION);
-        String streetName = "Via xx, Tirana, ALbania"; //TODO : Use Maps API to get a pretty print name (in format Street, City, Country) of these coordinates
+        Geocoder geocoder = new Geocoder(this);
+        List<Address> matches = new ArrayList<>();
+        try { matches = geocoder.getFromLocation(coordinates.latitude, coordinates.longitude, 1); } catch (Exception ignored){};
+        String streetName = (matches.isEmpty() ? "" : matches.get(0).getAddressLine(0));
         FavoritePlace fav = User.getInstance(this).getFavoriteLocation(geoHash);
         String name = fav.getPlaceName();
         Boolean crowded = false; //TODO : Check if place is crowded based on data present on database
@@ -220,10 +235,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 .setIcon(R.drawable.favorite_icon)
                 .configureView(rootView -> {
                     //Update textboxes
-                    ((TextView)findViewById(R.id.streetNameText)).setText(streetName); //Street Name
-                    ((TextView)findViewById(R.id.customNameText)).setText(name); //Name of this favorite location
-                    ((TextView)findViewById(R.id.crowdedText)).setText(R.string.crowded + (crowded == true ? R.string.yes : R.string.no)); //Crowded //TODO Add no_data check
-                    ((TextView)findViewById(R.id.approximationText)).setText(R.string.approximation + approximation + R.string.persons); //Approximation
+                    ((TextView)rootView.findViewById(R.id.streetNameText)).setText(streetName); //Street Name
+                    ((TextView)rootView.findViewById(R.id.customNameText)).setText(name); //Name of this favorite location
+                    ((TextView)rootView.findViewById(R.id.crowdedText)).setText(R.string.crowded + (crowded == true ? R.string.yes : R.string.no)); //Crowded //TODO Add no_data check
+                    ((TextView)rootView.findViewById(R.id.approximationText)).setText(R.string.approximation + approximation + R.string.persons); //Approximation
 
                     Button btnSave = rootView.findViewById(R.id.btnRemove);
                     btnSave.setOnClickListener(view -> { //Removing
@@ -236,5 +251,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private void renderFavoritePlaces () { //TODO
 
     }
+
 
 }
