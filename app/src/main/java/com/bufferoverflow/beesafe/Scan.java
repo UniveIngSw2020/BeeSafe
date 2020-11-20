@@ -23,12 +23,6 @@ import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-enum Crowded {
-    NO_DATA,
-    SAFE,
-    LOW,
-    HIGH
-}
 
 public class Scan {
 

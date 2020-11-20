@@ -65,24 +65,6 @@ public class FavoritePlace implements Serializable {
         return ((Long) snapshot.child("nrDevices").getValue()).intValue();
     }
 
-    /* This static method checks if the passed snapshot, is Crowd or not */
-    public int crowdType (DataSnapshot snapshot) {
-        Object snap = snapshot.child("nrDevices").getValue();
-        System.out.println("WWWWWWWWWWWWWWWWWWWWWW" + snapshot.child("nrDevices").getValue());
-        if (snap == null)
-            return R.string.no_data;
-        else {
-            int nrDevices = ((Long) snap).intValue();
-            if (nrDevices < 20)
-                return R.string.safe;
-            else if (nrDevices < 30)
-                return R.string.low;
-            else
-                return R.string.high;
-        }
-    }
-
-
     /* Activated the listener for database change on this favorite place */
     public void enableEventListener () {
         DatabaseReference db = FirebaseDatabase.getInstance().getReference("/u20d/u20dwxrf");

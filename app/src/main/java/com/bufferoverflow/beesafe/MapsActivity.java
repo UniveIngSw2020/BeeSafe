@@ -17,6 +17,7 @@ import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import com.bufferoverflow.beesafe.AuxTools.AuxCrowd;
 import com.bufferoverflow.beesafe.AuxTools.AuxDateTime;
 import com.bufferoverflow.beesafe.BackgroundService.BackgroundScanWork;
 import com.google.android.gms.maps.GoogleMap;
@@ -257,20 +258,30 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 .setTopColorRes(R.color.colorPrimary)
                 .setIcon(R.drawable.favorite_icon)
                 .configureView(rootView -> {
+                    TextView crowdedText = rootView.findViewById(R.id.crowdedText);
+                    TextView lastUpdateText = rootView.findViewById(R.id.lastUpdateText);
+                    TextView approximationText = rootView.findViewById(R.id.approximationText);
+
                     DatabaseReference rootRef = FirebaseDatabase.getInstance().getReference().child(areaGeoHash).child(geoHash);
                     rootRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                        @SuppressLint("SetTextI18n")
                         @Override
                         public void onDataChange(@NonNull DataSnapshot snapshot) {
-                            String approximation;
-                            int crowdType = fav.crowdType(snapshot);
-                            String crowd = getString(R.string.crowded) + getString(crowdType);
-                            if (crowdType == R.string.no_data)
-                                approximation = getString(R.string.approximation) + getString(R.string.no_data);
-                            else
-                                approximation = getString(R.string.approximation) + fav.getNrDevices(snapshot) + getString(R.string.persons);
-                            ((TextView) rootView.findViewById(R.id.crowdedText)).setText(crowd); //update crowded text
-                            ((TextView) rootView.findViewById(R.id.lastUpdateText)).setText(getString(R.string.last_update) + AuxDateTime.getLastSeen(snapshot) + getString(R.string.minutes_ago)); //update last seen in minutes
-                            ((TextView)  rootView.findViewById(R.id.approximationText)).setText(approximation); //update approximation
+                            String crowd, approximation, lastUpdate;
+                            if (snapshot.exists()) { // Data present on database for this favorite location
+                                int crowdType = AuxCrowd.crowdType(snapshot);
+                                crowd = getString(R.string.crowded) + getString(crowdType);
+                                approximation = getString(R.string.approximation) + fav.getNrDevices(snapshot) + getString(R.string.persons); //approximated people
+                                lastUpdate = getString(R.string.last_update) + AuxDateTime.getLastSeen(snapshot) + getString(R.string.minutes_ago); //last seen in minutes
+                            }
+                            else { //No data
+                                crowd = getString(R.string.crowded) + getString(R.string.no_data); //crowd density
+                                approximation = getString(R.string.approximation) + getString(R.string.no_data); //approximated people
+                                lastUpdate = getString(R.string.last_update) + getString(R.string.no_data); //last seen in minutes
+                            }
+                            crowdedText.setText(crowd); //update crowded text
+                            approximationText.setText(approximation); //update approximation
+                            lastUpdateText.setText(lastUpdate); //update last seen in minutes
                         }
                         @Override
                         public void onCancelled(@NonNull DatabaseError error) { }
@@ -286,7 +297,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 .show();
     }
 
-    private void renderFavoritePlaces () { //TODO
+    private void renderAllFavoritePlaces () { //TODO
 
     }
 

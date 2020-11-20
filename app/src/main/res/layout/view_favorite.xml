@@ -53,7 +53,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="left"
         android:layout_marginTop="5dp"
-        android:text="@string/approximation"
+        android:text="@string/blank"
         android:textColor="@color/place_autocomplete_prediction_primary_text_highlight"
         android:textSize="18sp"
         android:textStyle="bold" />
@@ -64,7 +64,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="left"
         android:layout_marginTop="5dp"
-        android:text="@string/last_update"
+        android:text="@string/blank"
         android:textColor="@color/place_autocomplete_prediction_primary_text_highlight"
         android:textSize="18sp"
         android:textStyle="bold" />

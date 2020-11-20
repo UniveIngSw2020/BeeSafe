@@ -1,6 +1,8 @@
 package com.bufferoverflow.beesafe;
 
 import android.annotation.SuppressLint;
+
+import com.bufferoverflow.beesafe.AuxTools.AuxDateTime;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.TileOverlay;
 import com.google.firebase.database.Exclude;
@@ -52,7 +54,7 @@ public class Location  {
     public Location (LatLng coordinates, int nrDevices) {
         this.coordinatesGeoHashed = GeoHash.withCharacterPrecision(coordinates.latitude, coordinates.longitude, PRECISION);
         this.coordinates = coordinatesGeoHashed.toBase32();
-        this.lastSeen = FavoritePlace.dateToString(FavoritePlace.currentTime());
+        this.lastSeen = AuxDateTime.dateToString(AuxDateTime.currentTime());
         this.nrDevices = nrDevices;
     }
 
