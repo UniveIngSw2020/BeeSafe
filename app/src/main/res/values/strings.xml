@@ -11,5 +11,9 @@
     <string name="custom_email">your email:</string>
     <string name="custom_feedback">your message:</string>
     <string name="dont_ask_again">0</string>
+    <string name="addFavText">Add this place to favorites</string>
+    <string name="via_xx_tirana_albania">Via xx, Tirana, Albania</string>
+    <string name="notifications">- Notifications</string>
+    <string name="save">Save</string>
     <!-- ***************FINISH************* -->
 </resources>

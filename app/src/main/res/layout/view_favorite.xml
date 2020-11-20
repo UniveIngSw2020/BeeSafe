@@ -7,70 +7,65 @@
     android:padding="10dp">
 
     <TextView
-        android:id="@+id/addFavText"
+        android:id="@+id/textView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="left"
         android:layout_marginTop="5dp"
-        android:text="@string/addFavText"
+        android:text="Remove this place from favorites"
         android:textSize="20sp"
         android:textStyle="bold" />
 
     <TextView
-        android:id="@+id/streetNameText"
+        android:id="@+id/textView55"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="left"
         android:layout_marginTop="5dp"
-        android:text="@string/via_xx_tirana_albania"
+        android:text="Via xx, Tirana, Albania"
         android:textSize="18sp" />
 
     <TextView
-        android:id="@+id/nameText"
+        android:id="@+id/textView2"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="left"
         android:layout_marginTop="5dp"
-        android:text="Name:"
+        android:text="Name: Bar Casa"
         android:textColor="@color/place_autocomplete_prediction_primary_text_highlight"
         android:textSize="18sp"
         android:textStyle="bold" />
 
-    <EditText
-        android:id="@+id/nameEditText"
+    <TextView
+        android:id="@+id/textView23"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
-        android:backgroundTint="@color/colorPrimary"
-        android:ems="10"
-        android:inputType="text"
-        android:shadowColor="@color/colorPrimary"
-        android:textCursorDrawable="@null" />
-
-    <CheckBox
-        android:id="@+id/notificationsCheckBox"
-        style="@style/Widget.MaterialComponents.CompoundButton.CheckBox"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="end"
+        android:layout_gravity="left"
         android:layout_marginTop="5dp"
-        android:buttonTint="@color/colorPrimary"
-        android:checked="true"
-        android:fontFamily="sans-serif"
-        android:text="@string/notifications"
-        android:textAppearance="@style/TextAppearance.AppCompat.Display3"
+        android:text="Affollato: Si"
         android:textColor="@color/place_autocomplete_prediction_primary_text_highlight"
         android:textSize="18sp"
-        app:useMaterialThemeColors="false" />
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/textView234"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="left"
+        android:layout_marginTop="5dp"
+        android:text="Approsimazzione: 25 Persone"
+        android:textColor="@color/place_autocomplete_prediction_primary_text_highlight"
+        android:textSize="18sp"
+        android:textStyle="bold" />
 
     <Button
-        android:id="@+id/btnSave"
+        android:id="@+id/btnLogin"
         style="@style/Widget.AppCompat.Button.Borderless"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
         android:background="@color/colorPrimary"
-        android:text="@string/save"
+        android:text="Remove"
         android:textColor="@android:color/white" />
 
 

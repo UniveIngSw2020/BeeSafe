@@ -124,7 +124,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         });
 
 
-        dialog();
+        addFavorite();
 
     }
 
@@ -154,9 +154,25 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
 
-    private void dialog() {
+    private void addFavorite() {
         new LovelyCustomDialog(this)
                 .setView(R.layout.add_favorite)
+                .setTopColorRes(R.color.colorPrimary)
+                .setIcon(R.drawable.favorite_icon)
+                .configureView(rootView -> {
+                    Button b = rootView.findViewById(R.id.btnLogin);
+                    b.setOnClickListener(view -> {
+                        EditText editText = rootView.findViewById(R.id.etEmail);
+                        String temp = editText.getText().toString();
+                        System.out.println("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXx" +  temp);
+                    });
+                })
+                .show();
+    }
+
+    private void viewFavorite() {
+        new LovelyCustomDialog(this)
+                .setView(R.layout.view_favorite)
                 .setTopColorRes(R.color.colorPrimary)
                 .setIcon(R.drawable.favorite_icon)
                 .configureView(rootView -> {
