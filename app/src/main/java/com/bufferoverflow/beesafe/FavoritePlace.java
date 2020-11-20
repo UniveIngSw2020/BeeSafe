@@ -28,10 +28,10 @@ public class FavoritePlace implements Serializable {
     private boolean receiveNotifications; //If true, user get notified if this favorite place gets crowded
 
 
-    public FavoritePlace (String geohash, String placeName) {
+    public FavoritePlace (String geohash, String placeName, Boolean notified) {
         this.geohash = geohash;
         this.placeName = placeName;
-        this.receiveNotifications = true;
+        this.receiveNotifications = notified;
         enableEventListener(); //Enables the notifications event listener
     }
 

@@ -22,7 +22,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="left"
         android:layout_marginTop="5dp"
-        android:text="@string/via_xx_tirana_albania"
+        android:text="@string/streetName"
         android:textSize="18sp" />
 
     <TextView

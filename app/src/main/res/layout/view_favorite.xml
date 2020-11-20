@@ -7,65 +7,65 @@
     android:padding="10dp">
 
     <TextView
-        android:id="@+id/textView"
+        android:id="@+id/removeFavText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="left"
         android:layout_marginTop="5dp"
-        android:text="Remove this place from favorites"
+        android:text="@string/remove_this_place_from_favorites"
         android:textSize="20sp"
         android:textStyle="bold" />
 
     <TextView
-        android:id="@+id/textView55"
+        android:id="@+id/streetNameText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="left"
         android:layout_marginTop="5dp"
-        android:text="Via xx, Tirana, Albania"
+        android:text="@string/streetName\"
         android:textSize="18sp" />
 
     <TextView
-        android:id="@+id/textView2"
+        android:id="@+id/customNameText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="left"
         android:layout_marginTop="5dp"
-        android:text="Name: Bar Casa"
+        android:text="@string/name_bar_casa"
         android:textColor="@color/place_autocomplete_prediction_primary_text_highlight"
         android:textSize="18sp"
         android:textStyle="bold" />
 
     <TextView
-        android:id="@+id/textView23"
+        android:id="@+id/crowdedText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="left"
         android:layout_marginTop="5dp"
-        android:text="Affollato: Si"
+        android:text="@string/crowded"
         android:textColor="@color/place_autocomplete_prediction_primary_text_highlight"
         android:textSize="18sp"
         android:textStyle="bold" />
 
     <TextView
-        android:id="@+id/textView234"
+        android:id="@+id/approximationText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="left"
         android:layout_marginTop="5dp"
-        android:text="Approsimazzione: 25 Persone"
+        android:text="@string/approximation"
         android:textColor="@color/place_autocomplete_prediction_primary_text_highlight"
         android:textSize="18sp"
         android:textStyle="bold" />
 
     <Button
-        android:id="@+id/btnLogin"
+        android:id="@+id/btnRemove"
         style="@style/Widget.AppCompat.Button.Borderless"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
         android:background="@color/colorPrimary"
-        android:text="Remove"
+        android:text="@string/remove"
         android:textColor="@android:color/white" />
 
 

@@ -12,8 +12,17 @@
     <string name="custom_feedback">your message:</string>
     <string name="dont_ask_again">0</string>
     <string name="addFavText">Add this place to favorites</string>
-    <string name="via_xx_tirana_albania">Via xx, Tirana, Albania</string>
     <string name="notifications">- Notifications</string>
     <string name="save">Save</string>
+    <string name="remove_this_place_from_favorites">Remove this place from favorites</string>
+    <string name="streetName" translatable="false">Via xx, Tirana, Albania</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
+    <string name="no_data">No data present</string>
+    <string name="name_bar_casa">Name: Bar Casa</string>
+    <string name="remove">Remove</string>
+    <string name="crowded">"Crowded: "</string>
+    <string name="approximation">"Approximation: "</string>
+    <string name="persons">"People"</string>
     <!-- ***************FINISH************* -->
 </resources>

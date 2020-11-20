@@ -37,7 +37,7 @@ public class Location  {
     @SuppressLint("SimpleDateFormat")
     private static final SimpleDateFormat ISO_8601_FORMAT = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:sss'Z'");
 
-    private static final int PRECISION = 8; //Precision of GeoHash - Precision 8 => 38.2m x 19.1m
+    public static final int PRECISION = 8; //Precision of GeoHash - Precision 8 => 38.2m x 19.1m
     private static final int BLUETOOTH_DEVICES_TRIGGER = 40; //Precision of GeoHash - Precision 8 => 38.2m x 19.1m
     private GeoHash coordinatesGeoHashed; //Coordinates of this location GeoHashed with a certain precision (suggested: 8)
 

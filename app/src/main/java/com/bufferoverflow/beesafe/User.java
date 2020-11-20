@@ -64,7 +64,7 @@ public class User {
      *  Should be called every time a new place is added.
      *  TODO : Render the favorite place on map before calling this method.
      */
-    private void addFavoritePlace(FavoritePlace fav, Context c) {
+    public void addFavoritePlace(FavoritePlace fav, Context c) {
         favoritePlaces.put(fav.getGeoHash(), fav); //Adding to the field
         SharedPreferences sharedPreferences = c.getSharedPreferences(PREF_NAME, PRIVATE_MODE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
@@ -77,11 +77,11 @@ public class User {
     /* Removes a location from favorites (RAM + Local Storage)
      * TODO : Remove the favorite place from the map before calling this map.
      */
-    public void removeFavoritePlace (FavoritePlace fav, Context c) {
-        if (favoritePlaces.containsKey(fav.getGeoHash())) {
-            favoritePlaces.remove(fav.getGeoHash()); //Remove from field
+    public void removeFavoritePlace (String geohash, Context c) {
+        if (favoritePlaces.containsKey(geohash)) {
+            favoritePlaces.remove(geohash); //Remove from field
             SharedPreferences preferences = c.getSharedPreferences(PREF_NAME, PRIVATE_MODE);
-            preferences.edit().remove(fav.getGeoHash()).apply(); //Removing from local storage
+            preferences.edit().remove(geohash).apply(); //Removing from local storage
         }
     }
 
@@ -102,8 +102,21 @@ public class User {
         }
     }
 
+    /* Get a favorite location from a geoHash */
+    public FavoritePlace getFavoriteLocation (String geoHash) {
+        if (favoritePlaces.containsKey(geoHash))
+            return favoritePlaces.get(geoHash);
+        else
+            return null;
+    }
+
     /* Get favorite locations of the user */
-    public HashMap<String, FavoritePlace> getFavoriteLocation () {
+    public HashMap<String, FavoritePlace> getFavoriteLocations () {
         return favoritePlaces != null ? favoritePlaces : new HashMap<String, FavoritePlace>();
+    }
+
+    /* Enable event listeners for the background service */
+    public void enableEventListenersFavPlaces() {
+
     }
 }

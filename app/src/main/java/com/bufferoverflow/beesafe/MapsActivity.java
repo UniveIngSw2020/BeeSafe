@@ -9,7 +9,9 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.TextView;
 
 import com.bufferoverflow.beesafe.BackgroundService.BackgroundScanWork;
 import com.google.android.gms.maps.GoogleMap;
@@ -26,6 +28,8 @@ import com.yarolegovich.lovelydialog.LovelyCustomDialog;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+
+import ch.hsr.geohash.GeoHash;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
 
@@ -154,33 +158,52 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
 
-    private void addFavorite() {
+
+    private void addFavorite(LatLng coordinates) {
+        String streetName = "Via xx, Tirana, ALbania"; //TODO : Use Maps API to get a pretty print name (in format Street, City, Country) of these coordinates
+        String geoHash = GeoHash.geoHashStringWithCharacterPrecision(coordinates.latitude, coordinates.longitude, Location.PRECISION);
+
         new LovelyCustomDialog(this)
                 .setView(R.layout.add_favorite)
                 .setTopColorRes(R.color.colorPrimary)
                 .setIcon(R.drawable.favorite_icon)
                 .configureView(rootView -> {
-                    Button b = rootView.findViewById(R.id.btnLogin);
-                    b.setOnClickListener(view -> {
-                        EditText editText = rootView.findViewById(R.id.etEmail);
-                        String temp = editText.getText().toString();
-                        System.out.println("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXx" +  temp);
+                    ((TextView)findViewById(R.id.streetNameText)).setText(streetName); //Update Street Name
+
+                    Button btnSave = rootView.findViewById(R.id.btnSave);
+                    btnSave.setOnClickListener(view -> { //Adding
+                        String name = ((EditText) rootView.findViewById(R.id.nameEditText)).getText().toString();
+                        Boolean notified = ((CheckBox)rootView.findViewById(R.id.notificationsCheckBox)).isChecked();
+                        FavoritePlace favorite = new FavoritePlace(geoHash, name, notified); //Creating the new fav place
+                        //TODO : Render it on map
+                        User.getInstance(this).addFavoritePlace(favorite, this); //Saving it
                     });
                 })
                 .show();
     }
 
-    private void viewFavorite() {
+    private void viewFavorite(LatLng coordinates) {
+        String geoHash = GeoHash.geoHashStringWithCharacterPrecision(coordinates.latitude, coordinates.longitude, Location.PRECISION);
+        String streetName = "Via xx, Tirana, ALbania"; //TODO : Use Maps API to get a pretty print name (in format Street, City, Country) of these coordinates
+        FavoritePlace fav = User.getInstance(this).getFavoriteLocation(geoHash);
+        String name = fav.getPlaceName();
+        Boolean crowded = false; //TODO : Check if place is crowded based on data present on database
+        Integer approximation = 25; //TODO : Get nr of devices from database
+
         new LovelyCustomDialog(this)
                 .setView(R.layout.view_favorite)
                 .setTopColorRes(R.color.colorPrimary)
                 .setIcon(R.drawable.favorite_icon)
                 .configureView(rootView -> {
-                    Button b = rootView.findViewById(R.id.btnLogin);
-                    b.setOnClickListener(view -> {
-                        EditText editText = rootView.findViewById(R.id.etEmail);
-                        String temp = editText.getText().toString();
-                        System.out.println("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXx" +  temp);
+                    //Update textboxes
+                    ((TextView)findViewById(R.id.streetNameText)).setText(streetName); //Street Name
+                    ((TextView)findViewById(R.id.customNameText)).setText(name); //Name of this favorite location
+                    ((TextView)findViewById(R.id.crowdedText)).setText(R.string.crowded + (crowded == true ? R.string.yes : R.string.no)); //Crowded //TODO Add no_data check
+                    ((TextView)findViewById(R.id.approximationText)).setText(R.string.approximation + approximation + R.string.persons); //Approximation
+
+                    Button btnSave = rootView.findViewById(R.id.btnRemove);
+                    btnSave.setOnClickListener(view -> { //Removing
+                        User.getInstance(this).removeFavoritePlace(geoHash, this);
                     });
                 })
                 .show();
