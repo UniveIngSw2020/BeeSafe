@@ -63,16 +63,35 @@
         android:textSize="18sp"
         app:useMaterialThemeColors="false" />
 
-    <Button
-        android:id="@+id/btnSave"
-        style="@style/Widget.AppCompat.Button.Borderless"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
-        android:background="@color/colorPrimary"
-        android:text="@string/save"
-        android:textColor="@android:color/white" />
+        android:orientation="horizontal">
 
+        <Button
+            android:id="@+id/btnCancel"
+            android:layout_weight="1"
+            style="@style/Widget.AppCompat.Button.Borderless"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:background="@color/colorPrimary"
+            android:text="@string/cancel"
+
+            android:textColor="@android:color/white" />
+
+        <Button
+            android:id="@+id/btnSave"
+            android:layout_weight="1"
+            style="@style/Widget.AppCompat.Button.Borderless"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:background="@color/colorPrimary"
+            android:text="@string/save"
+            android:textColor="@android:color/white" />
+
+    </LinearLayout>
 
 
 

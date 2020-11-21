@@ -8,6 +8,7 @@ import androidx.fragment.app.FragmentActivity;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.Dialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -54,6 +55,8 @@ import com.google.firebase.database.ValueEventListener;
 import com.google.maps.android.heatmaps.Gradient;
 import com.google.maps.android.heatmaps.HeatmapTileProvider;
 import com.yarolegovich.lovelydialog.LovelyCustomDialog;
+import com.yarolegovich.lovelydialog.LovelyStandardDialog;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -112,9 +115,6 @@ public class MapsActivity extends FragmentActivity implements
         setContentView(R.layout.map);
         setUpMap();
 
-
-
-
         /* To upload some samples
             currentArea.addLocation(new Location(new LatLng(45.503810, 12.260870), 15));
             try { Thread.currentThread().sleep(2000); } catch (InterruptedException ignored) { }
@@ -122,9 +122,6 @@ public class MapsActivity extends FragmentActivity implements
             try { Thread.currentThread().sleep(2000); } catch (InterruptedException ignored) { }
             currentArea.addLocation(new Location(new LatLng(45.497735, 12.2676424), 30));
         */
-
-        Log.d("XXXXXXXXXXX","Thread Maps ID " + Thread.currentThread().getId() );
-
 
         FusedLocationProviderClient fusedLocationClient = LocationServices.getFusedLocationProviderClient(getApplicationContext());
         fusedLocationClient.getLastLocation()
@@ -153,6 +150,7 @@ public class MapsActivity extends FragmentActivity implements
     @Override
     protected void onPause() {
         super.onPause();
+        onStop();
         disableAreaEventListner();
     }
 
@@ -222,9 +220,6 @@ public class MapsActivity extends FragmentActivity implements
 
         User user = User.getInstance(this);
         user.loadFavoritePlaces(this); //Load favorite places from local storage
-        for (FavoritePlace fav : user.getFavoriteLocations().values()) { //Load all Favorite Places
-            System.out.println("XXXXXXXXXX" + fav.getGeoHash() + " | " + fav.getPlaceName() + "| " + fav.getLatLng());
-        }
         for (FavoritePlace fav : user.getFavoriteLocations().values()) { //Load all Favorite Places
             Marker m = addFavoritePlaceToMap(fav); //Add favorite to Map
             savedPlaces.put(fav.getGeoHash(), m); //Save the Marker of this map
@@ -343,26 +338,33 @@ public class MapsActivity extends FragmentActivity implements
         try { matches = geocoder.getFromLocation(coordinates.latitude, coordinates.longitude, 1); } catch (Exception ignored){};
         String streetName = (matches.isEmpty() ? "" : matches.get(0).getAddressLine(0));
 
-        new LovelyCustomDialog(this)
-                .setView(R.layout.add_favorite)
-                .setTopColorRes(R.color.colorPrimary)
-                .setIcon(R.drawable.favorite_icon)
-                .configureView(rootView -> {
-                    ((TextView)rootView.findViewById(R.id.streetNameText)).setText(streetName); //Update Street Name
+        final LovelyCustomDialog addFavDialog = new LovelyCustomDialog(this);
+        addFavDialog.setView(R.layout.add_favorite);
+        addFavDialog.setTopColorRes(R.color.colorPrimary);
+        addFavDialog.configureView(rootView -> {
+            ((TextView)rootView.findViewById(R.id.streetNameText)).setText(streetName); //Update Street Name
 
-                    Button btnSave = rootView.findViewById(R.id.btnSave);
-                    btnSave.setOnClickListener(view -> { //Adding
-                        String name = ((EditText) rootView.findViewById(R.id.nameEditText)).getText().toString();
-                        Boolean notified = ((CheckBox)rootView.findViewById(R.id.notificationsCheckBox)).isChecked();
-                        FavoritePlace favorite = new FavoritePlace(geoHash, name, notified); //Creating the new fav place
+            Button btnSave = rootView.findViewById(R.id.btnSave);
+            btnSave.setOnClickListener(view -> { //Adding
+                String name = ((EditText) rootView.findViewById(R.id.nameEditText)).getText().toString();
+                Boolean notified = ((CheckBox)rootView.findViewById(R.id.notificationsCheckBox)).isChecked();
+                FavoritePlace favorite = new FavoritePlace(geoHash, name, notified); //Creating the new fav place
 
-                        User.getInstance(this).addFavoritePlace(favorite, this); //Saving it on local storage
-                        Marker m = addFavoritePlaceToMap(favorite); //Add favorite to Map
-                        savedPlaces.put(favorite.getGeoHash(), m); //Save the Marker of this map
+                User.getInstance(this).addFavoritePlace(favorite, this); //Saving it on local storage
+                Marker m = addFavoritePlaceToMap(favorite); //Add favorite to Map
+                savedPlaces.put(favorite.getGeoHash(), m); //Save the Marker of this map
 
-                    });
-                })
-                .show();
+                Toast.makeText(this, R.string.success_added, Toast.LENGTH_LONG).show();
+                addFavDialog.dismiss();
+
+            });
+
+            Button btnCancel = rootView.findViewById(R.id.btnCancel);
+            btnCancel.setOnClickListener(view -> { //Cancel
+                addFavDialog.dismiss();
+            });
+        });
+        addFavDialog.show();
     }
 
     //TODO Pass in marker
@@ -379,48 +381,56 @@ public class MapsActivity extends FragmentActivity implements
         try { matches = geocoder.getFromLocation(coordinates.latitude, coordinates.longitude, 1); } catch (Exception ignored){};
         String streetName = (matches.isEmpty() ? "" : matches.get(0).getAddressLine(0));
 
-        new LovelyCustomDialog(this)
-                .setView(R.layout.view_favorite)
-                .setTopColorRes(R.color.colorPrimary)
-                .setIcon(R.drawable.favorite_icon)
-                .configureView(rootView -> {
-                    TextView crowdedText = rootView.findViewById(R.id.crowdedText);
-                    TextView lastUpdateText = rootView.findViewById(R.id.lastUpdateText);
-                    TextView approximationText = rootView.findViewById(R.id.approximationText);
+        LovelyCustomDialog viewDialog = new LovelyCustomDialog(this);
+        viewDialog.setView(R.layout.view_favorite);
+        viewDialog.setTopColorRes(R.color.colorPrimary);
+        viewDialog.setIcon(R.drawable.favorite_icon);
+        viewDialog.configureView(rootView -> {
+            TextView crowdedText = rootView.findViewById(R.id.crowdedText);
+            TextView lastUpdateText = rootView.findViewById(R.id.lastUpdateText);
+            TextView approximationText = rootView.findViewById(R.id.approximationText);
 
-                    DatabaseReference rootRef = FirebaseDatabase.getInstance().getReference().child(areaGeoHash).child(geoHash);
-                    rootRef.addListenerForSingleValueEvent(new ValueEventListener() {
-                        @SuppressLint("SetTextI18n")
-                        @Override
-                        public void onDataChange(@NonNull DataSnapshot snapshot) {
-                            String crowd, approximation, lastUpdate;
-                            if (snapshot.exists()) { // Data present on database for this favorite location
-                                int crowdType = AuxCrowd.crowdType(snapshot);
-                                crowd = getString(R.string.crowded) + getString(crowdType);
-                                approximation = getString(R.string.approximation) + fav.getNrDevices(snapshot) + getString(R.string.persons); //approximated people
-                                lastUpdate = getString(R.string.last_update) + AuxDateTime.getLastSeen(snapshot) + getString(R.string.minutes_ago); //last seen in minutes
-                            }
-                            else { //No data
-                                crowd = getString(R.string.crowded) + getString(R.string.no_data); //crowd density
-                                approximation = getString(R.string.approximation) + getString(R.string.no_data); //approximated people
-                                lastUpdate = getString(R.string.last_update) + getString(R.string.no_data); //last seen in minutes
-                            }
-                            crowdedText.setText(crowd); //update crowded text
-                            approximationText.setText(approximation); //update approximation
-                            lastUpdateText.setText(lastUpdate); //update last seen in minutes
-                        }
-                        @Override
-                        public void onCancelled(@NonNull DatabaseError error) { }
-                    });
+            DatabaseReference rootRef = FirebaseDatabase.getInstance().getReference().child(areaGeoHash).child(geoHash);
+            rootRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                @SuppressLint("SetTextI18n")
+                @Override
+                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                    String crowd, approximation, lastUpdate;
+                    if (snapshot.exists()) { // Data present on database for this favorite location
+                        int crowdType = AuxCrowd.crowdType(snapshot);
+                        crowd = getString(R.string.crowded) + getString(crowdType);
+                        approximation = getString(R.string.approximation) + fav.getNrDevices(snapshot) + getString(R.string.persons); //approximated people
+                        lastUpdate = getString(R.string.last_update) + AuxDateTime.getLastSeen(snapshot) + getString(R.string.minutes_ago); //last seen in minutes
+                    }
+                    else { //No data
+                        crowd = getString(R.string.crowded) + getString(R.string.no_data); //crowd density
+                        approximation = getString(R.string.approximation) + getString(R.string.no_data); //approximated people
+                        lastUpdate = getString(R.string.last_update) + getString(R.string.no_data); //last seen in minutes
+                    }
+                    crowdedText.setText(crowd); //update crowded text
+                    approximationText.setText(approximation); //update approximation
+                    lastUpdateText.setText(lastUpdate); //update last seen in minutes
+                }
+                @Override
+                public void onCancelled(@NonNull DatabaseError error) { }
+            });
 
-                    ((TextView)rootView.findViewById(R.id.streetNameText)).setText(streetName); //Street Name
-                    ((TextView)rootView.findViewById(R.id.customNameText)).setText(getString(R.string.namePlace) + namePlace); //Name of this favorite location
-                    Button btnSave = rootView.findViewById(R.id.btnRemove);
-                    btnSave.setOnClickListener(view -> { //Removing
-                        removeFavoritePlace(geoHash); //Remove from Map + Remove from local storage
-                    });
-                })
-                .show();
+            ((TextView)rootView.findViewById(R.id.streetNameText)).setText(streetName); //Street Name
+            ((TextView)rootView.findViewById(R.id.customNameText)).setText(getString(R.string.namePlace) + namePlace); //Name of this favorite location
+
+            Button btnRemove = rootView.findViewById(R.id.btnRemove);
+            btnRemove.setOnClickListener(view -> { //Removing
+                removeFavoritePlace(geoHash); //Remove from Map + Remove from local storage
+                Toast.makeText(this, R.string.success_removed, Toast.LENGTH_LONG).show();
+                viewDialog.dismiss();
+            });
+
+            Button btnCancel = rootView.findViewById(R.id.btnCancel);
+            btnCancel.setOnClickListener(view -> { //Cancel
+                viewDialog.dismiss();
+            });
+        });
+        viewDialog.show();
     }
 
 
@@ -457,6 +467,7 @@ public class MapsActivity extends FragmentActivity implements
                 }
         }
     }
+
 
 
     /*  Updates the location of the user with the new Latitude and Longitude coordinates
