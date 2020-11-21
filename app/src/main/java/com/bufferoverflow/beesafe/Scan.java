@@ -14,6 +14,8 @@ import com.google.android.gms.location.DetectedActivity;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -171,10 +173,16 @@ public class Scan {
         return scanDevices.size();
     }
 
-//    public void uploadResult(int nrDevices) {
-//        Location l = new Location(new LatLng(45.503810, 12.260870), getDevicesNumber());
-//        Profile.getInstance(context).getCurrentArea().addLocation(l);
-//    }
+    /* Uploads location to database */
+    public void uploadResult(int nrDevices) {
+        Location l = new Location(new LatLng(45.503810, 12.260870), getDevicesNumber());
+        String areaGeoHash = l.getCoordinates().substring(0, Area.PRECISION);
+        String locationGeoHash = l.getCoordinates();
+
+        //Gets a node reference for the current 4Precision GeoHash
+        DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference().child(areaGeoHash).child(locationGeoHash);
+        mDatabase.setValue(l);
+    }
 
     // tries to minimize errors by blacklisting devices that are not phones
     public void filterManufacturer () {

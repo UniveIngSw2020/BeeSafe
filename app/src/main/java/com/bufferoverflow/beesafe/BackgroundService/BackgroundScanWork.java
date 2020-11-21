@@ -13,7 +13,6 @@ import com.bufferoverflow.beesafe.Scan;
 public class BackgroundScanWork extends IntentService {
 
     private boolean activeService = true;
-
     private static int SCAN_TIME_MINUTES = 15;
 
     public BackgroundScanWork(){
@@ -38,13 +37,14 @@ public class BackgroundScanWork extends IntentService {
     private void tracingServiceLoop () {
         while (activeService){
             try{
+                Log.d("XXXXXXXXXXX", "Thread ID " + Thread.currentThread().getId());
                 Thread.sleep(30000);
                 if(activeService){
-                    Scan scan = new Scan(this);
-                    Log.d("TRACING", "About to call the tracing algorithm");
-                    scan.tracingAlgorithm();
-                    Log.d("TRACING", "Tracing algorithm finished. FOUND " + scan.getDevicesNumber() + " DEVICES");
-                    //Log.i("Tracing","Thread id: "+Thread.currentThread().getId());
+//                    Scan scan = new Scan(this);
+//                    Log.d("TRACING", "About to call the tracing algorithm");
+//                    scan.tracingAlgorithm();
+//                    Log.d("TRACING", "Tracing algorithm finished. FOUND " + scan.getDevicesNumber() + " DEVICES");
+//                    //Log.i("Tracing","Thread id: "+Thread.currentThread().getId());
                 }
             }catch (InterruptedException e){
                 Log.i("Tracing","Thread Interrupted");

@@ -1,15 +1,10 @@
 package com.bufferoverflow.beesafe;
 
-import android.annotation.SuppressLint;
-
 import com.bufferoverflow.beesafe.AuxTools.AuxDateTime;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.TileOverlay;
 import com.google.firebase.database.Exclude;
 import com.google.maps.android.heatmaps.HeatmapTileProvider;
-
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import ch.hsr.geohash.GeoHash;
 import ch.hsr.geohash.WGS84Point;
 
@@ -33,10 +28,6 @@ public class Location  {
     /* Maps rendering properties and field */
     public HeatmapTileProvider provider;
     public TileOverlay overlay;
-
-
-    @SuppressLint("SimpleDateFormat")
-    private static final SimpleDateFormat ISO_8601_FORMAT = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:sss'Z'");
 
     public static final int PRECISION = 8; //Precision of GeoHash - Precision 8 => 38.2m x 19.1m
     private static final int BLUETOOTH_DEVICES_TRIGGER = 40; //Precision of GeoHash - Precision 8 => 38.2m x 19.1m
@@ -62,7 +53,7 @@ public class Location  {
     public Location (String g, int nrDevices) {
         this.coordinatesGeoHashed = GeoHash.fromGeohashString(g);
         this.coordinates = coordinatesGeoHashed.toBase32();
-        this.lastSeen = ISO_8601_FORMAT.format(new Date());
+        this.lastSeen = AuxDateTime.dateToString(AuxDateTime.currentTime());
         this.nrDevices = nrDevices;
     }
 
@@ -77,7 +68,6 @@ public class Location  {
     public GeoHash getLocationGeoHashed () {
         return coordinatesGeoHashed;
     }
-
 
     //Firebase
     @Exclude

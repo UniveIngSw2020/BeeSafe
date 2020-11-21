@@ -12,6 +12,7 @@ import android.os.Build;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 
+import com.bufferoverflow.beesafe.MainActivity;
 import com.bufferoverflow.beesafe.R;
 
 public class AppPersistentNotificationManager {
@@ -46,14 +47,21 @@ public class AppPersistentNotificationManager {
 
     public Notification getNotification(Class targetNotificationActivity, String title, int priority, boolean autoCancel, int notificationId){
         Intent intent = new Intent(context, targetNotificationActivity);
-        PendingIntent pendingIntent = PendingIntent.getActivity(context, 1, intent, 0);
+
+
+        Intent in = new Intent(context.getApplicationContext(), MainActivity.class);
+        PendingIntent pi = PendingIntent.getActivity(context, 0, in, 0);
+        in.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+
+
+        //PendingIntent pendingIntent = PendingIntent.getActivity(MapsActivity., 1, intent, 0);
 
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context,"123")
                 .setSmallIcon(R.drawable.amu_bubble_mask)
                 .setLargeIcon(BitmapFactory.decodeResource(context.getResources(), R.drawable.common_full_open_on_phone))
                 .setContentTitle(title)
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT)
-                .setContentIntent(pendingIntent)
+                .setContentIntent(pi)
                 .setChannelId("123")
                 .setAutoCancel(true);
         return builder.build();
