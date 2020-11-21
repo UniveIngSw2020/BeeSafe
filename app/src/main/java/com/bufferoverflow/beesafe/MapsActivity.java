@@ -1,99 +1,80 @@
 package com.bufferoverflow.beesafe;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatDelegate;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentActivity;
-
 import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.location.Address;
 import android.location.Geocoder;
 import android.os.Bundle;
-import android.view.View;
+import android.util.Pair;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.TextView;
-
 import com.bufferoverflow.beesafe.AuxTools.AuxCrowd;
 import com.bufferoverflow.beesafe.AuxTools.AuxDateTime;
 import com.bufferoverflow.beesafe.BackgroundService.BackgroundScanWork;
+import com.google.android.gms.internal.maps.zzt;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.TileOverlayOptions;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
-import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-import com.google.gson.internal.bind.util.ISO8601Utils;
 import com.google.maps.android.heatmaps.Gradient;
 import com.google.maps.android.heatmaps.HeatmapTileProvider;
 import com.yarolegovich.lovelydialog.LovelyCustomDialog;
-
-import java.text.ParseException;
-import java.text.ParsePosition;
-import java.text.SimpleDateFormat;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
-import java.util.concurrent.CountDownLatch;
-
 import ch.hsr.geohash.GeoHash;
+import ch.hsr.geohash.WGS84Point;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
 
-    private MaterialAlertDialogBuilder materialAlertDialogBuilder;
-
+    //Map
     private static GoogleMap map;
-    private boolean mIsRestore;
     private Intent serviceIntent;
-    private FirebaseAuth mAuth;
+    private boolean mIsRestore;
 
-    private static Map<String, Location> locations = new HashMap<>();
-
-    private static final int[] HEATMAP_RED_GRADIENT = {
-            Color.rgb(213, 0, 0)
-    };
-    private static final int[] HEATMAP_ORANGE_GRADIENT = {
-            Color.rgb(255, 109, 0),
-    };
+    //HeatMap settings
+    private static final int[] HEATMAP_RED_GRADIENT = { Color.rgb(213, 0, 0) };
+    private static final int[] HEATMAP_ORANGE_GRADIENT = { Color.rgb(255, 109, 0), };
     public static final float[] HEATMAP_START_POINTS_RED = {0.5f };
     public static final float[] HEATMAP_START_POINTS_ORANGE = { 0.5f };
-
     public static final Gradient HEATMAP_RED = new Gradient(HEATMAP_RED_GRADIENT, HEATMAP_START_POINTS_RED);
     public static final Gradient HEATMAP_ORANGE = new Gradient(HEATMAP_ORANGE_GRADIENT, HEATMAP_START_POINTS_ORANGE);
 
+    //Locations and Markers(Saved Places)
+    private Map<String, Marker> savedPlaces = new HashMap<>(); //Saved places
+    private Map<String, Location> locations = new HashMap<>(); //Locations with data
+    private User user = User.getInstance(this);
 
     @Override
     protected void onStart() {
         super.onStart();
-
-
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mIsRestore = savedInstanceState != null;
-
         setContentView(R.layout.map);
         setUpMap();
-
         User user = User.getInstance(this);
         user.updateCurrentPosition(45.503810, 12.260870); //
         final Area currentArea = user.getCurrentArea();
@@ -117,6 +98,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         if (this.map != null)
             return;
         this.map = map;
+
+
+
+
+
+
+
 
         map.setMaxZoomPreference((float) 17.9);
         /* Updating radius on zoom for more accurate heatmap */
@@ -157,7 +145,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         map.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
             @Override
             public void onMapLongClick(LatLng latLng) {
-                addFavorite(latLng);
+                addFavoriteDialog(latLng);
                 Marker m = map.addMarker(new MarkerOptions()
                         .position(latLng)
                         .title("Albania"));
@@ -168,26 +156,20 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         map.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
             @Override
             public boolean onMarkerClick(Marker marker) {
-                viewFavorite(marker.getPosition());
+                viewFavoriteDialog(marker.getPosition());
                 return false;
             }
         });
 
-
-
-        //onlongclick
-            //addFavorite
-        //onclickPinpoint
-            //viewFavorite
-
     }
+
 
     private void setUpMap() {
         ((SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map)).getMapAsync(this);
     }
 
-    //HeatMap
-    public static void addLocationToMap(Location location) {
+    //Render Location to HeatMap
+    public void addLocationToMap(Location location) {
         locations.put(location.getCoordinates(), location);
         Gradient g = (location.nrDevices <20) ? HEATMAP_ORANGE : HEATMAP_RED;
         ArrayList<LatLng> l = new ArrayList<>();
@@ -201,25 +183,47 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         location.overlay = map.addTileOverlay(new TileOverlayOptions().tileProvider(location.provider));
     }
 
-    public static void removeLocationFromMap(Location location) {
+    //Remove Location from HeatMap
+    public void removeLocationFromMap(Location location) {
         locations.remove(location.getCoordinates());
         location.overlay.remove();
         location.overlay.clearTileCache();
     }
 
+    //Render FavoritePlaceto Map
+    public Marker addFavoritePlaceToMap(FavoritePlace place) {
+        WGS84Point point = GeoHash.fromGeohashString(place.getGeoHash()).getOriginatingPoint();
+        LatLng coordinates = new LatLng(point.getLatitude(), point.getLongitude());
+        Bitmap favoritePinpoint = Bitmap.createScaledBitmap(BitmapFactory.decodeResource(getResources(), R.drawable.fav2), 100, 120, false);
+        Marker m = map.addMarker(new MarkerOptions()
+                .position(coordinates)
+                .icon(BitmapDescriptorFactory.fromBitmap(favoritePinpoint)));
+        m.setTag(place); //Associated place for this Marker
+        return m;
+    }
+
+    //Remove FavoritePlace from Map + from local storage + //TODO : Disable listener
+    public void removeFavoritePlace(String geoHash) {
+        User.getInstance(this).removeFavoritePlace(geoHash, this); //Remove from local storage
+        Marker m = savedPlaces.get(geoHash); //Get Marker of this favorite location
+        m.remove(); //Remove from Map
+        //TODO : Disable notification listener
+    }
 
 
-    private void addFavorite(LatLng coordinates) {
+    //TODO : Enable Listeners for Locations changes
+
+
+
+    private void addFavoriteDialog(LatLng coordinates) {
         String geoHash = GeoHash.geoHashStringWithCharacterPrecision(coordinates.latitude, coordinates.longitude, Location.PRECISION); //geoHash of Location (8 Precision)
         String areaGeoHash = GeoHash.geoHashStringWithCharacterPrecision(coordinates.latitude, coordinates.longitude, Area.PRECISION); //geoHash of Area (4 Precision)
 
-        System.out.println("XXXXXXXXXXXXXXXXXXXX:" + geoHash + "|" + areaGeoHash);
-        System.out.println("ADDDDDDDDDDDDDDDDDD" + coordinates);
+        //Get pretty printed street name using Google Maps API
         Geocoder geocoder = new Geocoder(this);
         List<Address> matches = new ArrayList<>();
         try { matches = geocoder.getFromLocation(coordinates.latitude, coordinates.longitude, 1); } catch (Exception ignored){};
         String streetName = (matches.isEmpty() ? "" : matches.get(0).getAddressLine(0));
-        //String geoHash = GeoHash.geoHashStringWithCharacterPrecision(coordinates.latitude, coordinates.longitude, Location.PRECISION);
 
         new LovelyCustomDialog(this)
                 .setView(R.layout.add_favorite)
@@ -233,15 +237,19 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                         String name = ((EditText) rootView.findViewById(R.id.nameEditText)).getText().toString();
                         Boolean notified = ((CheckBox)rootView.findViewById(R.id.notificationsCheckBox)).isChecked();
                         FavoritePlace favorite = new FavoritePlace(geoHash, name, notified); //Creating the new fav place
-                        //TODO : Render it on map
-                        User.getInstance(this).addFavoritePlace(favorite, this); //Saving it
+
+                        User.getInstance(this).addFavoritePlace(favorite, this); //Saving it on local storage
+                        Marker m = addFavoritePlaceToMap(favorite); //Add favorite to Map
+                        savedPlaces.put(favorite.getGeoHash(), m); //Save the Marker of this map
+
                     });
                 })
                 .show();
     }
 
+    //TODO Pass in marker
     @SuppressLint("SetTextI18n")
-    private void viewFavorite(LatLng coordinates) {
+    private void viewFavoriteDialog(LatLng coordinates) {
         String geoHash = GeoHash.geoHashStringWithCharacterPrecision(coordinates.latitude, coordinates.longitude, Location.PRECISION); //geoHash of Location (8 Precision)
         String areaGeoHash = GeoHash.geoHashStringWithCharacterPrecision(coordinates.latitude, coordinates.longitude, Area.PRECISION); //geoHash of Area (4 Precision)
         FavoritePlace fav = User.getInstance(this).getFavoriteLocation(geoHash);
@@ -291,15 +299,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     ((TextView)rootView.findViewById(R.id.customNameText)).setText(getString(R.string.namePlace) + namePlace); //Name of this favorite location
                     Button btnSave = rootView.findViewById(R.id.btnRemove);
                     btnSave.setOnClickListener(view -> { //Removing
-                        User.getInstance(this).removeFavoritePlace(geoHash, this);
+                        removeFavoritePlace(geoHash); //Remove from Map + Remove from local storage
                     });
                 })
                 .show();
     }
-
-    private void renderAllFavoritePlaces () { //TODO
-
-    }
-
 
 }
