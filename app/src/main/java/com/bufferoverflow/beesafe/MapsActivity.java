@@ -11,15 +11,14 @@ import android.graphics.Color;
 import android.location.Address;
 import android.location.Geocoder;
 import android.os.Bundle;
-import android.util.Pair;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.TextView;
 import com.bufferoverflow.beesafe.AuxTools.AuxCrowd;
 import com.bufferoverflow.beesafe.AuxTools.AuxDateTime;
+import com.bufferoverflow.beesafe.AuxTools.AuxMap;
 import com.bufferoverflow.beesafe.BackgroundService.BackgroundScanWork;
-import com.google.android.gms.internal.maps.zzt;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
@@ -28,7 +27,6 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.TileOverlayOptions;
-import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -62,7 +60,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     //Locations and Markers(Saved Places)
     private Map<String, Marker> savedPlaces = new HashMap<>(); //Saved places
     private Map<String, Location> locations = new HashMap<>(); //Locations with data
-    private User user = User.getInstance(this);
+    private Area currentArea; //Current area GeoHashed
+    private Area[] neighbourArea; //All 8 nearby GeoHash boxes N, NE, E, SE, S, SW, W, NW of precision 4
 
     @Override
     protected void onStart() {
@@ -75,9 +74,20 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mIsRestore = savedInstanceState != null;
         setContentView(R.layout.map);
         setUpMap();
+
+        currentArea = null;
+        neighbourArea = new Area[8];
         User user = User.getInstance(this);
-        user.updateCurrentPosition(45.503810, 12.260870); //
-        final Area currentArea = user.getCurrentArea();
+        AuxMap.updateCurrentPosition(currentArea, neighbourArea, 45.503810, 12.260870); //Update current area
+        user.loadFavoritePlaces(this); //Load favorite places from local storage
+        for (FavoritePlace fav : user.getFavoriteLocations().values()) { //Load all Favorite Places
+            Marker m = addFavoritePlaceToMap(fav); //Add favorite to Map
+            savedPlaces.put(fav.getGeoHash(), m); //Save the Marker of this map
+        }
+
+
+
+
 
         /* To upload some samples
             currentArea.addLocation(new Location(new LatLng(45.503810, 12.260870), 15));
@@ -89,6 +99,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         serviceIntent = new Intent(getApplicationContext(), BackgroundScanWork.class);
         ContextCompat.startForegroundService(this,serviceIntent);
+
+
     }
 
 
