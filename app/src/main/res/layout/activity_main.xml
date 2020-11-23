@@ -10,6 +10,14 @@
     android:padding="20dp"
     tools:context=".MainActivity">
 
+
+    <ImageView
+        android:id="@+id/imageView"
+        android:layout_width="match_parent"
+        android:layout_height="256dp"
+        app:srcCompat="@drawable/ic_social_distance" />
+
+
     <Button
         android:id="@+id/openMap"
         android:layout_width="match_parent"
@@ -28,4 +36,15 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Stop Service" />
+
+    <Button
+        android:id="@+id/changeLanguage"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Change Language"
+        android:onClick="changeLanguage"/>
+
+
+
+
 </LinearLayout>
