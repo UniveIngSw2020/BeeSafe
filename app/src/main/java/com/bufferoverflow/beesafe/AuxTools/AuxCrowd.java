@@ -28,4 +28,24 @@ public class AuxCrowd {
         }
     }
 
+    public static Crowded crowd (DataSnapshot snapshot) {
+        Object snap = snapshot.child("nrDevices").getValue();
+        if (snap == null)
+            return Crowded.NO_DATA;
+        else {
+            int nrDevices = ((Long) snap).intValue();
+            if (nrDevices < 20)
+                return Crowded.SAFE;
+            else if (nrDevices < 30)
+                return Crowded.LOW;
+            else
+                return Crowded.HIGH;
+        }
+    }
+
+    public static boolean isCrowd(DataSnapshot snapshot) {
+        Object snap = snapshot.child("nrDevices").getValue();
+        return snap != null && ((Long) snap).intValue() >= 20;
+    }
+
 }

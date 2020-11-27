@@ -9,6 +9,7 @@ import androidx.fragment.app.FragmentActivity;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Dialog;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -153,6 +154,12 @@ public class MapsActivity extends FragmentActivity implements
         onStop();
         disableAreaEventListner();
     }
+
+//    @Override
+//    protected void attachBaseContext(Context newBase) {
+//        newBase = LocaleChanger.configureBaseContext(newBase);
+//        super.attachBaseContext(newBase);
+//    }
 
     @Override
     public void onMapReady(final GoogleMap map) {
@@ -348,7 +355,7 @@ public class MapsActivity extends FragmentActivity implements
             btnSave.setOnClickListener(view -> { //Adding
                 String name = ((EditText) rootView.findViewById(R.id.nameEditText)).getText().toString();
                 Boolean notified = ((CheckBox)rootView.findViewById(R.id.notificationsCheckBox)).isChecked();
-                FavoritePlace favorite = new FavoritePlace(geoHash, name, notified); //Creating the new fav place
+                FavoritePlace favorite = new FavoritePlace(geoHash, name, notified, this); //Creating the new fav place
 
                 User.getInstance(this).addFavoritePlace(favorite, this); //Saving it on local storage
                 Marker m = addFavoritePlaceToMap(favorite); //Add favorite to Map

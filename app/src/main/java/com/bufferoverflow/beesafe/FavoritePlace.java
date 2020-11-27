@@ -1,11 +1,17 @@
 package com.bufferoverflow.beesafe;
 
 import android.annotation.SuppressLint;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.content.Context;
 import android.os.health.TimerStat;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
+import androidx.core.app.NotificationCompat;
+import androidx.core.app.NotificationManagerCompat;
 
+import com.bufferoverflow.beesafe.AuxTools.AuxCrowd;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -40,11 +46,11 @@ public class FavoritePlace implements Serializable {
     private boolean receiveNotifications; //If true, user get notified if this favorite place gets crowded
 
 
-    public FavoritePlace (String geohash, String placeName, Boolean notified) {
+    public FavoritePlace (String geohash, String placeName, Boolean notified, Context c) {
         this.geohash = geohash;
         this.placeName = placeName;
         this.receiveNotifications = notified;
-        enableEventListener(); //Enables the notifications event listener
+        enableEventListener(c); //Enables the notifications event listener
     }
 
     public LatLng getLatLng() {
@@ -66,14 +72,30 @@ public class FavoritePlace implements Serializable {
     }
 
     /* Activated the listener for database change on this favorite place */
-    public void enableEventListener () {
+    public void enableEventListener (Context c) {
         DatabaseReference db = FirebaseDatabase.getInstance().getReference("/u20d/u20dwxrf");
         db.addValueEventListener(new ValueEventListener() {
 
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 Log.d("DATAAAA", snapshot.toString());
-                //TODO: Create a pop-up notification if crowded && receiveNotifications==true.
+                if (receiveNotifications && AuxCrowd.isCrowd(snapshot)) {
+                    String title, content;
+
+                    title = placeName + " is crowded!";
+                    content = "Approximation: " + snapshot.child("nrDevices").getValue() + " devices.";
+
+                    NotificationChannel notificationChannel = new NotificationChannel("Favorite Place Notification Channel","Favorite Place Notification Channel", NotificationManager.IMPORTANCE_DEFAULT);
+                    NotificationManager manager = c.getSystemService(NotificationManager.class);
+                    manager.createNotificationChannel(notificationChannel);
+                    NotificationCompat.Builder builder = new NotificationCompat.Builder(c, notificationChannel.getId())
+                            .setSmallIcon(R.drawable.favorite_icon)
+                            .setContentTitle(title)
+                            .setContentText(content)
+                            .setPriority(NotificationCompat.PRIORITY_DEFAULT);
+                    NotificationManagerCompat notificationManager = NotificationManagerCompat.from(c);
+                    notificationManager.notify(1000, builder.build());
+                }
             }
 
             @Override

@@ -1,21 +1,15 @@
 package com.bufferoverflow.beesafe;
 
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.ArrayAdapter;
-import android.widget.Toast;
 
-import com.bufferoverflow.beesafe.AuxTools.LocaleHelper;
 import com.bufferoverflow.beesafe.BackgroundService.BackgroundScanWork;
 import com.yarolegovich.lovelydialog.LovelyChoiceDialog;
 
-import java.sql.Array;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -43,15 +37,20 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void StopService(View view) {
-
+        getApplicationContext().stopService(serviceIntent);
+    }
+    public void stopSer() {
+        stopService(new Intent(getApplicationContext(), BackgroundScanWork.class));
+    }
+    public void startSer() {
+        serviceIntent = new Intent(getApplicationContext(), BackgroundScanWork.class);
+        ContextCompat.startForegroundService(this,serviceIntent);
     }
 
     public void changeLanguage(View view) {
-        String langs[] = {"eng", "ita", "alb"};
         List<String> l = new ArrayList<>();
-        l.add("eng");
-        l.add("ita");
-        l.add("alb");
+        l.add("en");
+        l.add("sq");
 
         new LovelyChoiceDialog(this)
                 .setTopColorRes(R.color.colorPrimary)
@@ -61,7 +60,7 @@ public class MainActivity extends AppCompatActivity {
                 .setItems(l, new LovelyChoiceDialog.OnItemSelectedListener<String>() {
                     @Override
                     public void onItemSelected(int i, String s) {
-                        Toast.makeText(getApplicationContext(), s + " " + i, Toast.LENGTH_LONG).show();
+
                     }
                 })
                 .show();

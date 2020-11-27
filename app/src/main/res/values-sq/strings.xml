@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">BeeSafe</string>
+    <string name="addFavText">Shto një vend të ri</string>
+    <string name="open_map">Hap Hartën</string>
+    <string name="save">Ruaj</string>
+    <string name="notifications">- Njoftimet</string>
+    <string name="dont_ask_again">0</string>
+    <string name="custom_name">Vendodhja:</string>
+    <string name="safe">Jo</string>
+    <string name="success_added">U shtua me sukses</string>
+    <string name="success_removed">U hoq me sukses</string>
+    <string name="title_activity_maps">Harta</string>
+    <string name="remove_this_place_from_favorites">Hiq vendin nga të preferuarat</string>
+    <string name="remove">Hiq</string>
+    <string name="persons">Persona</string>
+    <string name="permission_required_toast">Kërkohet Leja</string>
+    <string name="permission_rationale_location">Vendodhja</string>
+    <string name="no_data">Nuk ka të dhëna</string>
+    <string name="namePlace">"Emri: "</string>
+    <string name="minutes_ago">minuta më parë</string>
+    <string name="low">Densitet i ulët</string>
+    <string name="location_permission_denied">Nuk ka akses</string>
+    <string name="last_update">"Axhornimi i fundit: "</string>
+    <string name="high">Densitet i lartë</string>
+    <string name="cancel">Anullo</string>
+    <string name="crowded">"Turma: "</string>
+    <string name="custom_email">emaili:</string>
+    <string name="custom_feedback">mesazhi:</string>
+    <string name="approximation">Afërsisht:</string>
+    <string name="streetName">Via xx, Tirana, Albania</string>
+    <string name="blank" translatable="false">" "</string>
+</resources>
