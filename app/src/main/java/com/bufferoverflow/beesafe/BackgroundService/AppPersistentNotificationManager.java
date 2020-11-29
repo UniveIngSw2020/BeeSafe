@@ -14,6 +14,7 @@ import androidx.core.app.NotificationManagerCompat;
 
 import com.bufferoverflow.beesafe.MainActivity;
 import com.bufferoverflow.beesafe.R;
+import com.google.android.gms.common.internal.Constants;
 
 public class AppPersistentNotificationManager {
 
@@ -57,7 +58,7 @@ public class AppPersistentNotificationManager {
         //PendingIntent pendingIntent = PendingIntent.getActivity(MapsActivity., 1, intent, 0);
 
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context,"123")
-                .setSmallIcon(R.drawable.amu_bubble_mask)
+                .setSmallIcon(R.drawable.favorite_icon)
                 .setLargeIcon(BitmapFactory.decodeResource(context.getResources(), R.drawable.common_full_open_on_phone))
                 .setContentTitle(title)
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT)
@@ -69,6 +70,23 @@ public class AppPersistentNotificationManager {
 
     public void cancelNotification(int notificationId){
         notificationManager.cancel(notificationId);
+    }
+
+    public void updateNotification(String title, String content) {
+        Intent in = new Intent(context.getApplicationContext(), MainActivity.class);
+        PendingIntent pi = PendingIntent.getActivity(context, 0, in, 0);
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(context,"123")
+                .setSmallIcon(R.drawable.favorite_icon)
+                .setLargeIcon(BitmapFactory.decodeResource(context.getResources(), R.drawable.common_full_open_on_phone))
+                .setContentTitle(title)
+                .setContentText(content)
+                .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+                .setContentIntent(pi)
+                .setChannelId("123")
+                .setAutoCancel(true);
+        final Notification notification = builder.build();
+        final NotificationManager mNotificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+        mNotificationManager.notify(1, notification);
     }
 
 }

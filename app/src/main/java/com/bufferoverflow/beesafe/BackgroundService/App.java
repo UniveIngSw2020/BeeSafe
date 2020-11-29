@@ -4,6 +4,8 @@ import android.app.Application;
 import android.content.Intent;
 import androidx.core.content.ContextCompat;
 
+import com.clj.fastble.BleManager;
+
 public class App extends Application {
 
     private static AppPersistentNotificationManager notificationManager;

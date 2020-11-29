@@ -155,12 +155,6 @@ public class MapsActivity extends FragmentActivity implements
         disableAreaEventListner();
     }
 
-//    @Override
-//    protected void attachBaseContext(Context newBase) {
-//        newBase = LocaleChanger.configureBaseContext(newBase);
-//        super.attachBaseContext(newBase);
-//    }
-
     @Override
     public void onMapReady(final GoogleMap map) {
         if (this.map != null)

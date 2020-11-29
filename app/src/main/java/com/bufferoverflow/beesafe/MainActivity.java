@@ -7,7 +7,10 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 
+import com.bufferoverflow.beesafe.AuxTools.AuxDateTime;
+import com.bufferoverflow.beesafe.BackgroundService.AppPersistentNotificationManager;
 import com.bufferoverflow.beesafe.BackgroundService.BackgroundScanWork;
+import com.clj.fastble.BleManager;
 import com.yarolegovich.lovelydialog.LovelyChoiceDialog;
 
 import java.util.ArrayList;
@@ -21,6 +24,8 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        BleManager.getInstance().init(getApplication());
 
     }
 
@@ -36,8 +41,10 @@ public class MainActivity extends AppCompatActivity {
         ContextCompat.startForegroundService(this,serviceIntent);
     }
 
-    public void StopService(View view) {
-        getApplicationContext().stopService(serviceIntent);
+    public void stopService(View view) {
+        AppPersistentNotificationManager ap = AppPersistentNotificationManager.getInstance(this);
+        ap.updateNotification(AuxDateTime.dateToString(AuxDateTime.currentTime()), "XXX");
+        //getApplicationContext().stopService(serviceIntent);
     }
     public void stopSer() {
         stopService(new Intent(getApplicationContext(), BackgroundScanWork.class));

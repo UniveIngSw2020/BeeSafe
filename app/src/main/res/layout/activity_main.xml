@@ -29,13 +29,15 @@
         android:id="@+id/startService"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="startService" />
+        android:text="startService"
+        android:onClick="startService"/>
 
     <Button
         android:id="@+id/stopService"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Stop Service" />
+        android:text="Stop Service"
+        android:onClick="stopService"/>
 
     <Button
         android:id="@+id/help"

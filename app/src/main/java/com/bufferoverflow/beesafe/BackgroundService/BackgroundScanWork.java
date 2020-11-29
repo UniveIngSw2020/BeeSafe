@@ -3,10 +3,13 @@ package com.bufferoverflow.beesafe.BackgroundService;
 import android.app.IntentService;
 import android.app.Notification;
 import android.content.Intent;
+import android.graphics.BitmapFactory;
 import android.util.Log;
 import androidx.annotation.Nullable;
+import androidx.core.app.NotificationCompat;
 
 import com.bufferoverflow.beesafe.MapsActivity;
+import com.bufferoverflow.beesafe.R;
 import com.bufferoverflow.beesafe.Scan;
 
 
@@ -25,11 +28,6 @@ public class BackgroundScanWork extends IntentService {
 
         //Profile.getInstance().activateFavoritePlaceListeners(); //Activate the listeners for saved locations (To get notifications)
 
-//        Profile.getInstance().saveFavoritePlace(new FavoritePlace("xxxx", "Bar"), this);
-//        Profile.getInstance().saveFavoritePlace(new FavoritePlace("yyyy", "VVV"), this);
-//        Profile.getInstance().saveFavoritePlace(new FavoritePlace("zzzz", "XXX"), this);
-
-        //Profile.getInstance().loadFavoritePlaces(this);
 
         tracingServiceLoop();
     }
@@ -40,11 +38,11 @@ public class BackgroundScanWork extends IntentService {
                 Log.d("XXXXXXXXXXX", "Thread ID " + Thread.currentThread().getId());
                 Thread.sleep(30000);
                 if(activeService){
-//                    Scan scan = new Scan(this);
-//                    Log.d("TRACING", "About to call the tracing algorithm");
-//                    scan.tracingAlgorithm();
-//                    Log.d("TRACING", "Tracing algorithm finished. FOUND " + scan.getDevicesNumber() + " DEVICES");
-//                    //Log.i("Tracing","Thread id: "+Thread.currentThread().getId());
+                    Scan scan = new Scan(this);
+                    Log.d("TRACING", "About to call the tracing algorithm");
+                    scan.tracingAlgorithm();
+                    Log.d("TRACING", "Tracing algorithm finished. FOUND " + scan.getDevicesNumber() + " DEVICES");
+                    //Log.i("Tracing","Thread id: "+Thread.currentThread().getId());
                 }
             }catch (InterruptedException e){
                 Log.i("Tracing","Thread Interrupted");
@@ -61,10 +59,11 @@ public class BackgroundScanWork extends IntentService {
 
     private Notification getNotification(){
         return App.getMyAppsNotificationManager().getNotification(MapsActivity.class,
-                "BackgroundService running",
+                "BeeSafe Tracing Algorithm is Active",
                 1,
                 false,
                 1);
     }
+
 
 }
