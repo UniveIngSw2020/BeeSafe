@@ -12,6 +12,7 @@ import android.view.Display;
 
 import androidx.core.app.ActivityCompat;
 
+import com.bufferoverflow.beesafe.AuxTools.AuxCrowd;
 import com.clj.fastble.BleManager;
 import com.clj.fastble.callback.BleScanCallback;
 import com.clj.fastble.data.BleDevice;
@@ -45,8 +46,10 @@ public class Scan {
 
     private final static int SCAN_DURATION = 5; //seconds
     private final static int RSSI_RANGE_FILTER = -70; //RSSI Signal
+    public final static int ONLINE = 1;
+    public final static int OFFLINE = 0;
 
-    public static void tracingAlgorithm(Context c) {
+    public static void tracingAlgorithm(Context c, int TYPE) {
         scanLatch = new CountDownLatch(1);
         if (!safeActivityRecognition(c)) //Controls if users Activity is safe to begin scan
             return;
@@ -54,7 +57,11 @@ public class Scan {
         Map<String, BleDevice> devices = scan(); //Initiate the scan process
         filterManufacturer(devices); //Filter out manufacturers
         filterRange(devices); //Filter out not nearby devices
-        uploadResult(c, devices.size()); //upload the scan
+        if (TYPE == ONLINE)
+            uploadResult(c, devices.size()); //upload the scan
+        else {
+            //TODO Create notification
+        }
     }
 
     private static Map<String, BleDevice> scan () {
@@ -225,5 +232,5 @@ public class Scan {
         }
         scanLatch = new CountDownLatch(1); //Reset the latch
     }
-    
+
 }

@@ -8,6 +8,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.hardware.display.DisplayManager;
+import android.location.LocationManager;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Display;
@@ -22,6 +23,18 @@ import com.yarolegovich.lovelydialog.LovelyChoiceDialog;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+
+/*
+TODO:
+   Listeners for saved places
+   Privacy Policy
+   Help
+   Service Stop/Start Notification + Buttons
+   Service Notification Change for current place (offline) [nr devices using only bluetooth]
+   Register broadcast listener for bluetooht/gps on off
+
+
+ */
 
 public class MainActivity extends AppCompatActivity {
 
@@ -50,24 +63,12 @@ public class MainActivity extends AppCompatActivity {
 
     public void stopService(View view) {
 
-        HashMap<String, Integer> hash = new HashMap<>();
-        hash.put("one", 1);
-        hash.put("two", 2);
-        Log.d("ANOTHER", "before");
-        for(Integer val : hash.values())
-            Log.d("ANOTHER", String.valueOf(val));
-        modify(hash);
-        Log.d("ANOTHER", "after");
-        for(Integer val : hash.values())
-            Log.d("ANOTHER", String.valueOf(val));
+        LocationManager locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
+        Log.d("TRACING", String.valueOf(locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)));
 
 //        AppPersistentNotificationManager ap = AppPersistentNotificationManager.getInstance(this);
 //        ap.updateNotification(AuxDateTime.dateToString(AuxDateTime.currentTime()), "XXX");
         //getApplicationContext().stopService(serviceIntent);
-    }
-
-    private void modify(HashMap<String, Integer> hash) {
-        hash.put("three", 3);
     }
 
     public void stopSer() {
