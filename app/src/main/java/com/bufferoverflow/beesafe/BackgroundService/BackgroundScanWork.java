@@ -12,6 +12,8 @@ import com.bufferoverflow.beesafe.MapsActivity;
 import com.bufferoverflow.beesafe.R;
 import com.bufferoverflow.beesafe.Scan;
 
+import java.util.concurrent.CountDownLatch;
+
 
 public class BackgroundScanWork extends IntentService {
 
@@ -24,28 +26,25 @@ public class BackgroundScanWork extends IntentService {
 
     @Override
     protected void onHandleIntent(@Nullable Intent intent) {
+
+        Scan.scanLatch = new CountDownLatch(1);
+
         startForeground(1, getNotification());
-
         //Profile.getInstance().activateFavoritePlaceListeners(); //Activate the listeners for saved locations (To get notifications)
-
-
         tracingServiceLoop();
     }
 
     private void tracingServiceLoop () {
         while (activeService){
             try{
-                Log.d("XXXXXXXXXXX", "Thread ID " + Thread.currentThread().getId());
-                Thread.sleep(30000);
                 if(activeService){
-                    Scan scan = new Scan(this);
                     Log.d("TRACING", "About to call the tracing algorithm");
-                    scan.tracingAlgorithm();
-                    Log.d("TRACING", "Tracing algorithm finished. FOUND " + scan.getDevicesNumber() + " DEVICES");
-                    //Log.i("Tracing","Thread id: "+Thread.currentThread().getId());
+                    Scan.tracingAlgorithm(this);
+                    Log.d("TRACING", "Tracing algorithm finished.");
                 }
+                Thread.sleep(30000);
             }catch (InterruptedException e){
-                Log.i("Tracing","Thread Interrupted");
+                Log.i("TRACING","Thread Interrupted");
             }
         }
     }
