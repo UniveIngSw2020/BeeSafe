@@ -26,18 +26,12 @@
         android:onClick="openMap"/>
 
     <Button
-        android:id="@+id/startService"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="startService"
-        android:onClick="startService"/>
-
-    <Button
-        android:id="@+id/stopService"
+        android:id="@+id/serviceButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Stop Service"
-        android:onClick="stopService"/>
+        android:onClick="service"/>
+
 
     <Button
         android:id="@+id/help"

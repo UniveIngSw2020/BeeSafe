@@ -18,6 +18,7 @@ import android.widget.Toast;
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
 
+import com.bufferoverflow.beesafe.MainActivity;
 import com.bufferoverflow.beesafe.MapsActivity;
 import com.bufferoverflow.beesafe.R;
 import com.bufferoverflow.beesafe.Scan;
@@ -30,13 +31,8 @@ import java.util.concurrent.CountDownLatch;
 
 public class BackgroundScanWork extends Service { //IntentService ???
 
-    private boolean activeService = true;
-    private static int SCAN_TIME_WITH_UPLOAD = 1;
-    private static int SCAN_TIME_WITHOUT_UPLOAD = 1;
-
-    private boolean BLUETOOTH_STATUS = BleManager.getInstance().isBlueEnable();
-    private boolean GPS_STATUS = BleManager.getInstance().isBlueEnable();
-
+    private boolean active = false;
+    private static int SCAN_TIMER_MINUTES = 1;
 
     private final BroadcastReceiver bluetoothBroadcastReceiver = new BroadcastReceiver() {
         @Override
@@ -44,23 +40,10 @@ public class BackgroundScanWork extends Service { //IntentService ???
             final String action = intent.getAction();
             if (action.equals(BluetoothAdapter.ACTION_STATE_CHANGED)) {
                 final int state = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, BluetoothAdapter.ERROR);
-                switch(state) {
+                switch(state) { //Service
                     case BluetoothAdapter.STATE_OFF:
-                        if (!isGpsEnabled()) {
-                            AppPersistentNotificationManager.getInstance(getApplicationContext()).updateNotification("BeeSafe Not Active", "GPS and Bluetooth not enabled!");
-                        }
-                        else {
-                            AppPersistentNotificationManager.getInstance(getApplicationContext()).updateNotification("BeeSafe Not Active", "Bluetooth not enabled!");
-                        }
-                        break;
                     case BluetoothAdapter.STATE_ON:
-                        if (!isGpsEnabled()){
-                            AppPersistentNotificationManager.getInstance(getApplicationContext()).updateNotification("BeeSafe Not Active", "GPS not enabled!");
-                        }
-                        else {
-                            AppPersistentNotificationManager.getInstance(getApplicationContext()).updateNotification("BeeSafe Is Active", " :D !");
-                        }
-                        Log.d("TRACING", "Bluetooth ON");
+                        checkGpsBluetooth();
                         break;
                 }
             }
@@ -70,26 +53,8 @@ public class BackgroundScanWork extends Service { //IntentService ???
     private final BroadcastReceiver gpsBroadcastReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive( Context context, Intent intent ) {
-            Log.d("TRACING", "CALLED");
             final LocationManager manager = (LocationManager) context.getSystemService( Context.LOCATION_SERVICE );
-            if (manager.isProviderEnabled( LocationManager.GPS_PROVIDER ) ) {
-                Log.d("TRACING", "GPS ON");
-                if (!isBluetoothEnabled()) {
-                    AppPersistentNotificationManager.getInstance(getApplicationContext()).updateNotification("BeeSafe Not Active", "Bluetooth not enabled!");
-                }
-                else {
-                    AppPersistentNotificationManager.getInstance(getApplicationContext()).updateNotification("BeeSafe Is Active", " :D !");
-                }
-            }
-            else {
-                Log.d("TRACING", "GPS OFF");
-                if (!isBluetoothEnabled()){
-                    AppPersistentNotificationManager.getInstance(getApplicationContext()).updateNotification("BeeSafe Not Active", "GPS and Bluetooth not enabled!");
-                }
-                else {
-                    AppPersistentNotificationManager.getInstance(getApplicationContext()).updateNotification("BeeSafe Not Active", "GPS not enabled!");
-                }
-            }
+            checkGpsBluetooth();
         }
     };
 
@@ -102,25 +67,21 @@ public class BackgroundScanWork extends Service { //IntentService ???
 
     @Override
     public int onStartCommand(@Nullable Intent intent, int flags, int startId) {
+        super.onStartCommand(intent, flags, startId);
+
         //Registering Bluetooth broadcast receiver
         IntentFilter bluetoothFilter = new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED);
         registerReceiver(bluetoothBroadcastReceiver, bluetoothFilter);
 
+        //Registering Gps broadcast receiver
         IntentFilter gpsFilter = new IntentFilter(LocationManager.PROVIDERS_CHANGED_ACTION);
         registerReceiver(gpsBroadcastReceiver, gpsFilter);
 
+        startForeground(1, getNotification()); //Showing foreground notification
+        //TODO  Profile.getInstance().activateFavoritePlaceListeners(); //Activate the listeners for saved locations (To get notifications)
 
-
-        final int state = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, BluetoothAdapter.ERROR);
-        Log.d("TRACING", String.valueOf(state));
-
-        super.onStartCommand(intent, flags, startId);
-        startForeground(1, getNotification());
-        //Profile.getInstance().activateFavoritePlaceListeners(); //Activate the listeners for saved locations (To get notifications)
-        tracingServiceLoop();
-
-
-
+        checkGpsBluetooth(); //Initial check
+        tracingServiceLoop(); //Running tracing algorithm in loop until service gets disabled
         return START_STICKY;
     }
 
@@ -131,33 +92,28 @@ public class BackgroundScanWork extends Service { //IntentService ???
 //    }
 
     private void tracingServiceLoop () {
-        TimerTask myTask = new TimerTask () {
+        TimerTask tracingTimer = new TimerTask () {
             @Override
             public void run () {
-                Scan.tracingAlgorithm(getApplicationContext(), Scan.ONLINE);
+                if (active) {
+                    Log.d("TRACING", "About to call the tracing algorithm");
+                    Scan.tracingAlgorithm(getApplicationContext());
+                    Log.d("TRACING", "Tracing algorithm finished.");
+                }
+
             }
         };
 
-        myTimer.scheduleAtFixedRate(myTask , 0l, 10*1000); // Runs every 5 mins
-
-//        while (activeService){
-//            try{
-//                if(activeService){
-//                    Log.d("TRACING", "About to call the tracing algorithm");
-//                    Scan.tracingAlgorithm(this, Scan.ONLINE);
-//                    Log.d("TRACING", "Tracing algorithm finished.");
-//                }
-//                Thread.sleep(SCAN_TIME_WITH_UPLOAD * 1000);
-//            }catch (InterruptedException e){
-//                Log.i("TRACING","Thread Interrupted");
-//            }
-//        }
+        //Reschedule the job -> Looping
+        myTimer.scheduleAtFixedRate(tracingTimer , 0L, SCAN_TIMER_MINUTES * 60 * 1000);
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
-        activeService=false;
+        myTimer.cancel(); //Canceling the scheduler
+        unregisterReceiver(bluetoothBroadcastReceiver); //Unregistering the broadcast of bluetooth status change
+        unregisterReceiver(gpsBroadcastReceiver); //Unregistering the broadcast of gps status change
     }
 
     @Nullable
@@ -168,20 +124,39 @@ public class BackgroundScanWork extends Service { //IntentService ???
 
     private Notification getNotification(){
         return App.getMyAppsNotificationManager().getNotification(MapsActivity.class,
-                "BeeSafe Tracing Algorithm is Active",
+                "BeeSafe Is Active",
                 1,
                 false,
                 1);
     }
 
-    private boolean isGpsEnabled () {
-        LocationManager locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
+    /* Checks if GPS is enabled */
+    public static boolean isGpsEnabled (Context c) {
+        LocationManager locationManager = (LocationManager) c.getSystemService(LOCATION_SERVICE);
         return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
     }
 
-    private boolean isBluetoothEnabled () {
+    /* Checks if Bluetooth is enabled *?
+    public static boolean isBluetoothEnabled() {
         return BleManager.getInstance().isBlueEnable();
     }
+
+    private void checkGpsBluetooth () {
+        boolean gps = isGpsEnabled(getApplicationContext());
+        boolean bluetooth = isBluetoothEnabled();
+        active = gps && bluetooth;
+
+        if (!gps && !bluetooth)
+            AppPersistentNotificationManager.getInstance(getApplicationContext()).updateNotification("BeeSafe Not Active \uD83E\uDD7A", "GPS and Bluetooth not enabled!");
+        else if (!gps && bluetooth)
+            AppPersistentNotificationManager.getInstance(getApplicationContext()).updateNotification("BeeSafe Not Active \uD83E\uDD7A", "GPS not enabled!");
+        else if (gps && !bluetooth)
+            AppPersistentNotificationManager.getInstance(getApplicationContext()).updateNotification("BeeSafe Not Active \uD83E\uDD7A", "Bluetooth not enabled!");
+        else
+            AppPersistentNotificationManager.getInstance(getApplicationContext()).updateNotification("BeeSafe Is Active \uD83D\uDC1D", "Scanning!");
+
+    }
+
 
 
 

@@ -13,6 +13,8 @@ import android.view.Display;
 import androidx.core.app.ActivityCompat;
 
 import com.bufferoverflow.beesafe.AuxTools.AuxCrowd;
+import com.bufferoverflow.beesafe.BackgroundService.AppPersistentNotificationManager;
+import com.bufferoverflow.beesafe.BackgroundService.BackgroundScanWork;
 import com.clj.fastble.BleManager;
 import com.clj.fastble.callback.BleScanCallback;
 import com.clj.fastble.data.BleDevice;
@@ -39,6 +41,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public class Scan {
 
+
     public static CountDownLatch scanLatch;
     private static final List<String> blacklist = Arrays.asList(
             "TV", "Mi Band", "Airpods", "Buds"
@@ -46,10 +49,8 @@ public class Scan {
 
     private final static int SCAN_DURATION = 5; //seconds
     private final static int RSSI_RANGE_FILTER = -70; //RSSI Signal
-    public final static int ONLINE = 1;
-    public final static int OFFLINE = 0;
 
-    public static void tracingAlgorithm(Context c, int TYPE) {
+    public static void tracingAlgorithm(Context c) {
         scanLatch = new CountDownLatch(1);
         if (!safeActivityRecognition(c)) //Controls if users Activity is safe to begin scan
             return;
@@ -57,11 +58,17 @@ public class Scan {
         Map<String, BleDevice> devices = scan(); //Initiate the scan process
         filterManufacturer(devices); //Filter out manufacturers
         filterRange(devices); //Filter out not nearby devices
-        if (TYPE == ONLINE)
-            uploadResult(c, devices.size()); //upload the scan
-        else {
-            //TODO Create notification
+
+        //Updating the notification content
+        AuxCrowd.Crowded type = AuxCrowd.crowd(devices.size());
+        if (BackgroundScanWork.isBluetoothEnabled()) {
+            if (type == AuxCrowd.Crowded.SAFE)
+                AppPersistentNotificationManager.getInstance(c).updateNotification("BeeSafe Is Active \uD83D\uDC1D", "Safe Location. \uD83D\uDE00 ");
+            else
+                AppPersistentNotificationManager.getInstance(c).updateNotification("BeeSafe Is Active \uD83D\uDC1D", "Crowd! Approximately "  + devices.size() + " people. \uD83D\uDE37 ");
         }
+
+        uploadResult(c, devices.size()); //upload the scan to database
     }
 
     private static Map<String, BleDevice> scan () {

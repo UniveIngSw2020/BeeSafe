@@ -9,8 +9,11 @@ import androidx.fragment.app.FragmentActivity;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Dialog;
+import android.bluetooth.BluetoothAdapter;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -18,6 +21,7 @@ import android.graphics.Color;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.LocationListener;
+import android.location.LocationManager;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.Button;
@@ -87,6 +91,35 @@ public class MapsActivity extends FragmentActivity implements
     private ChildEventListener areaEventListener;
     private DatabaseReference mDatabase;
 
+    private final BroadcastReceiver bluetoothBroadcastReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            final String action = intent.getAction();
+            if (action.equals(BluetoothAdapter.ACTION_STATE_CHANGED)) {
+                final int state = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, BluetoothAdapter.ERROR);
+                switch(state) { //Map
+                    case BluetoothAdapter.STATE_OFF:
+                        Toast toast = Toast. makeText(getApplicationContext(), "You need to enable GPS and Bluetooth.", Toast.LENGTH_LONG);
+                        toast.show();
+                        finish(); //Close the activity
+                }
+            }
+        }
+    };
+
+    private final BroadcastReceiver gpsBroadcastReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive( Context context, Intent intent ) {
+            final LocationManager manager = (LocationManager) context.getSystemService( Context.LOCATION_SERVICE );
+            LocationManager locationManager = (LocationManager) getApplicationContext().getSystemService(LOCATION_SERVICE);
+            if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+                Toast toast = Toast. makeText(getApplicationContext(), "You need to enable GPS and Bluetooth.", Toast.LENGTH_LONG);
+                toast.show();
+                finish(); //Close the activity
+            }
+        }
+    };
+
     //HeatMap settings
     private static final int[] HEATMAP_RED_GRADIENT = { Color.rgb(213, 0, 0) };
     private static final int[] HEATMAP_ORANGE_GRADIENT = { Color.rgb(255, 109, 0), };
@@ -115,6 +148,13 @@ public class MapsActivity extends FragmentActivity implements
         mIsRestore = savedInstanceState != null;
         setContentView(R.layout.map);
         setUpMap();
+
+        //Registering Bluetooth broadcast receiver
+        IntentFilter bluetoothFilter = new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED);
+        registerReceiver(bluetoothBroadcastReceiver, bluetoothFilter);
+        //Registering Gps broadcast receiver
+        IntentFilter gpsFilter = new IntentFilter(LocationManager.PROVIDERS_CHANGED_ACTION);
+        registerReceiver(gpsBroadcastReceiver, gpsFilter);
 
         /* To upload some samples
             currentArea.addLocation(new Location(new LatLng(45.503810, 12.260870), 15));

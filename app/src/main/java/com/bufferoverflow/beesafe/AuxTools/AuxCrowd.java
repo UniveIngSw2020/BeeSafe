@@ -3,14 +3,16 @@ package com.bufferoverflow.beesafe.AuxTools;
 import com.bufferoverflow.beesafe.R;
 import com.google.firebase.database.DataSnapshot;
 
-enum Crowded {
-    NO_DATA,
-    SAFE,
-    LOW,
-    HIGH
-}
+
 
 public class AuxCrowd {
+
+    public enum Crowded {
+        NO_DATA,
+        SAFE,
+        LOW,
+        HIGH
+    }
 
     /* Checks if the passed snapshot, is Crowd or not */
     public static int crowdType (DataSnapshot snapshot) {
@@ -46,6 +48,15 @@ public class AuxCrowd {
     public static boolean isCrowd(DataSnapshot snapshot) {
         Object snap = snapshot.child("nrDevices").getValue();
         return snap != null && ((Long) snap).intValue() >= 20;
+    }
+
+    public static Crowded crowd (int nrDevices) {
+        if (nrDevices<20)
+            return Crowded.SAFE;
+        else if (nrDevices < 30)
+            return Crowded.LOW;
+        else
+            return Crowded.HIGH;
     }
 
 }
