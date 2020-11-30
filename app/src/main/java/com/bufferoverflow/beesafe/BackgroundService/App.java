@@ -9,27 +9,20 @@ import androidx.core.content.ContextCompat;
 
 public class App extends Application {
 
-    private static AppPersistentNotificationManager notificationManager;
-    private static Intent serviceIntent;
     private static boolean serviceActive = false;
-
-    public static boolean isServiceActive() {
-        return serviceActive;
-    }
 
     @Override
     public void onCreate() {
         super.onCreate();
-        startService(this);
+        startService(this); //Start the service
     }
 
     public static void startService(Context c) {
-        notificationManager = AppPersistentNotificationManager.getInstance(c);
-        notificationManager.registerNotificationChannelChannel("123",
-                "BackgroundService",
-                "BackgroundService");
+        getMyAppsNotificationManager(c).registerNotificationChannelChannel("123",
+                "Tracing Service",
+                "Tracing Service Algorithm");
 
-        serviceIntent = new Intent(c, BackgroundScanWork.class);
+        Intent serviceIntent = new Intent(c, BackgroundScanWork.class);
         ContextCompat.startForegroundService(c,serviceIntent);
         serviceActive = true;
         Toast toast = Toast. makeText(c, "Service Started", Toast.LENGTH_SHORT);
@@ -39,13 +32,16 @@ public class App extends Application {
     public static void stopService(Context c) {
         c.stopService(new Intent(c, BackgroundScanWork.class));
         serviceActive = false;
-        Toast toast = Toast. makeText(c, "Service Stoped", Toast.LENGTH_SHORT);
+        Toast toast = Toast. makeText(c, "Service Stopped", Toast.LENGTH_SHORT);
         toast.show();
     }
 
+    public static boolean isServiceActive() {
+        return serviceActive;
+    }
 
-    public static AppPersistentNotificationManager getMyAppsNotificationManager(){
-        return notificationManager;
+    public static AppPersistentNotificationManager getMyAppsNotificationManager(Context c){
+        return AppPersistentNotificationManager.getInstance(c);
     }
 
 }

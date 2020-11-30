@@ -37,14 +37,15 @@
         android:id="@+id/help"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Help" />
+        android:text="Help"
+        android:onClick="help"/>
 
     <Button
         android:id="@+id/privacyPolicy"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Privacy Policy"
-        android:onClick="changeLanguage"/>
+        android:onClick="privacyPolicy"/>
 
 
 
