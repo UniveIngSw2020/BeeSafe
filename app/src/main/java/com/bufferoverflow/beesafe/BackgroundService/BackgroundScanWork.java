@@ -77,6 +77,7 @@ public class BackgroundScanWork extends Service { //IntentService ???
             @Override
             public void run () {
                 if (active) {
+                    BleManager.getInstance().init(getApplication());
                     Log.d("TRACING", "About to call the tracing algorithm");
                     Scan.tracingAlgorithm(getApplicationContext());
                     Log.d("TRACING", "Tracing algorithm finished.");

@@ -7,8 +7,12 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.hardware.display.DisplayManager;
+import android.os.Handler;
+import android.os.Looper;
+import android.os.Message;
 import android.util.Log;
 import android.view.Display;
+import android.widget.Toast;
 
 import androidx.core.app.ActivityCompat;
 
@@ -42,13 +46,12 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class Scan {
 
 
-    public static CountDownLatch scanLatch;
     private static final List<String> blacklist = Arrays.asList(
             "TV", "Mi Band", "Airpods", "Buds"
     );
-
     private final static int SCAN_DURATION = 5; //seconds
     private final static int RSSI_RANGE_FILTER = -70; //RSSI Signal
+    public static CountDownLatch scanLatch;
 
     public static void tracingAlgorithm(Context c) {
         scanLatch = new CountDownLatch(1);
@@ -56,22 +59,39 @@ public class Scan {
             return;
         screenStatusWait(c); //Wait until screen turns on
         Map<String, BleDevice> devices = scan(); //Initiate the scan process
-        filterManufacturer(devices); //Filter out manufacturers
-        filterRange(devices); //Filter out not nearby devices
+        int nr = devices.size();
+        //filterManufacturer(devices); //Filter out manufacturers
+        //filterRange(devices); //Filter out not nearby devices
 
         //Updating the notification content
-        AuxCrowd.Crowded type = AuxCrowd.crowd(devices.size());
+        AuxCrowd.Crowded type = AuxCrowd.crowdType(devices.size());
         if (BackgroundScanWork.isBluetoothEnabled()) {
             if (type == AuxCrowd.Crowded.SAFE)
                 AppPersistentNotificationManager.getInstance(c).updateNotification("BeeSafe Is Active \uD83D\uDC1D", "Safe Location. \uD83D\uDE00 ");
             else
-                AppPersistentNotificationManager.getInstance(c).updateNotification("BeeSafe Is Active \uD83D\uDC1D", "Crowd! Approximately "  + devices.size() + " people. \uD83D\uDE37 ");
+                AppPersistentNotificationManager.getInstance(c).updateNotification("BeeSafe Is Active \uD83D\uDC1D", "Crowd! Approximately " + devices.size() + " people. \uD83D\uDE37 ");
         }
 
         uploadResult(c, devices.size()); //upload the scan to database
+
+        String msg = "DEBUG\n\n";
+        for (BleDevice b : devices.values()) {
+            msg+= "Name: " + b.getName() + " | MAC: " + b.getMac() + " Signal: " + b.getRssi() + "\n\n";
+        }
+
+        String finalMsg = msg;
+        new Handler(Looper.getMainLooper()).post(new Runnable() {
+            @Override
+            public void run() {
+                Toast.makeText(c, finalMsg, Toast.LENGTH_LONG).show();
+            }
+        });
+
+
+
     }
 
-    private static Map<String, BleDevice> scan () {
+    private static Map<String, BleDevice> scan() {
         Map<String, BleDevice> devices = new HashMap<>();
         BleManager bleManager = BleManager.getInstance();
         BleScanRuleConfig scanRuleConfig = new BleScanRuleConfig.Builder()
@@ -153,7 +173,7 @@ public class Scan {
         for (String type : blacklist)
             for (Iterator<Map.Entry<String, BleDevice>> it = devices.entrySet().iterator(); it.hasNext(); ) {
                 Map.Entry<String, BleDevice> b = it.next();
-                if (b.getValue() !=null && b.getValue().getName() != null && b.getValue().getName().contains(type))
+                if (b.getValue() != null && b.getValue().getName() != null && b.getValue().getName().contains(type))
                     it.remove(); //scanDevices.remove(b.getKey());
             }
         Log.d("TRACING", "Manufactor filter finished, current devices : " + devices.size());
@@ -197,8 +217,7 @@ public class Scan {
                     Log.d("TRACING", "Successfully uploaded data to database | " + areaGeoHash + " | " + locationGeoHash);
                 }
             });
-        }
-        else {
+        } else {
             Log.d("TRACING", "ACCESS_FINE_LOCATION : " + ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION));
             Log.d("TRACING", "ACCESS_COARSE_LOCATION : " + ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION));
         }
@@ -209,7 +228,7 @@ public class Scan {
      * If 10 minutes are passed without the user turning the screen on, it returns automatically
      * It uses a latch to implement this mechanism
      */
-    public static void screenStatusWait (Context c) {
+    public static void screenStatusWait(Context c) {
         //Filters for Screen On and Off to register on Broadcast
         IntentFilter intentFilter = new IntentFilter(Intent.ACTION_SCREEN_ON);
         intentFilter.addAction(Intent.ACTION_SCREEN_OFF);
@@ -219,8 +238,7 @@ public class Scan {
         for (Display display : dm.getDisplays())
             if (display.getState() == Display.STATE_ON) {
                 scanLatch.countDown(); //releasing the latch immediately if screen is on
-            }
-            else { //screen is off
+            } else { //screen is off
                 c.registerReceiver(new BroadcastReceiver() { //setting a broadcast receiver
                     @Override
                     public void onReceive(Context context, Intent intent) {

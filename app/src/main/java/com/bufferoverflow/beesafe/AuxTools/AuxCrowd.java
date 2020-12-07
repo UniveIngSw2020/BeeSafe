@@ -50,7 +50,11 @@ public class AuxCrowd {
         return snap != null && ((Long) snap).intValue() >= 20;
     }
 
-    public static Crowded crowd (int nrDevices) {
+    public static boolean isCrowd(int nrDevices) {
+        return nrDevices>20;
+    }
+
+    public static Crowded crowdType(int nrDevices) {
         if (nrDevices<20)
             return Crowded.SAFE;
         else if (nrDevices < 30)

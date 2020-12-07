@@ -3,9 +3,13 @@ package com.bufferoverflow.beesafe.BackgroundService;
 import android.app.Application;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.widget.Toast;
 
+import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+
+import com.bufferoverflow.beesafe.MainActivity;
 
 public class App extends Application {
 
@@ -14,7 +18,7 @@ public class App extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
-        startService(this); //Start the service
+        //startService(this); //Start the service
     }
 
     public static void startService(Context c) {
@@ -43,5 +47,7 @@ public class App extends Application {
     public static AppPersistentNotificationManager getMyAppsNotificationManager(Context c){
         return AppPersistentNotificationManager.getInstance(c);
     }
+
+
 
 }

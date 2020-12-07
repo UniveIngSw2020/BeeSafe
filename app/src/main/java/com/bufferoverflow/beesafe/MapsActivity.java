@@ -1,14 +1,12 @@
 package com.bufferoverflow.beesafe;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentActivity;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
-import android.app.Dialog;
 import android.bluetooth.BluetoothAdapter;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -19,8 +17,8 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.location.Address;
+import android.location.Criteria;
 import android.location.Geocoder;
-import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.util.Log;
@@ -32,25 +30,19 @@ import android.widget.Toast;
 
 import com.bufferoverflow.beesafe.AuxTools.AuxCrowd;
 import com.bufferoverflow.beesafe.AuxTools.AuxDateTime;
-import com.bufferoverflow.beesafe.AuxTools.AuxMap;
-import com.bufferoverflow.beesafe.BackgroundService.BackgroundScanWork;
-import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.FusedLocationProviderClient;
-import com.google.android.gms.location.LocationCallback;
-import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.LocationSource;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.TileOverlayOptions;
-import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -60,33 +52,24 @@ import com.google.firebase.database.ValueEventListener;
 import com.google.maps.android.heatmaps.Gradient;
 import com.google.maps.android.heatmaps.HeatmapTileProvider;
 import com.yarolegovich.lovelydialog.LovelyCustomDialog;
-import com.yarolegovich.lovelydialog.LovelyStandardDialog;
+
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 import ch.hsr.geohash.GeoHash;
 import ch.hsr.geohash.WGS84Point;
 
 public class MapsActivity extends FragmentActivity implements
         OnMapReadyCallback,
-        ActivityCompat.OnRequestPermissionsResultCallback,
-        LocationSource.OnLocationChangedListener {
+        ActivityCompat.OnRequestPermissionsResultCallback {
 
-    //Map
-    private GoogleMap map;
+    private GoogleMap map; //Map object
     private boolean mIsRestore;
     private static final int REQUEST_LOCATION_PERMISSION = 1;
-    private LocationCallback locationCallback = new LocationCallback() {
-        @Override
-        public void onLocationResult(LocationResult locationResult) {
-            super.onLocationResult(locationResult);
-            if (locationResult != null && locationResult.getLocations() != null ) {
-                Log.d("XXXXXXXXXXX", "Lat " + locationResult.getLastLocation().getLatitude());
-            }
-        }
-    };
 
     private ChildEventListener areaEventListener;
     private DatabaseReference mDatabase;
@@ -97,11 +80,11 @@ public class MapsActivity extends FragmentActivity implements
             final String action = intent.getAction();
             if (action.equals(BluetoothAdapter.ACTION_STATE_CHANGED)) {
                 final int state = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, BluetoothAdapter.ERROR);
-                switch(state) { //Map
-                    case BluetoothAdapter.STATE_OFF:
-                        Toast toast = Toast. makeText(getApplicationContext(), "You need to enable GPS and Bluetooth.", Toast.LENGTH_LONG);
-                        toast.show();
-                        finish(); //Close the activity
+                //Map
+                if (state == BluetoothAdapter.STATE_OFF) {
+                    Toast toast = Toast.makeText(getApplicationContext(), "You need to enable GPS and Bluetooth.", Toast.LENGTH_LONG);
+                    toast.show();
+                    finish(); //Close the activity
                 }
             }
         }
@@ -109,11 +92,11 @@ public class MapsActivity extends FragmentActivity implements
 
     private final BroadcastReceiver gpsBroadcastReceiver = new BroadcastReceiver() {
         @Override
-        public void onReceive( Context context, Intent intent ) {
-            final LocationManager manager = (LocationManager) context.getSystemService( Context.LOCATION_SERVICE );
+        public void onReceive(Context context, Intent intent) {
+            final LocationManager manager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
             LocationManager locationManager = (LocationManager) getApplicationContext().getSystemService(LOCATION_SERVICE);
             if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-                Toast toast = Toast. makeText(getApplicationContext(), "You need to enable GPS and Bluetooth.", Toast.LENGTH_LONG);
+                Toast toast = Toast.makeText(getApplicationContext(), "You need to enable GPS and Bluetooth.", Toast.LENGTH_LONG);
                 toast.show();
                 finish(); //Close the activity
             }
@@ -121,16 +104,16 @@ public class MapsActivity extends FragmentActivity implements
     };
 
     //HeatMap settings
-    private static final int[] HEATMAP_RED_GRADIENT = { Color.rgb(213, 0, 0) };
-    private static final int[] HEATMAP_ORANGE_GRADIENT = { Color.rgb(255, 109, 0), };
-    public static final float[] HEATMAP_START_POINTS_RED = {0.5f };
-    public static final float[] HEATMAP_START_POINTS_ORANGE = { 0.5f };
+    private static final int[] HEATMAP_RED_GRADIENT = {Color.rgb(213, 0, 0)};
+    private static final int[] HEATMAP_ORANGE_GRADIENT = {Color.rgb(255, 109, 0),};
+    public static final float[] HEATMAP_START_POINTS_RED = {0.5f};
+    public static final float[] HEATMAP_START_POINTS_ORANGE = {0.5f};
     public static final Gradient HEATMAP_RED = new Gradient(HEATMAP_RED_GRADIENT, HEATMAP_START_POINTS_RED);
     public static final Gradient HEATMAP_ORANGE = new Gradient(HEATMAP_ORANGE_GRADIENT, HEATMAP_START_POINTS_ORANGE);
 
     //Locations and Markers(Saved Places)
-    private Map<String, Marker> savedPlaces = new HashMap<>(); //Saved places
-    private Map<String, Location> locations = new HashMap<>(); //Locations with data
+    private final Map<String, Marker> savedPlaces = new HashMap<>(); //Saved places
+    private final Map<String, Location> locations = new HashMap<>(); //Locations with data
     private Area currentArea; //Current area GeoHashed
     private Area[] neighbourArea; //All 8 nearby GeoHash boxes N, NE, E, SE, S, SW, W, NW of precision 4
 
@@ -138,10 +121,9 @@ public class MapsActivity extends FragmentActivity implements
     @Override
     protected void onStart() {
         super.onStart();
-        Log.d("XXXXXXXXXXX","On start called  " + Thread.currentThread().getId() );
     }
 
-    @SuppressLint("MissingPermission")
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -156,28 +138,6 @@ public class MapsActivity extends FragmentActivity implements
         IntentFilter gpsFilter = new IntentFilter(LocationManager.PROVIDERS_CHANGED_ACTION);
         registerReceiver(gpsBroadcastReceiver, gpsFilter);
 
-        /* To upload some samples
-            currentArea.addLocation(new Location(new LatLng(45.503810, 12.260870), 15));
-            try { Thread.currentThread().sleep(2000); } catch (InterruptedException ignored) { }
-            currentArea.addLocation(new Location(new LatLng(45.479740, 12.249590),17));
-            try { Thread.currentThread().sleep(2000); } catch (InterruptedException ignored) { }
-            currentArea.addLocation(new Location(new LatLng(45.497735, 12.2676424), 30));
-        */
-
-        FusedLocationProviderClient fusedLocationClient = LocationServices.getFusedLocationProviderClient(getApplicationContext());
-        fusedLocationClient.getLastLocation()
-                .addOnSuccessListener(MapsActivity.this, new OnSuccessListener<android.location.Location>() {
-                    @Override
-                    public void onSuccess(android.location.Location location) {
-                        // Got last known location. In some rare situations this can be null.
-                        if (location != null) {
-                            // Logic to handle location object
-                            GeoHash g = GeoHash.withCharacterPrecision(location.getLatitude(), location.getLongitude(), 8);
-                            String geohash = g.toBase32();
-                            Log.d("XXXXXXXXXXX","Thread ID " + Thread.currentThread().getId()  + "Lat: " + location.getLatitude() + " | Long: " + location.getLongitude() + " | Geohash: " + geohash );
-                        }
-                    }
-                });
 
     }
 
@@ -201,9 +161,10 @@ public class MapsActivity extends FragmentActivity implements
             return;
         this.map = map;
 
-        enableMyLocation();
+        showLocationOnMap(); //Show current location on map + Center zoom to users location
+        map.setMaxZoomPreference((float) 17.9); //Set Max Zoom level
+        updateCurrentPosition(); //Update currentArea and neighbours area + Event listeners for this area
 
-        map.setMaxZoomPreference((float) 17.9);
         /* Updating radius on zoom for more accurate heatmap */
         map.setOnCameraMoveListener(new GoogleMap.OnCameraMoveListener() {
             boolean flag = false;
@@ -239,28 +200,16 @@ public class MapsActivity extends FragmentActivity implements
         });
 
         /* On long click on a position on the map, the popup gets displayed */
-        map.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
-            @Override
-            public void onMapLongClick(LatLng latLng) {
-                addFavoriteDialog(latLng);
-            }
-        });
+        map.setOnMapLongClickListener(this::addFavoriteDialog);
 
         /* On marker click listener to view a favorite place */
-        map.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
-            @Override
-            public boolean onMarkerClick(Marker marker) {
-                viewFavoriteDialog(marker.getPosition());
-                return false;
-            }
+        map.setOnMarkerClickListener(marker -> {
+            viewFavoriteDialog(marker.getPosition());
+            return false;
         });
 
-
-
-        updateCurrentPosition(new LatLng(45.491886, 12.244492)); //Update currentArea and neighbours area + Event listeners for this area
-
         User user = User.getInstance(this);
-        user.loadFavoritePlaces(this); //Load favorite places from local storage
+        User.getInstance(this).loadFavoritePlaces(this); //Load favorite places from local storage
         for (FavoritePlace fav : user.getFavoriteLocations().values()) { //Load all Favorite Places
             Marker m = addFavoritePlaceToMap(fav); //Add favorite to Map
             savedPlaces.put(fav.getGeoHash(), m); //Save the Marker of this map
@@ -272,19 +221,22 @@ public class MapsActivity extends FragmentActivity implements
         ((SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map)).getMapAsync(this);
     }
 
-    //Render Location to HeatMap
+    /* Render the location passed as argument to the HeatMap if it is LOW or HIGH Density crowd*/
     public void addLocationToMap(Location location) {
-        locations.put(location.getCoordinates(), location);
-        Gradient g = (location.nrDevices <20) ? HEATMAP_ORANGE : HEATMAP_RED;
-        ArrayList<LatLng> l = new ArrayList<>();
-        l.add(location.getLatLng());
-        location.provider = new HeatmapTileProvider.Builder()
-                .data(l)
-                .radius(30)
-                .build();
-        location.provider.setGradient(g);
-        location.provider.setOpacity(0.7);
-        location.overlay = map.addTileOverlay(new TileOverlayOptions().tileProvider(location.provider));
+        if (AuxCrowd.isCrowd(location.getNrDevices())) {
+            locations.put(location.getCoordinates(), location); //save new location to current field
+            AuxCrowd.Crowded type = AuxCrowd.crowdType(location.nrDevices);
+            Gradient g = (type == AuxCrowd.Crowded.LOW) ? HEATMAP_ORANGE : HEATMAP_RED;
+            ArrayList<LatLng> l = new ArrayList<>();
+            l.add(location.getLatLng());
+            location.provider = new HeatmapTileProvider.Builder()
+                    .data(l)
+                    .radius(30)
+                    .build();
+            location.provider.setGradient(g);
+            location.provider.setOpacity(0.7);
+            location.overlay = map.addTileOverlay(new TileOverlayOptions().tileProvider(location.provider));
+        }
     }
 
     //Remove Location from HeatMap
@@ -318,65 +270,79 @@ public class MapsActivity extends FragmentActivity implements
     private void enableAreaEventListener () {
         areaEventListener = new ChildEventListener() {
             @Override
-            public void onChildAdded(DataSnapshot dataSnapshot, String previousChildName) {
+            public void onChildAdded(@NotNull DataSnapshot dataSnapshot, String previousChildName) {
                 Location location = new Location(dataSnapshot.getKey(), Integer.parseInt(dataSnapshot.child("nrDevices").getValue().toString()));
-                locations.put(dataSnapshot.getKey(), location);
-                addLocationToMap(location); //Add point and render the map (if Location is a crowd)
-                Log.d("added", "onChildAdded:" + dataSnapshot.getKey()  + " " + dataSnapshot.getValue());
+                if (AuxCrowd.isCrowd(location.getNrDevices())) { //If this location is a crowd
+                    locations.put(dataSnapshot.getKey(), location);
+                    addLocationToMap(location); //Add point and render the map
+                    Log.d("added", "onChildAdded:" + dataSnapshot.getKey()  + " " + dataSnapshot.getValue());
+                }
             }
 
             @Override
-            public void onChildChanged(DataSnapshot dataSnapshot, String previousChildName) {
+            public void onChildChanged(@NotNull DataSnapshot dataSnapshot, String previousChildName) {
                 Location newLocationData = new Location(dataSnapshot.getKey(), Integer.parseInt(dataSnapshot.child("nrDevices").getValue().toString()));
                 Location oldLocationData = locations.get(dataSnapshot.getKey());
-                locations.put(dataSnapshot.getKey(), newLocationData);
-
-                removeLocationFromMap(oldLocationData);
-                addLocationToMap(newLocationData);
-
-                Log.d("changed", "onChildChanged:" + dataSnapshot.getKey()  + " " + dataSnapshot.getValue());
+                if (AuxCrowd.isCrowd(newLocationData.getNrDevices())) { //If this location is a crowd
+                    locations.put(dataSnapshot.getKey(), newLocationData);
+                    removeLocationFromMap(oldLocationData);
+                    addLocationToMap(newLocationData);
+                    Log.d("changed", "onChildChanged:" + dataSnapshot.getKey()  + " " + dataSnapshot.getValue());
+                }
             }
 
             @Override
-            public void onChildRemoved(DataSnapshot dataSnapshot) {
+            public void onChildRemoved(@NotNull DataSnapshot dataSnapshot) {
                 Location location = locations.remove(dataSnapshot.getKey());
-                removeLocationFromMap(location); //remove the location from the map
-                Log.d("removed", "onChildRemoved:" + dataSnapshot.getKey()  + " " + dataSnapshot.getValue());
+                if (locations.containsKey(location.getCoordinates())) { //If location is present on our hashmap
+                    removeLocationFromMap(location); //remove the location from the map
+                    Log.d("removed", "onChildRemoved:" + dataSnapshot.getKey()  + " " + dataSnapshot.getValue());
+                }
             }
 
             @Override
-            public void onChildMoved(DataSnapshot dataSnapshot, String previousChildName) {
+            public void onChildMoved(@NotNull DataSnapshot dataSnapshot, String previousChildName) {
                 Log.d("moved", "onChildMoved:" + dataSnapshot.getKey()  + " " + dataSnapshot.getValue());
             }
 
             @Override
-            public void onCancelled(DatabaseError databaseError) {
+            public void onCancelled(@NotNull DatabaseError databaseError) {
                 Log.w("cancelled", "error", databaseError.toException());
             }
         }; //Listener
         mDatabase = FirebaseDatabase.getInstance().getReference().child(currentArea.getCoordinates()); //Gets a node reference for the current 4Precision GeoHash
         mDatabase.addChildEventListener(areaEventListener); //Adds the listener to this reference
+        for(int i=0; i<8;i++) { // N, NE, E, SE, S, SW, W, NW
+            Log.d("AREEA", neighbourArea[i].getCoordinates());
+            mDatabase = FirebaseDatabase.getInstance().getReference().child(neighbourArea[i].getCoordinates()); //Gets a node reference for each neighbour area
+            mDatabase.addChildEventListener(areaEventListener); //Adds the listener to this reference
+        }
     }
 
     /* Disable events listener for the current Area (Locations of this Area)
     *  First time opening Activity: Nothing happens
     * */
     private void disableAreaEventListner () {
-        if (mDatabase != null)
+        if (mDatabase != null) {
             mDatabase.removeEventListener(areaEventListener);
+            if(neighbourArea!=null)
+                for(int i=0; i<8;i++) { // N, NE, E, SE, S, SW, W, NW
+                    if (neighbourArea[i] != null) {
+                        mDatabase = FirebaseDatabase.getInstance().getReference().child(neighbourArea[i].getCoordinates()); //Gets a node reference for each neighbour area
+                        mDatabase.removeEventListener(areaEventListener); //Adds the listener to this reference
+                    }
+                }
+        }
     }
-
-
 
 
     private void addFavoriteDialog(LatLng coordinates) {
         String geoHash = GeoHash.geoHashStringWithCharacterPrecision(coordinates.latitude, coordinates.longitude, Location.PRECISION); //geoHash of Location (8 Precision)
-        String areaGeoHash = GeoHash.geoHashStringWithCharacterPrecision(coordinates.latitude, coordinates.longitude, Area.PRECISION); //geoHash of Area (4 Precision)
 
         //Get pretty printed street name using Google Maps API
         Geocoder geocoder = new Geocoder(this);
         List<Address> matches = new ArrayList<>();
-        try { matches = geocoder.getFromLocation(coordinates.latitude, coordinates.longitude, 1); } catch (Exception ignored){};
+        try { matches = geocoder.getFromLocation(coordinates.latitude, coordinates.longitude, 1); } catch (Exception ignored){}
         String streetName = (matches.isEmpty() ? "" : matches.get(0).getAddressLine(0));
 
         final LovelyCustomDialog addFavDialog = new LovelyCustomDialog(this);
@@ -408,7 +374,6 @@ public class MapsActivity extends FragmentActivity implements
         addFavDialog.show();
     }
 
-    //TODO Pass in marker
     @SuppressLint("SetTextI18n")
     private void viewFavoriteDialog(LatLng coordinates) {
         String geoHash = GeoHash.geoHashStringWithCharacterPrecision(coordinates.latitude, coordinates.longitude, Location.PRECISION); //geoHash of Location (8 Precision)
@@ -419,7 +384,7 @@ public class MapsActivity extends FragmentActivity implements
         //Get pretty printed street name using Google Maps API
         Geocoder geocoder = new Geocoder(this);
         List<Address> matches = new ArrayList<>();
-        try { matches = geocoder.getFromLocation(coordinates.latitude, coordinates.longitude, 1); } catch (Exception ignored){};
+        try { matches = geocoder.getFromLocation(coordinates.latitude, coordinates.longitude, 1); } catch (Exception ignored){}
         String streetName = (matches.isEmpty() ? "" : matches.get(0).getAddressLine(0));
 
         LovelyCustomDialog viewDialog = new LovelyCustomDialog(this);
@@ -475,18 +440,21 @@ public class MapsActivity extends FragmentActivity implements
     }
 
 
+    private void showLocationOnMap() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            map.setMyLocationEnabled(true); //Enable the blue dot on map
 
-
-    @Override
-    public void onLocationChanged(android.location.Location location) {
-        Log.d("XXXXX", String.valueOf(location.getLatitude() + location.getLongitude() + location.getAccuracy()));
-    }
-
-    private void enableMyLocation() {
-        if (ContextCompat.checkSelfPermission(this,
-                Manifest.permission.ACCESS_FINE_LOCATION)
-                == PackageManager.PERMISSION_GRANTED) {
-            map.setMyLocationEnabled(true);
+            LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+            Criteria criteria = new Criteria();
+            android.location.Location location = locationManager.getLastKnownLocation(locationManager.getBestProvider(criteria, false));
+            if (location != null) {
+                map.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(location.getLatitude(), location.getLongitude()), 13));
+                CameraPosition cameraPosition = new CameraPosition.Builder()
+                        .target(new LatLng(location.getLatitude(), location.getLongitude()))      // Sets the center of the map to location user
+                        .zoom(15)                   // Sets the zoom
+                        .build();                   // Creates a CameraPosition from the builder
+                map.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+            }
         } else {
             ActivityCompat.requestPermissions(this, new String[]
                             {Manifest.permission.ACCESS_FINE_LOCATION},
@@ -494,39 +462,29 @@ public class MapsActivity extends FragmentActivity implements
         }
     }
 
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        // Check if location permissions are granted and if so enable the
-        // location data layer.
-        switch (requestCode) {
-            case REQUEST_LOCATION_PERMISSION:
-                if (grantResults.length > 0
-                        && grantResults[0]
-                        == PackageManager.PERMISSION_GRANTED) {
-                    enableMyLocation();
-                    break;
-                }
-        }
-    }
-
-
-
-    /*  Updates the location of the user with the new Latitude and Longitude coordinates
-     *  If the area where the user is at the moment is different from the area covered by new coordinates,
-     *  it changes the user's area and updates all the neighbour areas.
+    /*  Sets up the current area and neighbour area geohash and enables the listeners
      */
-    public void updateCurrentPosition(LatLng coordinates) {
-        //User has moved into a new Area OR loading the application -> update current Area + Neighbours
-        if (currentArea == null || !GeoHash.geoHashStringWithCharacterPrecision(coordinates.latitude, coordinates.longitude, Area.PRECISION).equals(currentArea.getCoordinates())) {
-            disableAreaEventListner();
-            currentArea = new Area(new LatLng(coordinates.latitude, coordinates.longitude));
-            enableAreaEventListener();
-            neighbourArea = new Area[8];
-            for(int i=0; i<8;i++) { //update neighbour boxes of this area ----- N, NE, E, SE, S, SW, W, NW
-                System.out.println("[" + i + "]" + currentArea.getGeoHash().getAdjacent()[i].toBase32());
-                neighbourArea[i] = new Area(currentArea.getGeoHash().getAdjacent()[i]);
-            }
+    public void updateCurrentPosition() {
+        FusedLocationProviderClient client;
+        client = LocationServices.getFusedLocationProviderClient(getApplicationContext());
+        if (ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            Task<android.location.Location> task = client.getLastLocation();
+            task.addOnSuccessListener(location -> {
+                if (location != null) {
+
+                    currentArea = new Area(new LatLng(location.getLatitude(), location.getLongitude()));
+                    neighbourArea = new Area[8];
+
+                    for(int i=0; i<8;i++) { //update neighbour boxes of this area ----- N, NE, E, SE, S, SW, W, NW
+                        System.out.println("[" + i + "]" + currentArea.getGeoHash().getAdjacent()[i].toBase32());
+                        neighbourArea[i] = new Area(currentArea.getGeoHash().getAdjacent()[i]);
+                    }
+                    enableAreaEventListener(); //enable listeners for current and neighbour area
+
+                }
+            });
         }
+
     }
 
 }

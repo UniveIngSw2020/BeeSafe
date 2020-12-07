@@ -1,12 +1,16 @@
 package com.bufferoverflow.beesafe;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
+import android.Manifest;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.PackageManager;
 import android.hardware.display.DisplayManager;
 import android.location.LocationManager;
 import android.os.Bundle;
@@ -47,10 +51,24 @@ TODO:
 
 public class MainActivity extends AppCompatActivity {
 
+    int PERMISSION_ALL = 1;
+    String[] PERMISSIONS = {
+            android.Manifest.permission.ACCESS_COARSE_LOCATION,
+            android.Manifest.permission.ACCESS_FINE_LOCATION,
+            android.Manifest.permission.ACCESS_BACKGROUND_LOCATION,
+            android.Manifest.permission.ACTIVITY_RECOGNITION
+    };
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        boolean permissions = hasPermissions(PERMISSIONS);
+        if (!permissions)
+            ActivityCompat.requestPermissions(this, PERMISSIONS, PERMISSION_ALL);
+        else
+            App.startService(getApplicationContext());
         BleManager.getInstance().init(getApplication());
     }
 
@@ -62,10 +80,19 @@ public class MainActivity extends AppCompatActivity {
             Intent intent = new Intent(MainActivity.this, MapsActivity.class);
             startActivity(intent);
         }
-        else {
-            Toast toast = Toast. makeText(getApplicationContext(), "You need to enable GPS and Bluetooth.", Toast.LENGTH_LONG);
-            toast.show();
+        else
+            Toast.makeText(getApplicationContext(), "You need to enable GPS and Bluetooth.", Toast.LENGTH_LONG).show();
+    }
+
+    private boolean hasPermissions(String[] permissions) {
+        if (permissions != null) {
+            for (String permission : permissions) {
+                if (ActivityCompat.checkSelfPermission(this, permission) != PackageManager.PERMISSION_GRANTED) {
+                    return false;
+                }
+            }
         }
+        return true;
     }
 
     public void service(View view) {
@@ -77,6 +104,24 @@ public class MainActivity extends AppCompatActivity {
         else { //service is not active, we need to start it
             button.setText("Stop Service");
             App.startService(getApplicationContext());
+        }
+    }
+
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == PERMISSION_ALL) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                Toast.makeText(this,"Permissions Granted.", Toast.LENGTH_SHORT).show();
+                App.startService(getApplicationContext()); //Permissions granted, we start the service
+            }
+            else {
+                Toast.makeText(this,"You need to enable all permissions to use BeeSafe!", Toast.LENGTH_LONG).show();
+                if (App.isServiceActive())
+                    App.stopService(getApplicationContext()); //Stoping service
+                finish();
+            }
         }
     }
 
