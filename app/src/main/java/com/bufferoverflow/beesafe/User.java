@@ -52,8 +52,7 @@ public class User {
         }
     }
 
-    /* Removes a location from favorites (RAM + Local Storage)
-     */
+    /* Removes a location from favorites (RAM + Local Storage) */
     public void removeFavoritePlace (String geohash, Context c) {
         if (favoritePlaces.containsKey(geohash)) {
             favoritePlaces.remove(geohash); //Remove from field

@@ -23,9 +23,13 @@ public class AuxDateTime {
     /* Convert String to Date */
     public static Date stringToDate (String date) {
         SimpleDateFormat ISO_8601_FORMAT = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.getDefault());
-        try {
-            return ISO_8601_FORMAT.parse(date);
-        } catch (ParseException ignored) { return currentTime(); }
+        if (date != null) {
+            try {
+                return ISO_8601_FORMAT.parse(date);
+            } catch (ParseException ignored) { return currentTime(); }
+        }
+        else
+            return currentTime();
     }
 
     /* Convert Date to String */

@@ -30,6 +30,7 @@ import java.time.OffsetDateTime;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 import ch.hsr.geohash.GeoHash;
@@ -79,7 +80,7 @@ public class FavoritePlace implements Serializable {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 Log.d("DATAAAA", snapshot.toString());
-                if (receiveNotifications && AuxCrowd.isCrowd(snapshot)) {
+                if (receiveNotifications && snapshot.exists() && AuxCrowd.isCrowd(((Long) Objects.requireNonNull(snapshot.child("nrDevices").getValue())).intValue())) {
                     String title, content;
 
                     title = placeName + " is crowded!";

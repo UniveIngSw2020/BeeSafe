@@ -1,11 +1,15 @@
 package com.bufferoverflow.beesafe.AuxTools;
 
+import com.bufferoverflow.beesafe.MapsActivity;
 import com.bufferoverflow.beesafe.R;
 import com.google.firebase.database.DataSnapshot;
-
-
+import com.google.maps.android.heatmaps.Gradient;
 
 public class AuxCrowd {
+
+    private static final int SAFE_BOUND = 10;
+    private static final int LOW_BOUND = 15;
+    private static final int HIGH_BOUND = 20;
 
     public enum Crowded {
         NO_DATA,
@@ -15,52 +19,40 @@ public class AuxCrowd {
     }
 
     /* Checks if the passed snapshot, is Crowd or not */
-    public static int crowdType (DataSnapshot snapshot) {
+    public static int crowdTypeToString (DataSnapshot snapshot) {
         Object snap = snapshot.child("nrDevices").getValue();
         if (snap == null)
             return R.string.no_data;
         else {
             int nrDevices = ((Long) snap).intValue();
-            if (nrDevices < 20)
+            if (nrDevices < SAFE_BOUND)
                 return R.string.safe;
-            else if (nrDevices < 30)
+            else if (nrDevices < LOW_BOUND)
                 return R.string.low;
             else
                 return R.string.high;
         }
     }
 
-    public static Crowded crowd (DataSnapshot snapshot) {
-        Object snap = snapshot.child("nrDevices").getValue();
-        if (snap == null)
-            return Crowded.NO_DATA;
-        else {
-            int nrDevices = ((Long) snap).intValue();
-            if (nrDevices < 20)
-                return Crowded.SAFE;
-            else if (nrDevices < 30)
-                return Crowded.LOW;
-            else
-                return Crowded.HIGH;
-        }
-    }
 
-    public static boolean isCrowd(DataSnapshot snapshot) {
-        Object snap = snapshot.child("nrDevices").getValue();
-        return snap != null && ((Long) snap).intValue() >= 20;
-    }
-
+    /* True if number is higher than the safe limit bound, otherwise false */
     public static boolean isCrowd(int nrDevices) {
-        return nrDevices>20;
+        return nrDevices > SAFE_BOUND;
     }
 
+    /* Crowd type based on devices number */
     public static Crowded crowdType(int nrDevices) {
-        if (nrDevices<20)
+        if (nrDevices<SAFE_BOUND)
             return Crowded.SAFE;
-        else if (nrDevices < 30)
+        else if (nrDevices < LOW_BOUND)
             return Crowded.LOW;
         else
             return Crowded.HIGH;
+    }
+
+    /* Returns a Gradient based on number of devices passed. This method is used by MapsActivity to generate the HeatMap type */
+    public static Gradient crowdTypeToGradient(int nrDevices) {
+        return (nrDevices > SAFE_BOUND && nrDevices < LOW_BOUND) ? MapsActivity.HEATMAP_ORANGE : MapsActivity.HEATMAP_RED;
     }
 
 }

@@ -59,9 +59,8 @@ public class Scan {
             return;
         screenStatusWait(c); //Wait until screen turns on
         Map<String, BleDevice> devices = scan(); //Initiate the scan process
-        int nr = devices.size();
-        //filterManufacturer(devices); //Filter out manufacturers
-        //filterRange(devices); //Filter out not nearby devices
+        filterManufacturer(devices); //Filter out manufacturers
+        filterRange(devices); //Filter out not nearby devices
 
         //Updating the notification content
         AuxCrowd.Crowded type = AuxCrowd.crowdType(devices.size());
@@ -73,21 +72,6 @@ public class Scan {
         }
 
         uploadResult(c, devices.size()); //upload the scan to database
-
-        String msg = "DEBUG\n\n";
-        for (BleDevice b : devices.values()) {
-            msg+= "Name: " + b.getName() + " | MAC: " + b.getMac() + " Signal: " + b.getRssi() + "\n\n";
-        }
-
-        String finalMsg = msg;
-        new Handler(Looper.getMainLooper()).post(new Runnable() {
-            @Override
-            public void run() {
-                Toast.makeText(c, finalMsg, Toast.LENGTH_LONG).show();
-            }
-        });
-
-
 
     }
 
@@ -103,12 +87,10 @@ public class Scan {
             public void onScanFinished(List<BleDevice> scanResultList) {
                 for (BleDevice b : scanResultList)
                     devices.put(b.getMac(), b);
-
                 Log.d("TRACING", "Scan finished : " + devices.size() + " devices");
                 Log.d("TRACING", "Devices(First Scan): ");
                 for (Map.Entry<String, BleDevice> entry : devices.entrySet())
                     Log.d("TRACING", "MAC: " + entry.getValue().getMac() + " | Name: " + entry.getValue().getName());
-
                 scanLatch.countDown();
             }
 
