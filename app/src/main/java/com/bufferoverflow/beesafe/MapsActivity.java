@@ -296,7 +296,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             public void onChildRemoved(@NotNull DataSnapshot dataSnapshot) {
                 //A location got removed from this area
                 Location location = new Location(dataSnapshot.getKey(), Integer.parseInt(String.valueOf(dataSnapshot.child("nrDevices").getValue())));
-                Log.d("XXXXXXXXXX", location.getCoordinates() + " " + location.getLatLng());
                 if (locations.containsKey(location.getCoordinates())) { //If location is present on our HashMap
                     removeLocationFromMap(location); //Remove the location from the map
                     Log.d("removed", "onChildRemoved:" + dataSnapshot.getKey() + " " + dataSnapshot.getValue());

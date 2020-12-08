@@ -42,6 +42,8 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import ch.hsr.geohash.GeoHash;
+
 
 public class Scan {
 
@@ -189,7 +191,8 @@ public class Scan {
             Task<android.location.Location> task = client.getLastLocation();
             task.addOnSuccessListener(location -> {
                 if (location != null) {
-                    Location l = new Location(new LatLng(location.getLatitude(), location.getLongitude()), nrDevices);
+                    String geoHash = GeoHash.withCharacterPrecision(location.getLatitude(), location.getLongitude(), Location.PRECISION).toBase32();
+                    Location l = new Location(geoHash, nrDevices);
                     String areaGeoHash = l.getCoordinates().substring(0, Area.PRECISION);
                     String locationGeoHash = l.getCoordinates();
 
