@@ -7,12 +7,8 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.hardware.display.DisplayManager;
-import android.os.Handler;
-import android.os.Looper;
-import android.os.Message;
 import android.util.Log;
 import android.view.Display;
-import android.widget.Toast;
 
 import androidx.core.app.ActivityCompat;
 
@@ -28,7 +24,6 @@ import com.google.android.gms.location.ActivityRecognitionResult;
 import com.google.android.gms.location.DetectedActivity;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
@@ -45,16 +40,24 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import ch.hsr.geohash.GeoHash;
 
 
+/*
+ * This static class scans the nearby devices using a tracing algorithm, and
+ * upload the data on the database. Before uploading the data, the algorithm filters out
+ * devices that are away (has a low signal) and devices non mobile phones. This is not always
+ * guaranteed based on different factors, but it tries to minimize these errors
+ */
+
+
 public class Scan {
 
-
-    private static final List<String> blacklist = Arrays.asList(
+    private static final List<String> blacklist = Arrays.asList( //Blacklist of non mobile devices based on names
             "TV", "Mi Band", "Airpods", "Buds"
     );
-    private final static int SCAN_DURATION = 5; //seconds
-    private final static int RSSI_RANGE_FILTER = -70; //RSSI Signal
-    public static CountDownLatch scanLatch;
+    private final static int SCAN_DURATION = 5; //In seconds
+    private final static int RSSI_RANGE_FILTER = -70; //RSSI Signal Bound
+    public static CountDownLatch scanLatch; //For sync purposes
 
+    /* This should be called by the  backgrounf service every certain minutes to do a scan and upload data */
     public static void tracingAlgorithm(Context c) {
         scanLatch = new CountDownLatch(1);
         if (!safeActivityRecognition(c)) //Controls if users Activity is safe to begin scan
@@ -90,7 +93,7 @@ public class Scan {
                 for (BleDevice b : scanResultList)
                     devices.put(b.getMac(), b);
                 Log.d("TRACING", "Scan finished : " + devices.size() + " devices");
-                Log.d("TRACING", "Devices(First Scan): ");
+                Log.d("TRACING", "Devices: ");
                 for (Map.Entry<String, BleDevice> entry : devices.entrySet())
                     Log.d("TRACING", "MAC: " + entry.getValue().getMac() + " | Name: " + entry.getValue().getName());
                 scanLatch.countDown();
@@ -158,18 +161,17 @@ public class Scan {
             for (Iterator<Map.Entry<String, BleDevice>> it = devices.entrySet().iterator(); it.hasNext(); ) {
                 Map.Entry<String, BleDevice> b = it.next();
                 if (b.getValue() != null && b.getValue().getName() != null && b.getValue().getName().contains(type))
-                    it.remove(); //scanDevices.remove(b.getKey());
+                    it.remove();
             }
-        Log.d("TRACING", "Manufactor filter finished, current devices : " + devices.size());
+        Log.d("TRACING", "Manufacture filter finished, current devices : " + devices.size());
     }
 
-    /* Filters out devices that are far away, approximately > 7meters
-     */
+    /* Filters out devices that are far away*/
     private static void filterRange(Map<String, BleDevice> devices) {
         for (Iterator<Map.Entry<String, BleDevice>> it = devices.entrySet().iterator(); it.hasNext(); ) {
             Map.Entry<String, BleDevice> b = it.next();
             if (b.getValue().getRssi() <= RSSI_RANGE_FILTER)
-                it.remove(); //scanDevices.remove(b.getKey());
+                it.remove();
         }
         Log.d("TRACING", "Range filtering finished, current devices : " + devices.size());
     }
@@ -181,13 +183,6 @@ public class Scan {
         FusedLocationProviderClient client;
         client = LocationServices.getFusedLocationProviderClient(context);
         if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
             Task<android.location.Location> task = client.getLastLocation();
             task.addOnSuccessListener(location -> {
                 if (location != null) {
@@ -199,7 +194,7 @@ public class Scan {
                     //Gets a node reference for the current 4Precision GeoHash
                     DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference().child(areaGeoHash).child(locationGeoHash);
                     mDatabase.setValue(l);
-                    Log.d("TRACING", "Successfully uploaded data to database | " + areaGeoHash + " | " + locationGeoHash);
+                    Log.d("TRACING", "Successfully uploaded data to location | " + areaGeoHash + " | " + locationGeoHash);
                 }
             });
         } else {
