@@ -54,9 +54,6 @@ public class AppPersistentNotificationManager {
         PendingIntent pi = PendingIntent.getActivity(context, 0, in, 0);
         in.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 
-
-        //PendingIntent pendingIntent = PendingIntent.getActivity(MapsActivity., 1, intent, 0);
-
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context,"123")
                 .setSmallIcon(R.drawable.favorite_icon)
                 .setLargeIcon(BitmapFactory.decodeResource(context.getResources(), R.drawable.common_full_open_on_phone))
@@ -87,6 +84,19 @@ public class AppPersistentNotificationManager {
         final Notification notification = builder.build();
         final NotificationManager mNotificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
         mNotificationManager.notify(1, notification);
+    }
+
+    public void sendFavPlaceNotification(String title, String content) {
+        NotificationChannel notificationChannel = new NotificationChannel("Favorite Place Notification Channel","Favorite Place Notification Channel", NotificationManager.IMPORTANCE_DEFAULT);
+        NotificationManager manager = context.getSystemService(NotificationManager.class);
+        manager.createNotificationChannel(notificationChannel);
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(context, notificationChannel.getId())
+                .setSmallIcon(R.drawable.people)
+                .setContentTitle(title)
+                .setContentText(content)
+                .setPriority(NotificationCompat.PRIORITY_DEFAULT);
+        NotificationManagerCompat notificationManager = NotificationManagerCompat.from(context);
+        notificationManager.notify(1000, builder.build());
     }
 
 }

@@ -21,6 +21,7 @@ import android.location.Geocoder;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
@@ -203,7 +204,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         });
 
         User user = User.getInstance(this);
-        User.getInstance(this).loadFavoritePlaces(this); //Load favorite places from local storage
         for (FavoritePlace fav : user.getFavoriteLocations().values()) { //For each saved favorite place
             Marker m = addFavoritePlaceToMap(fav); //Add favorite to Map
             savedPlaces.put(fav.getGeoHash(), m); //Save the Marker of this map
@@ -380,7 +380,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         String geoHash = GeoHash.geoHashStringWithCharacterPrecision(coordinates.latitude, coordinates.longitude, Location.PRECISION); //geoHash of Location (8 Precision)
         String areaGeoHash = GeoHash.geoHashStringWithCharacterPrecision(coordinates.latitude, coordinates.longitude, Area.PRECISION); //geoHash of Area (4 Precision)
         FavoritePlace fav = User.getInstance(this).getFavoriteLocation(geoHash);
-        String namePlace = "Name: " + fav.getPlaceName();
+        String namePlace;
+        if (fav.getPlaceName().equals(""))
+            namePlace = "Favorite Place";
+        else
+            namePlace = fav.getPlaceName();
 
         //Get pretty printed street name using Google Maps API
         Geocoder geocoder = new Geocoder(this);
@@ -425,7 +429,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             });
 
             ((TextView)rootView.findViewById(R.id.streetNameText)).setText(streetName); //Sets the street Name
-            ((TextView)rootView.findViewById(R.id.customNameText)).setText(namePlace); //Name of this favorite location
+            ((TextView)rootView.findViewById(R.id.favText)).setText(namePlace); //Name of this favorite location
 
             Button btnRemove = rootView.findViewById(R.id.btnRemove);
             btnRemove.setOnClickListener(view -> { //Removing a favorite place
@@ -438,6 +442,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             btnCancel.setOnClickListener(view -> { //Cancel the dialog
                 viewDialog.dismiss();
             });
+
+            CheckBox notificationCheckBox = rootView.findViewById(R.id.notifications);
+            notificationCheckBox.setChecked(fav.getReceiveNotifications());
+            notificationCheckBox.setOnClickListener(view -> {
+                fav.setReceiveNotifications(notificationCheckBox.isChecked());
+                User.getInstance(getApplicationContext()).addFavoritePlace(fav, getApplicationContext());
+            });
+
         });
         viewDialog.show();
     }

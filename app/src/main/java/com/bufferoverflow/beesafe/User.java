@@ -2,11 +2,14 @@ package com.bufferoverflow.beesafe;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.util.Log;
+
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 /*
     This class represents the user which is using the app. It should produce the same instance every time. (Singleton Pattern)
@@ -55,6 +58,7 @@ public class User {
     /* Removes a location from favorites (RAM + Local Storage) */
     public void removeFavoritePlace (String geohash, Context c) {
         if (favoritePlaces.containsKey(geohash)) {
+            Objects.requireNonNull(favoritePlaces.get(geohash)).disableCrowdEventListener(); //Disable the crowd event listener
             favoritePlaces.remove(geohash); //Remove from field
             SharedPreferences preferences = c.getSharedPreferences(PREF_NAME, PRIVATE_MODE);
             preferences.edit().remove(geohash).apply(); //Removing from local storage
@@ -74,6 +78,8 @@ public class User {
             Type type = new TypeToken<FavoritePlace>() {}.getType();
             FavoritePlace favorite = favPlacesGSON.fromJson(json, type);
             favoritePlaces.put(entry.getKey(), favorite); //Adding FavoriteLocation to field
+            favorite.enableCrowdEventListener(c);
+            Log.d("FAVPLACES", favorite.getGeoHash() + " " + favorite.getGeoHash());
         }
     }
 
@@ -87,11 +93,18 @@ public class User {
 
     /* Get favorite locations of the user */
     public HashMap<String, FavoritePlace> getFavoriteLocations () {
-        return favoritePlaces != null ? favoritePlaces : new HashMap<String, FavoritePlace>();
+        return favoritePlaces != null ? favoritePlaces : new HashMap<>();
     }
 
-    /* Enable event listeners for the background service */ //TODO
-    public void enableEventListenersFavPlaces() {
+    /* Enable event listeners for all favorite places */
+    public void enableCrowdEventListeners(Context c) {
+        for (FavoritePlace fav : favoritePlaces.values())
+            fav.enableCrowdEventListener(c);
+    }
 
+    /* Disable event listeners for all favorite places */
+    public void disableCrowdEventListeners() {
+        for (FavoritePlace fav : favoritePlaces.values())
+            fav.disableCrowdEventListener();
     }
 }

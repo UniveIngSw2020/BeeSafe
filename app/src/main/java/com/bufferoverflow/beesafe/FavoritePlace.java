@@ -1,10 +1,8 @@
 package com.bufferoverflow.beesafe;
 
-import android.annotation.SuppressLint;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.content.Context;
-import android.os.health.TimerStat;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -12,29 +10,15 @@ import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 
 import com.bufferoverflow.beesafe.AuxTools.AuxCrowd;
-import com.google.android.gms.maps.model.LatLng;
+import com.bufferoverflow.beesafe.BackgroundService.App;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.Exclude;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ServerValue;
 import com.google.firebase.database.ValueEventListener;
-import com.google.gson.internal.bind.util.ISO8601Utils;
 
 import java.io.Serializable;
-import java.sql.Timestamp;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.time.OffsetDateTime;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.Locale;
 import java.util.Objects;
-import java.util.concurrent.TimeUnit;
-
-import ch.hsr.geohash.GeoHash;
-import ch.hsr.geohash.WGS84Point;
 
 /*
     This class represents a users saved location.
@@ -42,21 +26,18 @@ import ch.hsr.geohash.WGS84Point;
 
 public class FavoritePlace implements Serializable {
 
-    private String placeName;
-    private String geohash;
+    private final String placeName;
+    private final String geohash;
     private boolean receiveNotifications; //If true, user get notified if this favorite place gets crowded
+    private ValueEventListener crowdEventListener;
 
 
     public FavoritePlace (String geohash, String placeName, Boolean notified, Context c) {
+        Log.d("CREATED", placeName + " " + notified + " " + geohash);
         this.geohash = geohash;
         this.placeName = placeName;
         this.receiveNotifications = notified;
-        enableEventListener(c); //Enables the notifications event listener
-    }
-
-    public LatLng getLatLng() {
-        WGS84Point point = GeoHash.fromGeohashString(geohash).getOriginatingPoint();
-        return new LatLng(point.getLatitude(), point.getLongitude());
+        enableCrowdEventListener(c); //Enables the notifications event listener
     }
 
     public String getGeoHash() {
@@ -67,43 +48,42 @@ public class FavoritePlace implements Serializable {
         return placeName;
     }
 
+    public void setReceiveNotifications(boolean status) {
+        receiveNotifications = status;
+    }
+
+    public boolean getReceiveNotifications() {return receiveNotifications;}
+
     /* This method returns the number of devices */
     public int getNrDevices (DataSnapshot snapshot) {
         return ((Long) snapshot.child("nrDevices").getValue()).intValue();
     }
 
     /* Activated the listener for database change on this favorite place */
-    public void enableEventListener (Context c) {
-        DatabaseReference db = FirebaseDatabase.getInstance().getReference("/u20d/u20dwxrf");
-        db.addValueEventListener(new ValueEventListener() {
-
+    public void enableCrowdEventListener (Context c) {
+        String areaGeoHash = geohash.substring(0, 4);
+        DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("/" + areaGeoHash + "/" + geohash);
+        crowdEventListener = new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                Log.d("DATAAAA", snapshot.toString());
-                if (receiveNotifications && snapshot.exists() && AuxCrowd.isCrowd(((Long) Objects.requireNonNull(snapshot.child("nrDevices").getValue())).intValue())) {
-                    String title, content;
-
-                    title = placeName + " is crowded!";
-                    content = "Approximation: " + snapshot.child("nrDevices").getValue() + " devices.";
-
-                    NotificationChannel notificationChannel = new NotificationChannel("Favorite Place Notification Channel","Favorite Place Notification Channel", NotificationManager.IMPORTANCE_DEFAULT);
-                    NotificationManager manager = c.getSystemService(NotificationManager.class);
-                    manager.createNotificationChannel(notificationChannel);
-                    NotificationCompat.Builder builder = new NotificationCompat.Builder(c, notificationChannel.getId())
-                            .setSmallIcon(R.drawable.favorite_icon)
-                            .setContentTitle(title)
-                            .setContentText(content)
-                            .setPriority(NotificationCompat.PRIORITY_DEFAULT);
-                    NotificationManagerCompat notificationManager = NotificationManagerCompat.from(c);
-                    notificationManager.notify(1000, builder.build());
+                int nrDevices = ((Long) Objects.requireNonNull(snapshot.child("nrDevices").getValue())).intValue();
+                if (receiveNotifications && snapshot.exists() && AuxCrowd.isCrowd(nrDevices)) {
+                    String title = "Your favorite place " + placeName + " is now crowded!";
+                    String content = "Approximation: " + nrDevices + " people.";
+                    App.getMyAppsNotificationManager(c).sendFavPlaceNotification(title, content);
                 }
             }
 
             @Override
-            public void onCancelled(@NonNull DatabaseError databaseError){
+            public void onCancelled(@NonNull DatabaseError databaseError){ }
+        };
+        databaseReference.addValueEventListener(crowdEventListener);
+    }
 
-            }
-        });
+    public void disableCrowdEventListener () {
+        String areaGeoHash = geohash.substring(0, 4);
+        DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("/" + areaGeoHash + "/" + geohash);
+        databaseReference.removeEventListener(crowdEventListener);
     }
 
 }

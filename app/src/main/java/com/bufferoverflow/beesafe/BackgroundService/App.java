@@ -10,6 +10,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import com.bufferoverflow.beesafe.MainActivity;
+import com.bufferoverflow.beesafe.User;
 
 public class App extends Application {
 
@@ -18,6 +19,7 @@ public class App extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
+        User.getInstance(this);
         //startService(this); //Start the service
     }
 
@@ -29,6 +31,7 @@ public class App extends Application {
         Intent serviceIntent = new Intent(c, BackgroundScanWork.class);
         ContextCompat.startForegroundService(c,serviceIntent);
         serviceActive = true;
+        User.getInstance(c).enableCrowdEventListeners(c); //Enables the notification for crowd event listeners
         Toast toast = Toast. makeText(c, "Service Started", Toast.LENGTH_SHORT);
         toast.show();
     }
@@ -36,6 +39,7 @@ public class App extends Application {
     public static void stopService(Context c) {
         c.stopService(new Intent(c, BackgroundScanWork.class));
         serviceActive = false;
+        User.getInstance(c).disableCrowdEventListeners(); //Disables the notification for crowd event listeners
         Toast toast = Toast. makeText(c, "Service Stopped", Toast.LENGTH_SHORT);
         toast.show();
     }
@@ -47,7 +51,4 @@ public class App extends Application {
     public static AppPersistentNotificationManager getMyAppsNotificationManager(Context c){
         return AppPersistentNotificationManager.getInstance(c);
     }
-
-
-
 }

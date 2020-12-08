@@ -1,18 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:padding="10dp">
 
     <TextView
-        android:id="@+id/removeFavText"
+        android:id="@+id/favText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="left"
+        android:layout_gravity="center"
         android:layout_marginTop="5dp"
-        android:text="@string/remove_this_place_from_favorites"
+        android:text="@string/favorite_palce"
         android:textSize="20sp"
         android:textStyle="bold" />
 
@@ -25,16 +26,6 @@
         android:text="@string/streetName"
         android:textSize="18sp" />
 
-    <TextView
-        android:id="@+id/customNameText"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="left"
-        android:layout_marginTop="5dp"
-        android:text="@string/namePlace"
-        android:textColor="@color/place_autocomplete_prediction_primary_text_highlight"
-        android:textSize="18sp"
-        android:textStyle="bold" />
 
     <TextView
         android:id="@+id/crowdedText"
@@ -68,6 +59,19 @@
         android:textColor="@color/place_autocomplete_prediction_primary_text_highlight"
         android:textSize="18sp"
         android:textStyle="bold" />
+
+    <CheckBox
+        android:id="@+id/notifications"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:checked="true"
+        android:text="Notifications"
+        android:textStyle="bold"
+        android:buttonTint="@color/colorPrimary"
+        android:textColor="@color/place_autocomplete_prediction_primary_text_highlight"
+        />
+
+
 
     <LinearLayout
         android:layout_width="match_parent"
