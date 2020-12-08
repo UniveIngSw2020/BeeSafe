@@ -1,10 +1,5 @@
 package com.bufferoverflow.beesafe;
 
-import androidx.annotation.NonNull;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
-import androidx.fragment.app.FragmentActivity;
-
 import android.Manifest;
 import android.bluetooth.BluetoothAdapter;
 import android.content.BroadcastReceiver;
@@ -21,12 +16,16 @@ import android.location.Geocoder;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+import androidx.fragment.app.FragmentActivity;
 
 import com.bufferoverflow.beesafe.AuxTools.AuxCrowd;
 import com.bufferoverflow.beesafe.AuxTools.AuxDateTime;
@@ -64,14 +63,16 @@ import java.util.Objects;
 import ch.hsr.geohash.GeoHash;
 import ch.hsr.geohash.WGS84Point;
 
-public class MapsActivity extends FragmentActivity implements OnMapReadyCallback{
+public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
 
-    private GoogleMap map; //Map object
-    private boolean mIsRestore;
-
-    private ChildEventListener areaEventListener;
-    private DatabaseReference mDatabase;
-
+    public static final float[] HEATMAP_START_POINTS_RED = {0.5f};
+    public static final float[] HEATMAP_START_POINTS_ORANGE = {0.5f};
+    public static final double OPACITY = 0.7;
+    //HeatMap settings
+    private static final int[] HEATMAP_RED_GRADIENT = {Color.rgb(213, 0, 0)};
+    public static final Gradient HEATMAP_RED = new Gradient(HEATMAP_RED_GRADIENT, HEATMAP_START_POINTS_RED);
+    private static final int[] HEATMAP_ORANGE_GRADIENT = {Color.rgb(255, 109, 0),};
+    public static final Gradient HEATMAP_ORANGE = new Gradient(HEATMAP_ORANGE_GRADIENT, HEATMAP_START_POINTS_ORANGE);
     private final BroadcastReceiver bluetoothBroadcastReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -87,11 +88,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             }
         }
     };
-
     private final BroadcastReceiver gpsBroadcastReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            final LocationManager manager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
+            context.getSystemService(Context.LOCATION_SERVICE);
             LocationManager locationManager = (LocationManager) getApplicationContext().getSystemService(LOCATION_SERVICE);
             if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
                 Toast toast = Toast.makeText(getApplicationContext(), "You need to enable GPS and Bluetooth.", Toast.LENGTH_LONG);
@@ -100,19 +100,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             }
         }
     };
-
-    //HeatMap settings
-    private static final int[] HEATMAP_RED_GRADIENT = {Color.rgb(213, 0, 0)};
-    private static final int[] HEATMAP_ORANGE_GRADIENT = {Color.rgb(255, 109, 0),};
-    public static final float[] HEATMAP_START_POINTS_RED = {0.5f};
-    public static final float[] HEATMAP_START_POINTS_ORANGE = {0.5f};
-    public static final Gradient HEATMAP_RED = new Gradient(HEATMAP_RED_GRADIENT, HEATMAP_START_POINTS_RED);
-    public static final Gradient HEATMAP_ORANGE = new Gradient(HEATMAP_ORANGE_GRADIENT, HEATMAP_START_POINTS_ORANGE);
-    public static final double OPACITY = 0.7;
-
     //Locations and Markers(Saved Places)
     private final Map<String, Marker> savedPlaces = new HashMap<>(); //Saved places
     private final Map<String, Location> locations = new HashMap<>(); //Locations with data
+    private GoogleMap map; //Map object
+    private ChildEventListener areaEventListener;
+    private DatabaseReference mDatabase;
     private Area currentArea; //Current area GeoHashed
     private Area[] neighbourArea; //All 8 nearby GeoHash boxes N, NE, E, SE, S, SW, W, NW of precision 4
 
@@ -125,7 +118,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mIsRestore = savedInstanceState != null;
         setContentView(R.layout.map);
         setUpMap(); //Configures the map
 
@@ -163,27 +155,26 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         /* Updating radius on zoom for more accurate HeatMap */
         map.setOnCameraMoveListener(new GoogleMap.OnCameraMoveListener() {
             boolean flag = false;
+
             @Override
             public void onCameraMove() {
                 if (map.getCameraPosition().zoom >= 17.) {
-                    for(Map.Entry<String, Location> entry : locations.entrySet()) {
+                    for (Map.Entry<String, Location> entry : locations.entrySet()) {
                         Location l = entry.getValue();
                         l.provider.setRadius(52);
                         l.overlay.clearTileCache();
                     }
                     flag = true;
-                }
-                else if (map.getCameraPosition().zoom > 16) {
-                    for(Map.Entry<String, Location> entry : locations.entrySet()) {
+                } else if (map.getCameraPosition().zoom > 16) {
+                    for (Map.Entry<String, Location> entry : locations.entrySet()) {
                         Location l = entry.getValue();
                         l.provider.setRadius(30);
                         l.overlay.clearTileCache();
                     }
                     flag = true;
-                }
-                else {
-                    if(flag) {
-                        for(Map.Entry<String, Location> entry : locations.entrySet()) {
+                } else {
+                    if (flag) {
+                        for (Map.Entry<String, Location> entry : locations.entrySet()) {
                             Location l = entry.getValue();
                             l.provider.setRadius(20);
                             l.overlay.clearTileCache();
@@ -204,7 +195,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         });
 
         User user = User.getInstance(this);
-        for (FavoritePlace fav : user.getFavoriteLocations().values()) { //For each saved favorite place
+        for (FavoritePlace fav : Objects.requireNonNull(user.getFavoriteLocations()).values()) { //For each saved favorite place
             Marker m = addFavoritePlaceToMap(fav); //Add favorite to Map
             savedPlaces.put(fav.getGeoHash(), m); //Save the Marker of this map
         }
@@ -213,7 +204,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     /* Map configuration, inherited by the Maps Activity superclass */
     private void setUpMap() {
-        ((SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map)).getMapAsync(this);
+        ((SupportMapFragment) Objects.requireNonNull(getSupportFragmentManager().findFragmentById(R.id.map))).getMapAsync(this);
     }
 
     /* Location passed here should be crowded. It renders it on the map and saves it locally */
@@ -234,10 +225,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     /* Removes Location from HeatMap */
     public void removeLocationFromMap(Location location) {
-        Location removedLocation =  locations.remove(location.getCoordinates()); //Deleting the entry corresponding to this location
-        //Removing it from the map
-        removedLocation.overlay.remove();
-        removedLocation.overlay.clearTileCache();
+        Location removedLocation = locations.remove(location.getCoordinates()); //Deleting the entry corresponding to this location
+        if (removedLocation != null) {
+            //Removing it from the map
+            removedLocation.overlay.remove();
+            removedLocation.overlay.clearTileCache();
+        }
     }
 
     /* Renders a FavoritePlace to Map
@@ -262,17 +255,16 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
     /* Enable the listeners for new locations added/removed/updated for the current Area of the user and the neighbour Areas */
-    private void enableAreaEventListener () {
+    private void enableAreaEventListener() {
         //Event listener for an area
         areaEventListener = new ChildEventListener() {
             @Override
             public void onChildAdded(@NotNull DataSnapshot dataSnapshot, String previousChildName) {
                 //New location added on this area
                 Location location = new Location(dataSnapshot.getKey(), Integer.parseInt(String.valueOf(dataSnapshot.child("nrDevices").getValue())));
-                System.out.println("B" + location.getCoordinates() + " " + location.getLastSeen() + " " + location.getLatLng() + " " + location.getNrDevices());
                 if (AuxCrowd.isCrowd(location.getNrDevices())) { //If this location is a crowd
                     addLocationToMap(location); //Add location to Map
-                    Log.d("added", "onChildAdded:" + dataSnapshot.getKey()  + " " + dataSnapshot.getValue());
+                    Log.d("added", "onChildAdded:" + dataSnapshot.getKey() + " " + dataSnapshot.getValue());
                 }
             }
 
@@ -285,7 +277,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     removeLocationFromMap(oldLocationData); //Remove the old data
                 if (AuxCrowd.isCrowd(newLocationData.getNrDevices())) { //If this location is a crowd
                     addLocationToMap(newLocationData); //Add the updated location on the map
-                    Log.d("changed", "onChildChanged:" + dataSnapshot.getKey()  + " " + dataSnapshot.getValue());
+                    Log.d("changed", "onChildChanged:" + dataSnapshot.getKey() + " " + dataSnapshot.getValue());
                 }
             }
 
@@ -301,7 +293,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
             @Override
             public void onChildMoved(@NotNull DataSnapshot dataSnapshot, String previousChildName) {
-                Log.d("moved", "onChildMoved:" + dataSnapshot.getKey()  + " " + dataSnapshot.getValue());
+                Log.d("moved", "onChildMoved:" + dataSnapshot.getKey() + " " + dataSnapshot.getValue());
             }
 
             @Override
@@ -312,19 +304,19 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mDatabase = FirebaseDatabase.getInstance().getReference().child(currentArea.getCoordinates()); //Gets a node reference for the current Area
         mDatabase.addChildEventListener(areaEventListener); //Enables the area event listener
         //Enable the listener for each neighbour area
-        for(int i=0; i<8;i++) { // N, NE, E, SE, S, SW, W, NW
+        for (int i = 0; i < 8; i++) { // N, NE, E, SE, S, SW, W, NW
             mDatabase = FirebaseDatabase.getInstance().getReference().child(neighbourArea[i].getCoordinates()); //Gets a node reference for each neighbour area
             mDatabase.addChildEventListener(areaEventListener); //Enables the area event listener for this neighbour
         }
     }
 
     /* Disable events listener for the current Area (Users current Area) and neighbour Areas, if they exist. They method should be called on Activity finish */
-    private void disableAreaEventListner () {
+    private void disableAreaEventListner() {
         if (mDatabase != null) {
             mDatabase.removeEventListener(areaEventListener); //Disable current Area listener
-            if(neighbourArea!=null)
+            if (neighbourArea != null)
                 //For each neighbour area, disable its corresponding listener */
-                for(int i=0; i<8;i++) { // N, NE, E, SE, S, SW, W, NW
+                for (int i = 0; i < 8; i++) { // N, NE, E, SE, S, SW, W, NW
                     if (neighbourArea[i] != null) {
                         mDatabase = FirebaseDatabase.getInstance().getReference().child(neighbourArea[i].getCoordinates()); //Gets a node reference for each neighbour area
                         mDatabase.removeEventListener(areaEventListener); //Disables the listener to this reference
@@ -340,7 +332,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         //Get pretty printed street name using Google Maps API
         Geocoder geocoder = new Geocoder(this);
         List<Address> matches = new ArrayList<>();
-        try { matches = geocoder.getFromLocation(coordinates.latitude, coordinates.longitude, 1); } catch (Exception ignored){}
+        try {
+            matches = geocoder.getFromLocation(coordinates.latitude, coordinates.longitude, 1);
+        } catch (Exception ignored) {
+        }
         String streetName = (matches.isEmpty() ? "" : matches.get(0).getAddressLine(0));
 
         final LovelyCustomDialog addFavDialog = new LovelyCustomDialog(this);
@@ -348,12 +343,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         addFavDialog.setIcon(R.drawable.favorite_icon);
         addFavDialog.setTopColorRes(R.color.colorPrimary);
         addFavDialog.configureView(rootView -> {
-            ((TextView)rootView.findViewById(R.id.streetNameText)).setText(streetName); //Updates the Street Name
+            ((TextView) rootView.findViewById(R.id.streetNameText)).setText(streetName); //Updates the Street Name
 
             Button btnSave = rootView.findViewById(R.id.btnSave);
             btnSave.setOnClickListener(view -> { //Saving the new favorite places
                 String name = ((EditText) rootView.findViewById(R.id.nameEditText)).getText().toString();
-                Boolean notified = ((CheckBox)rootView.findViewById(R.id.notificationsCheckBox)).isChecked();
+                Boolean notified = ((CheckBox) rootView.findViewById(R.id.notificationsCheckBox)).isChecked();
                 FavoritePlace favorite = new FavoritePlace(geoHash, name, notified); //Creating the new fav place
 
                 User.getInstance(this).addFavoritePlace(favorite, this); //Saving it on local storage
@@ -378,18 +373,17 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         String geoHash = GeoHash.geoHashStringWithCharacterPrecision(coordinates.latitude, coordinates.longitude, Location.PRECISION); //geoHash of Location (8 Precision)
         String areaGeoHash = GeoHash.geoHashStringWithCharacterPrecision(coordinates.latitude, coordinates.longitude, Area.PRECISION); //geoHash of Area (4 Precision)
         FavoritePlace fav = User.getInstance(this).getFavoriteLocation(geoHash);
-        String namePlace;
-        if (fav.getPlaceName().equals(""))
-            namePlace = "Favorite Place";
-        else
+        String namePlace = "Favorite Place";
+        if (fav != null && !fav.getPlaceName().equals(""))
             namePlace = fav.getPlaceName();
-
-        System.out.println("VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV " + geoHash);
 
         //Get pretty printed street name using Google Maps API
         Geocoder geocoder = new Geocoder(this);
         List<Address> matches = new ArrayList<>();
-        try { matches = geocoder.getFromLocation(coordinates.latitude, coordinates.longitude, 1); } catch (Exception ignored){}
+        try {
+            matches = geocoder.getFromLocation(coordinates.latitude, coordinates.longitude, 1);
+        } catch (Exception ignored) {
+        }
         String streetName = (matches.isEmpty() ? "" : matches.get(0).getAddressLine(0));
 
         /* Creating the dialog */
@@ -397,6 +391,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         viewDialog.setView(R.layout.view_favorite);
         viewDialog.setTopColorRes(R.color.colorPrimary);
         viewDialog.setIcon(R.drawable.favorite_icon);
+        String finalNamePlace = namePlace;
         viewDialog.configureView(rootView -> {
             TextView crowdedText = rootView.findViewById(R.id.crowdedText);
             TextView lastUpdateText = rootView.findViewById(R.id.lastUpdateText);
@@ -413,10 +408,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                         int crowdType = AuxCrowd.crowdTypeToString(snapshot);
                         int nrDevices = ((Long) Objects.requireNonNull(snapshot.child("nrDevices").getValue())).intValue();
                         crowd = getString(R.string.crowded) + getString(crowdType);
-                        approximation = getString(R.string.approximation) + " " + nrDevices +  " " + getString(R.string.persons); //Approximated people
+                        approximation = getString(R.string.approximation) + " " + nrDevices + " " + getString(R.string.persons); //Approximated people
                         lastUpdate = getString(R.string.last_update) + " " + AuxDateTime.getLastSeen(snapshot) + " " + getString(R.string.minutes_ago); //Last seen in minutes
-                    }
-                    else { //No data
+                    } else { //No data
                         crowd = getString(R.string.crowded) + " " + getString(R.string.no_data);
                         approximation = getString(R.string.approximation) + " " + getString(R.string.no_data);
                         lastUpdate = getString(R.string.last_update) + " " + getString(R.string.no_data);
@@ -425,12 +419,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     approximationText.setText(approximation); //update approximation
                     lastUpdateText.setText(lastUpdate); //update last seen in minutes
                 }
+
                 @Override
-                public void onCancelled(@NonNull DatabaseError error) { }
+                public void onCancelled(@NonNull DatabaseError error) {
+                }
             });
 
-            ((TextView)rootView.findViewById(R.id.streetNameText)).setText(streetName); //Sets the street Name
-            ((TextView)rootView.findViewById(R.id.favText)).setText(namePlace); //Name of this favorite location
+            ((TextView) rootView.findViewById(R.id.streetNameText)).setText(streetName); //Sets the street Name
+            ((TextView) rootView.findViewById(R.id.favText)).setText(finalNamePlace); //Name of this favorite location
 
             Button btnRemove = rootView.findViewById(R.id.btnRemove);
             btnRemove.setOnClickListener(view -> { //Removing a favorite place
@@ -445,13 +441,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             });
 
             CheckBox notificationCheckBox = rootView.findViewById(R.id.notifications);
-            notificationCheckBox.setChecked(fav.getReceiveNotifications());
-            notificationCheckBox.setOnClickListener(view -> {
-                fav.setReceiveNotifications(notificationCheckBox.isChecked());
-                User.getInstance(getApplicationContext()).removeFavoritePlace(fav.getGeoHash(), getApplicationContext());
-                User.getInstance(getApplicationContext()).addFavoritePlace(fav, getApplicationContext());
-            });
-
+            if (fav != null) {
+                notificationCheckBox.setChecked(fav.getReceiveNotifications());
+                notificationCheckBox.setOnClickListener(view -> {
+                    fav.setReceiveNotifications(notificationCheckBox.isChecked());
+                    User.getInstance(getApplicationContext()).removeFavoritePlace(fav.getGeoHash(), getApplicationContext());
+                    User.getInstance(getApplicationContext()).addFavoritePlace(fav, getApplicationContext());
+                });
+            }
         });
         viewDialog.show();
     }
@@ -488,7 +485,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 if (location != null) {
                     currentArea = new Area(new LatLng(location.getLatitude(), location.getLongitude()));
                     neighbourArea = new Area[8];
-                    for(int i=0; i<8;i++) //Update neighbour boxes of this area ----- N, NE, E, SE, S, SW, W, NW
+                    for (int i = 0; i < 8; i++) //Update neighbour boxes of this area ----- N, NE, E, SE, S, SW, W, NW
                         neighbourArea[i] = new Area(currentArea.getGeoHash().getAdjacent()[i]);
                     enableAreaEventListener(); //enable listeners for current and neighbour area
                 }

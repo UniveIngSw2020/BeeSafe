@@ -30,43 +30,29 @@ android {
 
 dependencies {
 
-    implementation 'com.clj.fastble:FastBleLib:2.3.4' //Bluetooth library
     implementation fileTree(dir: "libs", include: ["*.jar"])
-    implementation 'androidx.appcompat:appcompat:1.2.0'
-    implementation 'androidx.constraintlayout:constraintlayout:2.0.4'
-    implementation 'com.google.android.gms:play-services-maps:17.0.0' //MAPS
-    implementation 'com.google.maps.android:android-maps-utils:2.0.3' //MAPS
-    implementation 'com.google.maps.android:android-maps-utils:2.0.3' //HEATMAPS
-    implementation 'ch.hsr:geohash:1.4.0' //GEOHASHING
-
-    implementation 'com.google.android.material:material:1.2.1' // Material design library dependency
-    implementation 'com.yarolegovich:lovely-dialog:1.1.1' //Material design library for dialogs
-
-    implementation 'com.google.code.gson:gson:2.8.6'
-    implementation 'androidx.work:work-runtime:2.4.0'//GSON
-
-
-    implementation 'com.google.firebase:firebase-database:19.5.1' //FIREBASE
-    implementation 'com.google.code.gson:gson:2.8.6' //GSON
-    implementation 'com.google.android.gms:play-services-location:17.1.0' //ACTIVITY RECOGNITION
-    implementation 'com.google.android.gms:play-services-awareness:18.0.1' //ACTIVITY RECOGNITION
     implementation 'org.jetbrains:annotations-java5:15.0'
-
-    implementation 'com.google.firebase:firebase-auth:20.0.1'
-    testImplementation 'junit:junit:4.13.1'
+    implementation 'androidx.appcompat:appcompat:1.2.0'
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
-    implementation 'org.jetbrains:annotations-java5:15.0'
+    testImplementation 'junit:junit:4.13.1'
 
+    implementation 'com.clj.fastble:FastBleLib:2.3.4' //Bluetooth library
 
-    //FIREBASE
-    implementation 'com.google.firebase:firebase-database:19.5.1'
-    implementation 'com.google.firebase:firebase-messaging:21.0.0'
-    implementation 'com.google.firebase:firebase-analytics'
+    implementation 'androidx.constraintlayout:constraintlayout:2.0.4'
+    implementation 'com.google.android.gms:play-services-maps:17.0.0' //Maps
+    implementation 'com.google.maps.android:android-maps-utils:2.0.3' //HeatMap Utility
+    implementation 'ch.hsr:geohash:1.4.0' //GeoHashing
 
-    // Import the BoM for the Firebase platform
-    implementation platform('com.google.firebase:firebase-bom:26.1.0')
+    implementation 'com.google.code.gson:gson:2.8.6' //Gson
+    implementation 'androidx.work:work-runtime:2.4.0'//Gson
 
+    implementation 'com.google.android.gms:play-services-location:17.1.0' //Activity Recognition
+    implementation 'com.google.android.gms:play-services-awareness:18.0.1' //Activity Recognition
 
+    implementation 'com.google.android.material:material:1.2.1' //Google Material Design
+    implementation 'com.yarolegovich:lovely-dialog:1.1.1' //Dialog Material Design
+
+    implementation 'com.google.firebase:firebase-database:19.5.1' //Firebase
 
 }
