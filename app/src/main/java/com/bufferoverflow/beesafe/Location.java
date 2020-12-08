@@ -79,7 +79,7 @@ public class Location  {
         return nrDevices;
     }
     //Firebase
-    public String getTime() {
+    public String getLastSeen() {
         return lastSeen;
     }
 

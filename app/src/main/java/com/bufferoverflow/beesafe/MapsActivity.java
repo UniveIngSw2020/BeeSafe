@@ -271,7 +271,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             @Override
             public void onChildAdded(@NotNull DataSnapshot dataSnapshot, String previousChildName) {
                 //New location added on this area
-                Location location = new Location(dataSnapshot.getKey(), Integer.parseInt(Objects.requireNonNull(dataSnapshot.child("nrDevices").getValue()).toString()));
+                Location location = new Location(dataSnapshot.getKey(), Integer.parseInt(String.valueOf(dataSnapshot.child("nrDevices").getValue())));
                 if (AuxCrowd.isCrowd(location.getNrDevices())) { //If this location is a crowd
                     addLocationToMap(location); //Add location to Map
                     Log.d("added", "onChildAdded:" + dataSnapshot.getKey()  + " " + dataSnapshot.getValue());
@@ -281,10 +281,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             @Override
             public void onChildChanged(@NotNull DataSnapshot dataSnapshot, String previousChildName) {
                 //Location got updated. To update it on map, we get it as new location and render it, removing the old data
-                Location newLocationData = new Location(dataSnapshot.getKey(), Integer.parseInt(Objects.requireNonNull(dataSnapshot.child("nrDevices").getValue()).toString()));
+                Location newLocationData = new Location(dataSnapshot.getKey(), Integer.parseInt(String.valueOf(dataSnapshot.child("nrDevices").getValue())));
                 Location oldLocationData = locations.get(dataSnapshot.getKey());
+                if (oldLocationData != null)
+                    removeLocationFromMap(oldLocationData); //Remove the old data
                 if (AuxCrowd.isCrowd(newLocationData.getNrDevices())) { //If this location is a crowd
-                    removeLocationFromMap(Objects.requireNonNull(oldLocationData)); //Remove the old data
                     addLocationToMap(newLocationData); //Add the updated location on the map
                     Log.d("changed", "onChildChanged:" + dataSnapshot.getKey()  + " " + dataSnapshot.getValue());
                 }
@@ -294,9 +295,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             public void onChildRemoved(@NotNull DataSnapshot dataSnapshot) {
                 //A location got removed from this area
                 Location location = locations.remove(dataSnapshot.getKey());
-                if (locations.containsKey(Objects.requireNonNull(location).getCoordinates())) { //If location is present on our HashMap
+                if (location != null && locations.containsKey(location.getCoordinates())) { //If location is present on our HashMap
                     removeLocationFromMap(location); //Remove the location from the map
-                    Log.d("removed", "onChildRemoved:" + dataSnapshot.getKey()  + " " + dataSnapshot.getValue());
+                    Log.d("removed", "onChildRemoved:" + dataSnapshot.getKey() + " " + dataSnapshot.getValue());
                 }
             }
 
