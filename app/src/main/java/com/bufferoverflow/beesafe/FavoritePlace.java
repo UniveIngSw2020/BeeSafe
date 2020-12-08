@@ -1,13 +1,8 @@
 package com.bufferoverflow.beesafe;
 
-import android.app.NotificationChannel;
-import android.app.NotificationManager;
 import android.content.Context;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
-import androidx.core.app.NotificationCompat;
-import androidx.core.app.NotificationManagerCompat;
 
 import com.bufferoverflow.beesafe.AuxTools.AuxCrowd;
 import com.bufferoverflow.beesafe.BackgroundService.App;
@@ -17,51 +12,50 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
-import java.io.Serializable;
 import java.util.Objects;
 
 /*
-    This class represents a users saved location.
+ * This class represents a users saved location.
  */
 
-public class FavoritePlace implements Serializable {
+public class FavoritePlace {
 
-    private final String placeName;
-    private final String geohash;
+    private final String placeName; //Name that user gave to this place
+    private final String geohash; //GeoHash of this location
     private boolean receiveNotifications; //If true, user get notified if this favorite place gets crowded
-    private ValueEventListener crowdEventListener;
+    private ValueEventListener crowdEventListener; //Crowd event listener associated to this location
 
-
-    public FavoritePlace (String geohash, String placeName, Boolean notified, Context c) {
-        Log.d("CREATED", placeName + " " + notified + " " + geohash);
+    /* Constructs a favorite place based on a goeHash, name and a boolean which represents if notifications are enabled or not for this location */
+    public FavoritePlace(String geohash, String placeName, Boolean notified) {
         this.geohash = geohash;
         this.placeName = placeName;
         this.receiveNotifications = notified;
     }
 
+    /* This method returns the geoHash of this location */
     public String getGeoHash() {
         return this.geohash;
     }
 
-    public String getPlaceName () {
+    /* This method returns the name of this location */
+    public String getPlaceName() {
         return placeName;
     }
 
+    /* This method returns the status of notifications for this place */
+    public boolean getReceiveNotifications() {
+        return receiveNotifications;
+    }
+
+    /* This method sets the boolean variable associated to the notifications */
     public void setReceiveNotifications(boolean status) {
         receiveNotifications = status;
     }
 
-    public boolean getReceiveNotifications() {return receiveNotifications;}
-
-    /* This method returns the number of devices */
-    public int getNrDevices (DataSnapshot snapshot) {
-        return ((Long) snapshot.child("nrDevices").getValue()).intValue();
-    }
-
     /* Activated the listener for database change on this favorite place */
-    public void enableCrowdEventListener (Context c) {
-        String areaGeoHash = geohash.substring(0, Area.PRECISION);
-        DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("/" + areaGeoHash + "/" + geohash);
+    public void enableCrowdEventListener(Context c) {
+        String areaGeoHash = geohash.substring(0, Area.PRECISION); //Area geoHash
+        DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("/" + areaGeoHash + "/" + geohash); //DB reference to this favorite place
         crowdEventListener = new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -76,15 +70,17 @@ public class FavoritePlace implements Serializable {
             }
 
             @Override
-            public void onCancelled(@NonNull DatabaseError databaseError){ }
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+            }
         };
-        databaseReference.addValueEventListener(crowdEventListener);
+        databaseReference.addValueEventListener(crowdEventListener); //adds the event listener
     }
 
-    public void disableCrowdEventListener () {
-        String areaGeoHash = geohash.substring(0, 4);
+    /* Disables the listener for database change on this favorite place */
+    public void disableCrowdEventListener() {
+        String areaGeoHash = geohash.substring(0, Area.PRECISION); //Area geoHash
         DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("/" + areaGeoHash + "/" + geohash);
-        databaseReference.removeEventListener(crowdEventListener);
+        databaseReference.removeEventListener(crowdEventListener); //Removes the event listener
     }
 
 }

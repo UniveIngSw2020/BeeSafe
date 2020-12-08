@@ -357,7 +357,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             btnSave.setOnClickListener(view -> { //Saving the new favorite places
                 String name = ((EditText) rootView.findViewById(R.id.nameEditText)).getText().toString();
                 Boolean notified = ((CheckBox)rootView.findViewById(R.id.notificationsCheckBox)).isChecked();
-                FavoritePlace favorite = new FavoritePlace(geoHash, name, notified, this); //Creating the new fav place
+                FavoritePlace favorite = new FavoritePlace(geoHash, name, notified); //Creating the new fav place
 
                 User.getInstance(this).addFavoritePlace(favorite, this); //Saving it on local storage
                 Marker m = addFavoritePlaceToMap(favorite); //Adding the favorite to Map
@@ -414,8 +414,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     String crowd, approximation, lastUpdate;
                     if (snapshot.exists()) { // Data present on database for this favorite location
                         int crowdType = AuxCrowd.crowdTypeToString(snapshot);
+                        int nrDevices = ((Long) Objects.requireNonNull(snapshot.child("nrDevices").getValue())).intValue();
                         crowd = getString(R.string.crowded) + getString(crowdType);
-                        approximation = getString(R.string.approximation) + " " + fav.getNrDevices(snapshot) +  " " + getString(R.string.persons); //Approximated people
+                        approximation = getString(R.string.approximation) + " " + nrDevices +  " " + getString(R.string.persons); //Approximated people
                         lastUpdate = getString(R.string.last_update) + " " + AuxDateTime.getLastSeen(snapshot) + " " + getString(R.string.minutes_ago); //Last seen in minutes
                     }
                     else { //No data

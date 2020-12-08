@@ -34,6 +34,22 @@ public class AuxCrowd {
         }
     }
 
+    /* Returns devices numbers based on a snapshot*/
+    public static int crowdTypeToInt (DataSnapshot snapshot) {
+        Object snap = snapshot.child("nrDevices").getValue();
+        if (snap == null)
+            return R.string.no_data;
+        else {
+            int nrDevices = ((Long) snap).intValue();
+            if (nrDevices < SAFE_BOUND)
+                return R.string.safe;
+            else if (nrDevices < LOW_BOUND)
+                return R.string.low;
+            else
+                return R.string.high;
+        }
+    }
+
 
     /* True if number is higher than the safe limit bound, otherwise false */
     public static boolean isCrowd(int nrDevices) {
