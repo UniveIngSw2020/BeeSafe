@@ -1,5 +1,6 @@
 package com.bufferoverflow.beesafe.BackgroundService;
 
+import android.annotation.SuppressLint;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -15,26 +16,22 @@ import androidx.core.app.NotificationManagerCompat;
 import com.bufferoverflow.beesafe.FavoritePlace;
 import com.bufferoverflow.beesafe.MainActivity;
 import com.bufferoverflow.beesafe.R;
-import com.google.android.gms.common.internal.Constants;
 
 public class AppPersistentNotificationManager {
 
-    private Context context;
+    private final Context context;
 
+    @SuppressLint("StaticFieldLeak")
     private static AppPersistentNotificationManager instance;
-    private NotificationManagerCompat notificationManagerCompat;
-    private android.app.NotificationManager notificationManager;
 
     private AppPersistentNotificationManager (Context context){
         this.context = context;
-        notificationManagerCompat = NotificationManagerCompat.from(context);
-        notificationManager = (NotificationManager)context.getSystemService(Context.NOTIFICATION_SERVICE);
+        context.getSystemService(Context.NOTIFICATION_SERVICE);
     }
 
     public static AppPersistentNotificationManager getInstance(Context context){
-        if(instance==null){
+        if(instance==null)
             instance = new AppPersistentNotificationManager(context);
-        }
         return instance;
     }
 
@@ -53,34 +50,30 @@ public class AppPersistentNotificationManager {
         PendingIntent pi = PendingIntent.getActivity(context, 0, in, 0);
         in.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(context,"123")
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(context,App.SERVICE_CHANNEL_ID)
                 .setSmallIcon(R.drawable.favorite_icon)
                 .setLargeIcon(BitmapFactory.decodeResource(context.getResources(), R.drawable.bee))
                 .setContentTitle("")
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT)
                 .setContentIntent(pi)
-                .setChannelId("123")
+                .setChannelId(App.SERVICE_CHANNEL_ID)
                 .setOnlyAlertOnce(true)
                 .setNotificationSilent()
                 .setAutoCancel(true);
         return builder.build();
     }
 
-    public void cancelNotification(int notificationId){
-        notificationManager.cancel(notificationId);
-    }
-
     public void updateNotification(String title, String content) {
         Intent in = new Intent(context.getApplicationContext(), MainActivity.class);
         PendingIntent pi = PendingIntent.getActivity(context, 0, in, 0);
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(context,"123")
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(context,App.SERVICE_CHANNEL_ID)
                 .setSmallIcon(R.drawable.favorite_icon)
                 .setLargeIcon(BitmapFactory.decodeResource(context.getResources(), R.drawable.bee))
                 .setContentTitle(title)
                 .setContentText(content)
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT)
                 .setContentIntent(pi)
-                .setChannelId("123")
+                .setChannelId(App.SERVICE_CHANNEL_ID)
                 .setNotificationSilent()
                 .setAutoCancel(true);
         final Notification notification = builder.build();

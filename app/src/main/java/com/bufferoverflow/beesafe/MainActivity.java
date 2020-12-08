@@ -1,89 +1,53 @@
 package com.bufferoverflow.beesafe;
 
+import android.annotation.SuppressLint;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.os.Bundle;
+import android.view.View;
+import android.widget.Button;
+import android.widget.Toast;
+
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
 
-import android.Manifest;
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
-import android.content.pm.PackageManager;
-import android.hardware.display.DisplayManager;
-import android.location.LocationManager;
-import android.os.Bundle;
-import android.util.Log;
-import android.view.Display;
-import android.view.View;
-import android.widget.Button;
-import android.widget.CheckBox;
-import android.widget.EditText;
-import android.widget.TextView;
-import android.widget.Toast;
-
-import com.bufferoverflow.beesafe.AuxTools.AuxDateTime;
 import com.bufferoverflow.beesafe.BackgroundService.App;
-import com.bufferoverflow.beesafe.BackgroundService.AppPersistentNotificationManager;
 import com.bufferoverflow.beesafe.BackgroundService.BackgroundScanWork;
 import com.clj.fastble.BleManager;
-import com.google.android.gms.maps.model.Marker;
-import com.yarolegovich.lovelydialog.LovelyChoiceDialog;
-import com.yarolegovich.lovelydialog.LovelyCustomDialog;
 import com.yarolegovich.lovelydialog.LovelyInfoDialog;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-
-/*
-TODO:
-   Listeners for saved places
-   Privacy Policy
-   Help
-   -Service Stop/Start Notification + Buttons :
-   -Service Notification Change for current place (offline) [nr devices using only bluetooth]
-   -Register broadcast listener for bluetooht/gps on off
-
-
- */
 
 public class MainActivity extends AppCompatActivity {
 
-    int PERMISSION_ALL = 1;
-    String[] PERMISSIONS = {
+    private final int PERMISSION_ALL = 1;
+    @SuppressLint("InlinedApi")
+    private final String[] PERMISSIONS = {
             android.Manifest.permission.ACCESS_COARSE_LOCATION,
             android.Manifest.permission.ACCESS_FINE_LOCATION,
             android.Manifest.permission.ACCESS_BACKGROUND_LOCATION,
             android.Manifest.permission.ACTIVITY_RECOGNITION
     };
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        boolean permissions = hasPermissions(PERMISSIONS);
-        if (!permissions)
-            ActivityCompat.requestPermissions(this, PERMISSIONS, PERMISSION_ALL);
+        if (!hasPermissions(PERMISSIONS)) //Doesn't has permissions
+            ActivityCompat.requestPermissions(this, PERMISSIONS, PERMISSION_ALL); //Requesting them
         else {
             if (!App.isServiceActive())
                 App.startService(getApplicationContext());
         }
-
         BleManager.getInstance().init(getApplication());
     }
 
-    //Open Map
-    public void openMap (View view) {
+    public void openMap(View view) {
         if (BackgroundScanWork.isBluetoothEnabled() && BackgroundScanWork.isGpsEnabled(getApplicationContext())) { //Check if Bluetooth and GPS are enabled
-            if (!App.isServiceActive())
+            if (!App.isServiceActive()) //if trying to open map without service active, we start the service before opening the map
                 App.startService(getApplicationContext());
             Intent intent = new Intent(MainActivity.this, MapsActivity.class);
             startActivity(intent);
-        }
-        else
+        } else
             Toast.makeText(getApplicationContext(), "You need to enable GPS and Bluetooth.", Toast.LENGTH_LONG).show();
     }
 
@@ -98,31 +62,29 @@ public class MainActivity extends AppCompatActivity {
         return true;
     }
 
+    @SuppressLint("SetTextI18n")
     public void service(View view) {
         final Button button = findViewById(R.id.serviceButton);
-        if (App.isServiceActive()){ //service is active, we need to stop it
+        if (App.isServiceActive()) { //service is active, we need to stop it
             button.setText("Start Service");
             App.stopService(getApplicationContext());
-        }
-        else { //service is not active, we need to start it
+        } else { //service is not active, we need to start it
             button.setText("Stop Service");
             App.startService(getApplicationContext());
         }
     }
-
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (requestCode == PERMISSION_ALL) {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                Toast.makeText(this,"Permissions Granted.", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Permissions Granted.", Toast.LENGTH_SHORT).show();
                 App.startService(getApplicationContext()); //Permissions granted, we start the service
-            }
-            else {
-                Toast.makeText(this,"You need to enable all permissions to use BeeSafe!", Toast.LENGTH_LONG).show();
+            } else {
+                Toast.makeText(this, "You need to enable all permissions to use BeeSafe!", Toast.LENGTH_LONG).show();
                 if (App.isServiceActive())
-                    App.stopService(getApplicationContext()); //Stoping service
+                    App.stopService(getApplicationContext()); //Stopping the service
                 finish();
             }
         }
@@ -197,7 +159,6 @@ public class MainActivity extends AppCompatActivity {
                         "This privacy policy page was created at [privacypolicytemplate.net](https://privacypolicytemplate.net) and modified/generated by [App Privacy Policy Generator](https://app-privacy-policy-generator.nisrulz.com/)")
                 .show();
     }
-
 
     public void help(View view) {
         new LovelyInfoDialog(this)

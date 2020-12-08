@@ -9,18 +9,16 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.location.LocationManager;
 import android.os.IBinder;
-import android.util.Log;
 
 import androidx.annotation.Nullable;
 
-import com.bufferoverflow.beesafe.MapsActivity;
 import com.bufferoverflow.beesafe.Scan;
 import com.clj.fastble.BleManager;
 
 import java.util.Timer;
 import java.util.TimerTask;
 
-public class BackgroundScanWork extends Service { //IntentService ???
+public class BackgroundScanWork extends Service {
 
     private boolean active = false; //true if both gps and bluetooth are On. Checked periodically by the tracing algorithm
     private Timer tracingTimer; //tracing algorithm timer scheduler
@@ -43,7 +41,7 @@ public class BackgroundScanWork extends Service { //IntentService ???
         }
     };
 
-    //Broadcast receiver for GPS status change to on and off
+    /* Broadcast receiver for GPS status change to on and off */
     private final BroadcastReceiver gpsBroadcastReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive( Context context, Intent intent ) {
@@ -64,7 +62,6 @@ public class BackgroundScanWork extends Service { //IntentService ???
         registerReceiver(gpsBroadcastReceiver, gpsFilter);
 
         startForeground(1, getNotification()); //Showing foreground notification
-        //TODO  Profile.getInstance().activateFavoritePlaceListeners(); //Activate the listeners for saved locations (To get notifications)
 
         tracingTimer = new Timer (); //Start the timer for the tracing algorithm scheduler
         checkGpsBluetooth(); //Initial check
@@ -73,15 +70,12 @@ public class BackgroundScanWork extends Service { //IntentService ???
     }
 
     private void startTracing () {
+        BleManager.getInstance().init(getApplication()); //Gets an instance for the bluetooth library
         TimerTask taskTracing = new TimerTask () {
             @Override
             public void run () {
-                if (active) {
-                    BleManager.getInstance().init(getApplication());
-                    Log.d("TRACING", "About to call the tracing algorithm");
+                if (active)
                     Scan.tracingAlgorithm(getApplicationContext());
-                    Log.d("TRACING", "Tracing algorithm finished.");
-                }
             }
         };
 
@@ -130,13 +124,13 @@ public class BackgroundScanWork extends Service { //IntentService ???
         active = gps && bluetooth;
 
         if (!gps && !bluetooth)
-            AppPersistentNotificationManager.getInstance(getApplicationContext()).updateNotification("BeeSafe Not Active \uD83E\uDD7A", "GPS and Bluetooth not enabled!");
-        else if (!gps && bluetooth)
-            AppPersistentNotificationManager.getInstance(getApplicationContext()).updateNotification("BeeSafe Not Active \uD83E\uDD7A", "GPS not enabled!");
-        else if (gps && !bluetooth)
-            AppPersistentNotificationManager.getInstance(getApplicationContext()).updateNotification("BeeSafe Not Active \uD83E\uDD7A", "Bluetooth not enabled!");
+            AppPersistentNotificationManager.getInstance(getApplicationContext()).updateNotification("BeeSafe Not Active", "GPS and Bluetooth not enabled!");
+        else if (!gps)
+            AppPersistentNotificationManager.getInstance(getApplicationContext()).updateNotification("BeeSafe Not Active", "GPS not enabled!");
+        else if (!bluetooth)
+            AppPersistentNotificationManager.getInstance(getApplicationContext()).updateNotification("BeeSafe Not Active", "Bluetooth not enabled!");
         else
-            AppPersistentNotificationManager.getInstance(getApplicationContext()).updateNotification("BeeSafe Is Active \uD83D\uDC1D", "Scanning!");
+            AppPersistentNotificationManager.getInstance(getApplicationContext()).updateNotification("BeeSafe Is Active", "Scanning!");
 
     }
 

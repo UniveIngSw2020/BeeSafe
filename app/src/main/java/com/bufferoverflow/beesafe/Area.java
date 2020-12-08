@@ -8,6 +8,10 @@ import java.util.Map;
 
 import ch.hsr.geohash.GeoHash;
 
+/*
+ * This class represents an Area which has a certain precision of GeoHash of 4.
+ */
+
 @IgnoreExtraProperties
 public class Area {
 

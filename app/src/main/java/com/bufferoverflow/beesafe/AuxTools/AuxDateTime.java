@@ -10,8 +10,13 @@ import java.util.Locale;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
+/*
+ * Auxiliary static methods for date and time.
+ */
+
 public class AuxDateTime {
 
+    /* Get time difference (last seen) from a database snapshot and current time */
     public static int getLastSeen (DataSnapshot snapshot) {
         Date now = currentTime();
         Date before = stringToDate((String) snapshot.child("lastSeen").getValue());
