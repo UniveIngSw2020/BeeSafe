@@ -2,40 +2,49 @@ package com.bufferoverflow.beesafe;
 
 import com.google.android.gms.maps.model.LatLng;
 import com.google.firebase.database.IgnoreExtraProperties;
+
 import java.util.HashMap;
 import java.util.Map;
+
 import ch.hsr.geohash.GeoHash;
 
 @IgnoreExtraProperties
 public class Area {
 
     public static final int PRECISION = 4; //Precision of GeoHash
-    //Firebase Fields
+
+    /* Firebase fields */
     private Map<String, Location> locations; //Locations with data available on database
     private String coordinates; //GeoHash in string format 4 precision
 
+    /* Constructs an Area from a geoHash */
     public Area(GeoHash areaGeoHash) {
-        this.coordinates = areaGeoHash.toBase32();
-        this.locations = new HashMap<String, Location>(); //String PRECISION 8 -> Location
-        //mDatabase = FirebaseDatabase.getInstance().getReference().child(getCoordinates()); //Gets a node reference for the current 4Precision GeoHash
-        //mDatabase.addChildEventListener(areaEventListener); //Adds the listener
+        this.coordinates = areaGeoHash.toBase32(); //Area GeoHash
+        this.locations = new HashMap<>();
     }
 
-    public Area (LatLng location) {
+    /* Constructs an area from a LatLngs */
+    public Area(LatLng location) {
         this(GeoHash.withCharacterPrecision(location.latitude, location.longitude, PRECISION));
     }
 
+    /* Firebase */
+    public Area() {
+    }
+
     /* GeoHash of this Area */
-    public GeoHash getGeoHash () {
+    public GeoHash getGeoHash() {
         return GeoHash.fromGeohashString(coordinates);
     }
 
+    /* Firebase */
+    public Map<String, Location> getLocations() {
+        return locations;
+    }
 
-    //Firebase
-    public Area() {}
-    //Firebase
-    public Map<String, Location> getLocations() { return locations; }
-    //Firebase
-    public String getCoordinates() { return coordinates; }
+    /* Firebase */
+    public String getCoordinates() {
+        return coordinates;
+    }
 
 }
