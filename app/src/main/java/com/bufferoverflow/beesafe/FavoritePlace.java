@@ -37,7 +37,6 @@ public class FavoritePlace implements Serializable {
         this.geohash = geohash;
         this.placeName = placeName;
         this.receiveNotifications = notified;
-        enableCrowdEventListener(c); //Enables the notifications event listener
     }
 
     public String getGeoHash() {
@@ -66,11 +65,13 @@ public class FavoritePlace implements Serializable {
         crowdEventListener = new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                int nrDevices = ((Long) Objects.requireNonNull(snapshot.child("nrDevices").getValue())).intValue();
-                if (receiveNotifications && snapshot.exists() && AuxCrowd.isCrowd(nrDevices)) {
-                    String title = "Your favorite place " + placeName + " is now crowded!";
-                    String content = "Approximation: " + nrDevices + " people.";
-                    App.getMyAppsNotificationManager(c).sendFavPlaceNotification(title, content);
+                if (snapshot.exists()) {
+                    int nrDevices = ((Long) Objects.requireNonNull(snapshot.child("nrDevices").getValue())).intValue();
+                    if (receiveNotifications && snapshot.exists() && AuxCrowd.isCrowd(nrDevices)) {
+                        String title = "Your favorite place " + placeName + " is now crowded!";
+                        String content = "Approximation: " + nrDevices + " people.";
+                        App.getMyAppsNotificationManager(c).sendFavPlaceNotification(title, content);
+                    }
                 }
             }
 

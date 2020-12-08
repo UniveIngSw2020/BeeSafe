@@ -36,25 +36,25 @@ public class Location  {
     //Fields present on firebase database
     private String coordinates; //GeoHash in string format
     public int nrDevices; //Number of Bluetooth devices on this location
-    private String lastSeen; //Last time on when data is updated
+    public String lastSeen; //Last time on when data is updated
 
     //Firebase
     public Location() {}
 
     /* Create a Location from Coordinates after a Scan*/
     public Location (LatLng coordinates, int nrDevices) {
-        this.coordinatesGeoHashed = GeoHash.withCharacterPrecision(coordinates.latitude, coordinates.longitude, PRECISION);
-        this.coordinates = coordinatesGeoHashed.toBase32();
+        this.coordinates = GeoHash.withCharacterPrecision(coordinates.latitude, coordinates.longitude, PRECISION).toBase32();
         this.lastSeen = AuxDateTime.dateToString(AuxDateTime.currentTime());
         this.nrDevices = nrDevices;
     }
 
     /* Create a Location from a given GeoHash */
     public Location (String g, int nrDevices) {
-        this.coordinatesGeoHashed = GeoHash.fromGeohashString(g);
-        this.coordinates = coordinatesGeoHashed.toBase32();
+
+        this.coordinates = g;
         this.lastSeen = AuxDateTime.dateToString(AuxDateTime.currentTime());
         this.nrDevices = nrDevices;
+        System.out.println("XXXX" + coordinates + "|" + nrDevices + "|" +lastSeen);
     }
 
     /* Returns the coordinate in LatLng format (the format which accepts Google Maps SDK) */
@@ -62,11 +62,6 @@ public class Location  {
     public LatLng getLatLng () {
         WGS84Point point = GeoHash.fromGeohashString(coordinates).getOriginatingPoint();
         return new LatLng(point.getLatitude(), point.getLongitude());
-    }
-
-    @Exclude
-    public GeoHash getLocationGeoHashed () {
-        return coordinatesGeoHashed;
     }
 
     //Firebase

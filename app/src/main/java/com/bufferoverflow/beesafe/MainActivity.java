@@ -67,8 +67,11 @@ public class MainActivity extends AppCompatActivity {
         boolean permissions = hasPermissions(PERMISSIONS);
         if (!permissions)
             ActivityCompat.requestPermissions(this, PERMISSIONS, PERMISSION_ALL);
-        else
-            App.startService(getApplicationContext());
+        else {
+            if (!App.isServiceActive())
+                App.startService(getApplicationContext());
+        }
+
         BleManager.getInstance().init(getApplication());
     }
 

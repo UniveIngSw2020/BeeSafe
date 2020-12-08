@@ -19,7 +19,6 @@ public class App extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
-        User.getInstance(this);
         //startService(this); //Start the service
     }
 
@@ -31,7 +30,7 @@ public class App extends Application {
         Intent serviceIntent = new Intent(c, BackgroundScanWork.class);
         ContextCompat.startForegroundService(c,serviceIntent);
         serviceActive = true;
-        User.getInstance(c).enableCrowdEventListeners(c); //Enables the notification for crowd event listeners
+        User.getInstance(c).enableAllCrowdEventListeners(c); //Enables the notification for crowd event listeners
         Toast toast = Toast. makeText(c, "Service Started", Toast.LENGTH_SHORT);
         toast.show();
     }
@@ -39,7 +38,7 @@ public class App extends Application {
     public static void stopService(Context c) {
         c.stopService(new Intent(c, BackgroundScanWork.class));
         serviceActive = false;
-        User.getInstance(c).disableCrowdEventListeners(); //Disables the notification for crowd event listeners
+        User.getInstance(c).disableAllCrowdEventListeners(); //Disables the notification for crowd event listeners
         Toast toast = Toast. makeText(c, "Service Stopped", Toast.LENGTH_SHORT);
         toast.show();
     }

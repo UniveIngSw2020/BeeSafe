@@ -50,16 +50,15 @@ public class User {
         String favorite = favPlacesGSON.toJson(fav);
         editor.putString(fav.getGeoHash(), favorite); //Saving locally | key:geohash -> value:FavoritePlace
         editor.apply();
-        for (FavoritePlace l : favoritePlaces.values()) {
-            System.out.println(l.getPlaceName() + " | " + l.getGeoHash());
-        }
+
+        fav.enableCrowdEventListener(c);
     }
 
     /* Removes a location from favorites (RAM + Local Storage) */
     public void removeFavoritePlace (String geohash, Context c) {
         if (favoritePlaces.containsKey(geohash)) {
             Objects.requireNonNull(favoritePlaces.get(geohash)).disableCrowdEventListener(); //Disable the crowd event listener
-            favoritePlaces.remove(geohash); //Remove from field
+            favoritePlaces.remove(geohash).disableCrowdEventListener(); //Remove from field and disable event listener
             SharedPreferences preferences = c.getSharedPreferences(PREF_NAME, PRIVATE_MODE);
             preferences.edit().remove(geohash).apply(); //Removing from local storage
         }
@@ -78,8 +77,6 @@ public class User {
             Type type = new TypeToken<FavoritePlace>() {}.getType();
             FavoritePlace favorite = favPlacesGSON.fromJson(json, type);
             favoritePlaces.put(entry.getKey(), favorite); //Adding FavoriteLocation to field
-            favorite.enableCrowdEventListener(c);
-            Log.d("FAVPLACES", favorite.getGeoHash() + " " + favorite.getGeoHash());
         }
     }
 
@@ -97,13 +94,13 @@ public class User {
     }
 
     /* Enable event listeners for all favorite places */
-    public void enableCrowdEventListeners(Context c) {
+    public void enableAllCrowdEventListeners(Context c) {
         for (FavoritePlace fav : favoritePlaces.values())
             fav.enableCrowdEventListener(c);
     }
 
     /* Disable event listeners for all favorite places */
-    public void disableCrowdEventListeners() {
+    public void disableAllCrowdEventListeners() {
         for (FavoritePlace fav : favoritePlaces.values())
             fav.disableCrowdEventListener();
     }

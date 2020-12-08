@@ -234,10 +234,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     /* Removes Location from HeatMap */
     public void removeLocationFromMap(Location location) {
-        locations.remove(location.getCoordinates()); //Deleting the entry corresponding to this location
+        Location removedLocation =  locations.remove(location.getCoordinates()); //Deleting the entry corresponding to this location
         //Removing it from the map
-        location.overlay.remove();
-        location.overlay.clearTileCache();
+        removedLocation.overlay.remove();
+        removedLocation.overlay.clearTileCache();
     }
 
     /* Renders a FavoritePlace to Map
@@ -272,6 +272,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             public void onChildAdded(@NotNull DataSnapshot dataSnapshot, String previousChildName) {
                 //New location added on this area
                 Location location = new Location(dataSnapshot.getKey(), Integer.parseInt(String.valueOf(dataSnapshot.child("nrDevices").getValue())));
+                System.out.println("B" + location.getCoordinates() + " " + location.getLastSeen() + " " + location.getLatLng() + " " + location.getNrDevices());
                 if (AuxCrowd.isCrowd(location.getNrDevices())) { //If this location is a crowd
                     addLocationToMap(location); //Add location to Map
                     Log.d("added", "onChildAdded:" + dataSnapshot.getKey()  + " " + dataSnapshot.getValue());
@@ -294,8 +295,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             @Override
             public void onChildRemoved(@NotNull DataSnapshot dataSnapshot) {
                 //A location got removed from this area
-                Location location = locations.remove(dataSnapshot.getKey());
-                if (location != null && locations.containsKey(location.getCoordinates())) { //If location is present on our HashMap
+                Location location = new Location(dataSnapshot.getKey(), Integer.parseInt(String.valueOf(dataSnapshot.child("nrDevices").getValue())));
+                Log.d("XXXXXXXXXX", location.getCoordinates() + " " + location.getLatLng());
+                if (locations.containsKey(location.getCoordinates())) { //If location is present on our HashMap
                     removeLocationFromMap(location); //Remove the location from the map
                     Log.d("removed", "onChildRemoved:" + dataSnapshot.getKey() + " " + dataSnapshot.getValue());
                 }
@@ -447,6 +449,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             notificationCheckBox.setChecked(fav.getReceiveNotifications());
             notificationCheckBox.setOnClickListener(view -> {
                 fav.setReceiveNotifications(notificationCheckBox.isChecked());
+                User.getInstance(getApplicationContext()).removeFavoritePlace(fav.getGeoHash(), getApplicationContext());
                 User.getInstance(getApplicationContext()).addFavoritePlace(fav, getApplicationContext());
             });
 
