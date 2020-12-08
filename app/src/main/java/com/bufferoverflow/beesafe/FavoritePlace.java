@@ -70,7 +70,7 @@ public class FavoritePlace implements Serializable {
                     if (receiveNotifications && snapshot.exists() && AuxCrowd.isCrowd(nrDevices)) {
                         String title = "Your favorite place " + placeName + " is now crowded!";
                         String content = "Approximation: " + nrDevices + " people.";
-                        App.getMyAppsNotificationManager(c).sendFavPlaceNotification(title, content);
+                        App.getMyAppsNotificationManager(c).sendFavPlaceNotification(title, content, FavoritePlace.this);
                     }
                 }
             }

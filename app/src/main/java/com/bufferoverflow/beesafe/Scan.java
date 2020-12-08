@@ -66,9 +66,9 @@ public class Scan {
         AuxCrowd.Crowded type = AuxCrowd.crowdType(devices.size());
         if (BackgroundScanWork.isBluetoothEnabled()) {
             if (type == AuxCrowd.Crowded.SAFE)
-                AppPersistentNotificationManager.getInstance(c).updateNotification("BeeSafe Is Active \uD83D\uDC1D", "Safe Location. \uD83D\uDE00 ");
+                AppPersistentNotificationManager.getInstance(c).updateNotification("BeeSafe Is Active", "Current location is safe. \uD83D\uDE00 ");
             else
-                AppPersistentNotificationManager.getInstance(c).updateNotification("BeeSafe Is Active \uD83D\uDC1D", "Crowd! Approximately " + devices.size() + " people. \uD83D\uDE37 ");
+                AppPersistentNotificationManager.getInstance(c).updateNotification("BeeSafe Is Active", "Crowd! Approximately " + devices.size() + " people \uD83D\uDE37 ");
         }
 
         uploadResult(c, devices.size()); //upload the scan to database

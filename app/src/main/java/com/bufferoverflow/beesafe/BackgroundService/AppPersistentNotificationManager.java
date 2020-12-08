@@ -12,6 +12,7 @@ import android.os.Build;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 
+import com.bufferoverflow.beesafe.FavoritePlace;
 import com.bufferoverflow.beesafe.MainActivity;
 import com.bufferoverflow.beesafe.R;
 import com.google.android.gms.common.internal.Constants;
@@ -46,9 +47,7 @@ public class AppPersistentNotificationManager {
         }
     }
 
-    public Notification getNotification(Class targetNotificationActivity, String title, int priority, boolean autoCancel, int notificationId){
-        Intent intent = new Intent(context, targetNotificationActivity);
-
+    public Notification getNotification(){
 
         Intent in = new Intent(context.getApplicationContext(), MainActivity.class);
         PendingIntent pi = PendingIntent.getActivity(context, 0, in, 0);
@@ -56,11 +55,13 @@ public class AppPersistentNotificationManager {
 
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context,"123")
                 .setSmallIcon(R.drawable.favorite_icon)
-                .setLargeIcon(BitmapFactory.decodeResource(context.getResources(), R.drawable.common_full_open_on_phone))
-                .setContentTitle(title)
+                .setLargeIcon(BitmapFactory.decodeResource(context.getResources(), R.drawable.bee))
+                .setContentTitle("")
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT)
                 .setContentIntent(pi)
                 .setChannelId("123")
+                .setOnlyAlertOnce(true)
+                .setNotificationSilent()
                 .setAutoCancel(true);
         return builder.build();
     }
@@ -74,19 +75,20 @@ public class AppPersistentNotificationManager {
         PendingIntent pi = PendingIntent.getActivity(context, 0, in, 0);
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context,"123")
                 .setSmallIcon(R.drawable.favorite_icon)
-                .setLargeIcon(BitmapFactory.decodeResource(context.getResources(), R.drawable.common_full_open_on_phone))
+                .setLargeIcon(BitmapFactory.decodeResource(context.getResources(), R.drawable.bee))
                 .setContentTitle(title)
                 .setContentText(content)
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT)
                 .setContentIntent(pi)
                 .setChannelId("123")
+                .setNotificationSilent()
                 .setAutoCancel(true);
         final Notification notification = builder.build();
         final NotificationManager mNotificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
         mNotificationManager.notify(1, notification);
     }
 
-    public void sendFavPlaceNotification(String title, String content) {
+    public void sendFavPlaceNotification(String title, String content, FavoritePlace favoritePlace) {
         NotificationChannel notificationChannel = new NotificationChannel("Favorite Place Notification Channel","Favorite Place Notification Channel", NotificationManager.IMPORTANCE_DEFAULT);
         NotificationManager manager = context.getSystemService(NotificationManager.class);
         manager.createNotificationChannel(notificationChannel);
@@ -96,7 +98,7 @@ public class AppPersistentNotificationManager {
                 .setContentText(content)
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT);
         NotificationManagerCompat notificationManager = NotificationManagerCompat.from(context);
-        notificationManager.notify(1000, builder.build());
+        notificationManager.notify(favoritePlace.hashCode(), builder.build());
     }
 
 }

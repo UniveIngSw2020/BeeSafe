@@ -106,7 +106,7 @@ public class BackgroundScanWork extends Service { //IntentService ???
 
     /* Initial notification when the service starts */
     private Notification getNotification(){
-        return App.getMyAppsNotificationManager(getApplicationContext()).getNotification(MapsActivity.class, "",1,false,1);
+        return App.getMyAppsNotificationManager(getApplicationContext()).getNotification();
     }
 
     /* Checks if GPS is enabled */

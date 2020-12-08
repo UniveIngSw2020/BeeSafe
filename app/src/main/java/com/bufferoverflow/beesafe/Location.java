@@ -31,7 +31,6 @@ public class Location  {
 
     public static final int PRECISION = 8; //Precision of GeoHash - Precision 8 => 38.2m x 19.1m
     private static final int BLUETOOTH_DEVICES_TRIGGER = 40; //Precision of GeoHash - Precision 8 => 38.2m x 19.1m
-    private GeoHash coordinatesGeoHashed; //Coordinates of this location GeoHashed with a certain precision (suggested: 8)
 
     //Fields present on firebase database
     private String coordinates; //GeoHash in string format
@@ -50,11 +49,9 @@ public class Location  {
 
     /* Create a Location from a given GeoHash */
     public Location (String g, int nrDevices) {
-
         this.coordinates = g;
         this.lastSeen = AuxDateTime.dateToString(AuxDateTime.currentTime());
         this.nrDevices = nrDevices;
-        System.out.println("XXXX" + coordinates + "|" + nrDevices + "|" +lastSeen);
     }
 
     /* Returns the coordinate in LatLng format (the format which accepts Google Maps SDK) */
