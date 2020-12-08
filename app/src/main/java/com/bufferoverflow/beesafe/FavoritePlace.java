@@ -60,7 +60,7 @@ public class FavoritePlace implements Serializable {
 
     /* Activated the listener for database change on this favorite place */
     public void enableCrowdEventListener (Context c) {
-        String areaGeoHash = geohash.substring(0, 4);
+        String areaGeoHash = geohash.substring(0, Area.PRECISION);
         DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("/" + areaGeoHash + "/" + geohash);
         crowdEventListener = new ValueEventListener() {
             @Override

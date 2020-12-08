@@ -388,6 +388,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         else
             namePlace = fav.getPlaceName();
 
+        System.out.println("VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV " + geoHash);
+
         //Get pretty printed street name using Google Maps API
         Geocoder geocoder = new Geocoder(this);
         List<Address> matches = new ArrayList<>();
@@ -414,13 +416,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     if (snapshot.exists()) { // Data present on database for this favorite location
                         int crowdType = AuxCrowd.crowdTypeToString(snapshot);
                         crowd = getString(R.string.crowded) + getString(crowdType);
-                        approximation = getString(R.string.approximation) + fav.getNrDevices(snapshot) + getString(R.string.persons); //Approximated people
-                        lastUpdate = getString(R.string.last_update) + AuxDateTime.getLastSeen(snapshot) + getString(R.string.minutes_ago); //Last seen in minutes
+                        approximation = getString(R.string.approximation) + " " + fav.getNrDevices(snapshot) +  " " + getString(R.string.persons); //Approximated people
+                        lastUpdate = getString(R.string.last_update) + " " + AuxDateTime.getLastSeen(snapshot) + " " + getString(R.string.minutes_ago); //Last seen in minutes
                     }
                     else { //No data
-                        crowd = getString(R.string.crowded) + getString(R.string.no_data);
-                        approximation = getString(R.string.approximation) + getString(R.string.no_data);
-                        lastUpdate = getString(R.string.last_update) + getString(R.string.no_data);
+                        crowd = getString(R.string.crowded) + " " + getString(R.string.no_data);
+                        approximation = getString(R.string.approximation) + " " + getString(R.string.no_data);
+                        lastUpdate = getString(R.string.last_update) + " " + getString(R.string.no_data);
                     }
                     crowdedText.setText(crowd); //update crowded text
                     approximationText.setText(approximation); //update approximation
