@@ -248,20 +248,17 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         LatLng coordinates = new LatLng(point.getLatitude(), point.getLongitude());
         //Resizing the favorite marker icon
         Bitmap favoritePinpoint = Bitmap.createScaledBitmap(BitmapFactory.decodeResource(getResources(), R.drawable.favorite_marker), 100, 120, false);
-        Marker m = map.addMarker(new MarkerOptions() //Rendering Marker on the map at the corresponding Favorite Place
+        return map.addMarker(new MarkerOptions() //Rendering Marker on the map at the corresponding Favorite Place
                 .position(coordinates)
-                .icon(BitmapDescriptorFactory.fromBitmap(favoritePinpoint))); //Setting the icon
-        //m.setTag(place); //Associated place for this Marker TODO : Check
-        return m;
+                .icon(BitmapDescriptorFactory.fromBitmap(favoritePinpoint)));
     }
 
-    /* Removes a FavoritePlace from Map + from local storage + //TODO : Disable listener */
+    /* Removes a FavoritePlace from Map + from local storage */
     public void removeFavoritePlace(String geoHash) {
         User.getInstance(this).removeFavoritePlace(geoHash, this); //Remove from local storage
         Marker m = savedPlaces.get(geoHash); //Get Marker of this favorite location
         if (m != null) //Avoiding a NullPointer Exception
             m.remove(); //Remove the marker from Map
-        //TODO : Disable notification listener for this favorite place
     }
 
     /* Enable the listeners for new locations added/removed/updated for the current Area of the user and the neighbour Areas */

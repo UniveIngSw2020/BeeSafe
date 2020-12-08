@@ -51,7 +51,7 @@ public class AppPersistentNotificationManager {
         in.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context,App.SERVICE_CHANNEL_ID)
-                .setSmallIcon(R.drawable.favorite_icon)
+                .setSmallIcon(R.drawable.safe)
                 .setLargeIcon(BitmapFactory.decodeResource(context.getResources(), R.drawable.bee))
                 .setContentTitle("")
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT)
@@ -67,7 +67,7 @@ public class AppPersistentNotificationManager {
         Intent in = new Intent(context.getApplicationContext(), MainActivity.class);
         PendingIntent pi = PendingIntent.getActivity(context, 0, in, 0);
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context,App.SERVICE_CHANNEL_ID)
-                .setSmallIcon(R.drawable.favorite_icon)
+                .setSmallIcon(R.drawable.safe)
                 .setLargeIcon(BitmapFactory.decodeResource(context.getResources(), R.drawable.bee))
                 .setContentTitle(title)
                 .setContentText(content)
