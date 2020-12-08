@@ -407,7 +407,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     if (snapshot.exists()) { // Data present on database for this favorite location
                         int crowdType = AuxCrowd.crowdTypeToString(snapshot);
                         int nrDevices = ((Long) Objects.requireNonNull(snapshot.child("nrDevices").getValue())).intValue();
-                        crowd = getString(R.string.crowded) + getString(crowdType);
+                        crowd = getString(R.string.crowded) + " " + getString(crowdType);
                         approximation = getString(R.string.approximation) + " " + nrDevices + " " + getString(R.string.persons); //Approximated people
                         lastUpdate = getString(R.string.last_update) + " " + AuxDateTime.getLastSeen(snapshot) + " " + getString(R.string.minutes_ago); //Last seen in minutes
                     } else { //No data

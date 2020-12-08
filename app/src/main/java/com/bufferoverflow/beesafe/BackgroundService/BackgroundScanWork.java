@@ -22,7 +22,7 @@ public class BackgroundScanWork extends Service {
 
     private boolean active = false; //true if both gps and bluetooth are On. Checked periodically by the tracing algorithm
     private Timer tracingTimer; //tracing algorithm timer scheduler
-    private static final int TRACING_INTERVAL = 1; //time interval between each tracing procedure in minutes
+    private static final int TRACING_INTERVAL = 10; //time interval between each tracing procedure in minutes
 
     //Broadcast receiver for Bluetooth status change to on and off
     private final BroadcastReceiver bluetoothBroadcastReceiver = new BroadcastReceiver() {
