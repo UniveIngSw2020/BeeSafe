@@ -23,7 +23,6 @@ export const cronData = functions.pubsub.schedule('every 2 hours ').onRun((conte
           try{
             const time:String = allDb[k][i].lastSeen;//'2020-11-15T11:25:037'
             if(time !== undefined){
-              //console.log(isValidDate(time), time);
               if(!isValidDate(time)){
                 if(toDelete[k] === undefined){toDelete[k] = [];}
                 toDelete[k].push(i);
@@ -43,14 +42,14 @@ export const cronData = functions.pubsub.schedule('every 2 hours ').onRun((conte
       }
       return toDelete;
     }
-    console.log(toDelete);
+    //console.log(toDelete);
     elemToDelete();
     /* ------------------- DELETE ------------------- */
      
     const FieldValue = admin.firestore.FieldValue;
     for(const k in toDelete) {
       const dataRef = db.refFromURL('https://beesafe-bde99.firebaseio.com/'+k.toString());
-      console.log('Riferimento : '+dataRef);
+      //console.log('Riferimento : '+dataRef);
       for(const i in toDelete[k]) {
         let info;
         try {
@@ -104,8 +103,6 @@ function isValidDate(time : String) : Boolean {//time : '2020-11-15T11:25:037'
   
   let strBTime = JSON.stringify(boundTime);
   strBTime = strBTime.split('-')[2];
-  console.log("Time : " + time);
-  console.log("Bound : " + strBTime);
   const year : number = +(time.split('-')[0]);
   const boundY : number = boundTime.getFullYear();
   const mouth : number = +(time.split('-')[1]);
@@ -117,7 +114,7 @@ function isValidDate(time : String) : Boolean {//time : '2020-11-15T11:25:037'
   const min : number = +(time.split(':')[1]);
   const boundMin : number = boundTime.getMinutes();
 
-  console.log('Y['+year+' - '+boundY+'] M['+mouth+' - '+boundMou+'] D['+day+' - '+boundD+'] H['+hour+' - '+boundH+'] Min['+min+' - '+boundMin+']');
+  //console.log('Y['+year+' - '+boundY+'] M['+mouth+' - '+boundMou+'] D['+day+' - '+boundD+'] H['+hour+' - '+boundH+'] Min['+min+' - '+boundMin+']');
 
   const isNotValid = (year<boundY
     || (year===boundY && mouth<boundMou)
@@ -125,6 +122,5 @@ function isValidDate(time : String) : Boolean {//time : '2020-11-15T11:25:037'
     || (year===boundY && mouth===boundMou && day===boundD && hour<boundH)
     || (year===boundY && mouth===boundMou && day===boundD && hour===boundH && min<=boundMin));
 
-  console.log("IsValid : "+!isNotValid)
   return !isNotValid;
 }
