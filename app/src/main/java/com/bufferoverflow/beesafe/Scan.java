@@ -54,7 +54,7 @@ public class Scan {
             "TV", "Mi Band", "Airpods", "Buds"
     );
     private final static int SCAN_DURATION = 5; //In seconds
-    private final static int RSSI_RANGE_FILTER = -70; //RSSI Signal Bound
+    private final static int RSSI_RANGE_FILTER = -90; //RSSI Signal Bound
     public static CountDownLatch scanLatch; //For sync purposes
 
     /* This should be called by the  backgrounf service every certain minutes to do a scan and upload data */
