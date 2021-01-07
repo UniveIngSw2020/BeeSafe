@@ -231,7 +231,7 @@ public class Scan {
             }
 
         try {
-            scanLatch.await(10, TimeUnit.MINUTES);
+            scanLatch.await(4, TimeUnit.MINUTES);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }

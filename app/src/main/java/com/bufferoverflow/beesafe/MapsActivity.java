@@ -1,6 +1,7 @@
 package com.bufferoverflow.beesafe;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothAdapter;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -142,6 +143,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         disableAreaEventListner();
     }
 
+    @SuppressLint("PotentialBehaviorOverride")
     @Override
     public void onMapReady(final GoogleMap map) {
         if (this.map != null)

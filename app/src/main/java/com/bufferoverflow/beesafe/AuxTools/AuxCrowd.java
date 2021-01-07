@@ -11,12 +11,12 @@ import com.google.maps.android.heatmaps.Gradient;
 
 public class AuxCrowd {
 
-    private static final int SAFE_BOUND = 10;
-    private static final int LOW_BOUND = 15;
-    private static final int HIGH_BOUND = 20;
+    private static final int SAFE_BOUND = 2;
+    private static final int LOW_BOUND = 6;
+    //private static final int HIGH_BOUND = 20;
 
     public enum Crowded {
-        NO_DATA,
+        //NO_DATA,
         SAFE,
         LOW,
         HIGH
@@ -40,7 +40,7 @@ public class AuxCrowd {
 
     /* Returns a Gradient based on number of devices passed. This method is used by MapsActivity to generate the HeatMap type */
     public static Gradient crowdTypeToGradient(int nrDevices) {
-        return (nrDevices > SAFE_BOUND && nrDevices < LOW_BOUND) ? MapsActivity.HEATMAP_ORANGE : MapsActivity.HEATMAP_RED;
+        return (nrDevices >= SAFE_BOUND && nrDevices < LOW_BOUND) ? MapsActivity.HEATMAP_ORANGE : MapsActivity.HEATMAP_RED;
     }
 
     /* Crowd type based on devices number */

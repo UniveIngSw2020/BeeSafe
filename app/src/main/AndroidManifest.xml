@@ -36,10 +36,6 @@
              sign the APK for publishing.
              You can define the keys for the debug and release targets in src/debug/ and src/release/.
         -->
-        <!--
- Set custom default icon. This is used when no icon is set for incoming notification messages.
-         See README(https://goo.gl/l4GJaQ) for more.*/
-        -->
         <service android:name=".BackgroundService.BackgroundScanWork" />
 
         <meta-data
@@ -47,14 +43,13 @@
             android:value="@string/google_maps_key" />
         <meta-data
             android:name="com.google.android.awareness.API_KEY"
-            android:value="AIzaSyDDx864omv4cxywkqW9rIcD-_urcx9pTNo" />
+            android:value="@string/google_maps_key" />
 
         <activity
             android:name=".MainActivity"
             android:label="BeeSafe">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
