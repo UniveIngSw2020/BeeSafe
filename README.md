@@ -1,13 +1,23 @@
-# BeeSafe
+# BeeSafe  🐝 😷
 BeeSafe is a P2P Android Application which detects and notifies you about crowds in your local area. It scans continously in background for devices using Bluetooth and uploads data to a real-time database. This data is later shown on a heatmap which approximates the number of people located in a certain area.
+
+###### Note:
+This App is just a proof of concept. It won't really protect you from a pendemic like Covid-19 by displaying the crowds, since this is neither accurate, nor easily possible because of different factors.
+Take in consideration the following behaviors, suggested by World Health Organization about the Covid-19 pandemic:
+ * ##### 🚫🤦 Don't touch your face
+ * ##### 🧼🖐⏲  Wash your hands regularly
+ * ##### 🚇😷🛒 Wearing a mask in public
+ * ##### 🚫🧑‍🤝‍🧑 No close contact
+ * ##### 🚫🏟 No large gatherings
+
 
 # Author Contributions
 * Hernest Serani ([electronixxx](https://github.com/electronixxx)) - Android App Development & Firebase Database
 * Enrico Baldasso ([Enrico874885](https://github.com/Enrico874885)) - Firebase Functions
 * Stefano Cappon ([876895](https://github.com/876895)) - Database & Testing
 
-##   Screenshots
-##  ##  # App Screenshots
+##  Screenshots
+######  App Screenshots
 
 <div style="display:inline-block; ">
     <img src="/Screenshots/map.jpg#right" alt="drawing" width="230"/>
@@ -22,7 +32,7 @@ BeeSafe is a P2P Android Application which detects and notifies you about crowds
 </div>
 
 
-##  ##   Notifications Screenshots
+###### Notifications Screenshots
 <div style= "display:inline-block;">
     <img src="/Screenshots/fav.jpg" alt="drawing" width="250"/>
 <img src="/Screenshots/crowd_current_location_notification.jpg" alt="drawing" width="240"/>
