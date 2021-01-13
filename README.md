@@ -2,8 +2,9 @@
 BeeSafe is a P2P Android Application which detects and notifies you about crowds in your local area. It scans continously in background for devices using Bluetooth and uploads data to a real-time database. This data is later shown on a heatmap which approximates the number of people located in a certain area.
 
 ###### Note:
-This App is just a proof of concept. It won't really protect you from a pendemic like Covid-19 by displaying the crowds, since this is neither accurate, nor easily possible because of different factors.
-Take in consideration the following behaviors, suggested by World Health Organization about the Covid-19 pandemic:
+This App is just a proof of concept. It won't really protect you from a pandemic like Covid-19 by displaying the crowds, since this is neither accurate, nor easily possible because of different factors.
+We reccomend you to take in consideration the following behaviors, suggested by World Health Organization about the Covid-19 pandemic:
+
  * ##### 🚫🤦 Don't touch your face
  * ##### 🧼🖐⏲  Wash your hands regularly
  * ##### 🚇😷🛒 Wearing a mask in public

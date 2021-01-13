@@ -11,8 +11,8 @@ import com.google.maps.android.heatmaps.Gradient;
 
 public class AuxCrowd {
 
-    private static final int SAFE_BOUND = 2;
-    private static final int LOW_BOUND = 6;
+    private static final int SAFE_BOUND = 4;
+    private static final int LOW_BOUND = 8;
     //private static final int HIGH_BOUND = 20;
 
     public enum Crowded {
